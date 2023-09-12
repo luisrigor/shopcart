@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Configuration implements Serializable {
+@Table(name = "AUTH_CONFIGURATION")
+public class AuthConfiguration implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

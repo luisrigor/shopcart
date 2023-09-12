@@ -1,15 +1,15 @@
 package com.gsc.shopcart.repository.scart;
 
-import com.gsc.shopcart.model.scart.entity.Configuration;
+import com.gsc.shopcart.model.scart.entity.AuthConfiguration;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ConfigurationRepository extends JpaRepository<Configuration, Long> {
+public interface ConfigurationRepository extends JpaRepository<AuthConfiguration, Long> {
 
     final String LOGIN_ENABLED = "loginEnabled";
     final String KEY_CREATION = "keyCreationStatus";
     final String TOKEN_EXPIRATION_MILISECONDS = "tokenExpirationMiliseconds";
 
-    Configuration findByName(String name);
+    AuthConfiguration findByName(String name);
 
     default Boolean isLoginEnabled() {
         return Boolean.valueOf(findByName(LOGIN_ENABLED).getValue());

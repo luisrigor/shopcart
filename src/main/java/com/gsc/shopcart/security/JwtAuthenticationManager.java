@@ -87,6 +87,7 @@ public class JwtAuthenticationManager implements AuthenticationManager {
         Set<AppProfile> roles = new LinkedHashSet<>(AppProfile.values().length);
         Set<Integer> profiles = getProfiles(user);
 
+        roles.add(AppProfile.TOYOTA_LEXUS_PRF_TCAP);
 
         for (Integer profileId : profiles) {
             if (AppProfile.compareId(profileId, AppProfile.TOYOTA_LEXUS_PRF_TCAP)) {

@@ -45,4 +45,38 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
         return result;
     }
+
+    @Override
+    public List<Product> getProductsByIdCategory(int idCategory, String view, String userOidDealer) {
+        StringBuilder SQL = new StringBuilder("");
+
+
+        SQL.append(" SELECT P.* FROM PRODUCT P ");
+        SQL.append(" LEFT JOIN CATEGORY_PRODUCTS CP ON CP.ID_PRODUCT = P.ID ");
+        SQL.append(" WHERE CP.ID_CATEGORY = ?1 ");
+        if (view.equalsIgnoreCase("CATALOG")) {
+            if (userOidDealer != null) {
+                SQL.append(" AND (P.ID IN (SELECT PD.ID_PRODUCT FROM PRODUCT_DEALER PD WHERE PD.OID_DEALER_PARENT = '" + userOidDealer + "') OR P.ID IN (SELECT P1.ID FROM PRODUCT P1 WHERE P1.ID NOT IN (SELECT ID_PRODUCT FROM PRODUCT_DEALER))) ");
+            }
+            SQL.append(" AND (P.STATUS = 'ACTIVO') AND ");
+            SQL.append(" ( ");
+            SQL.append(" (P.START_DATE<=CURRENT DATE AND P.END_DATE>=CURRENT_DATE) ");
+            SQL.append(" OR ");
+            SQL.append(" (P.START_DATE IS NULL AND P.END_DATE>=CURRENT_DATE) ");
+            SQL.append(" OR ");
+            SQL.append(" (P.END_DATE IS NULL AND P.START_DATE<=CURRENT DATE) ");
+            SQL.append(" OR ");
+            SQL.append(" (P.START_DATE IS NULL AND P.END_DATE IS NULL) ");
+            SQL.append(" ) ");
+        }
+        SQL.append("ORDER BY P.DISPLAY_ORDER,P.NAME, P.REF ");
+
+        Query query = em.createNativeQuery(SQL.toString(), Product.class);
+
+        List<Product> result = query
+                .setParameter(1, idCategory)
+                .getResultList();
+
+        return result;
+    }
 }

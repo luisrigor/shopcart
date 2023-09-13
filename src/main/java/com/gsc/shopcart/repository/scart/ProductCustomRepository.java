@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface ProductCustomRepository {
     List<Product> getProductsInPromotion(int idRootCategory);
+    List<Product> getProductsByIdCategory(int idCategory, String view, String userOidDealer);
 
 }

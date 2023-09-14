@@ -1,6 +1,7 @@
 package com.gsc.shopcart.service;
 
 import com.gsc.shopcart.dto.PromotionsDTO;
+import com.gsc.shopcart.dto.ShopCartFilter;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.repository.scart.CatalogRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
@@ -17,7 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ActiveProfiles(SecurityData.ACTIVE_PROFILE)
@@ -70,5 +71,65 @@ public class BackOfficeServiceImplTest {
         when(productRepository.getProductsInPromotion(anyInt())).thenThrow(RuntimeException.class);
 
         assertThrows(ShopCartException.class, ()-> backOfficeService.getPromotions(1));
+    }
+
+    @Test
+    void whenGetProductsByFreeSearchThenReturnInfo() {
+
+        when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
+
+        when(productRepository.getProductsByFreeSearch(anyInt(),anyString(), anyString(), any()))
+                .thenReturn(TestData.getProductsByFreeSearchData().getVecProducts());
+
+
+        PromotionsDTO productsByFreeSearch = backOfficeService.getProductsByFreeSearch(1, 1, new ShopCartFilter());
+
+        assertEquals(null, productsByFreeSearch.getViewOnlyPromotions());
+        assertEquals("BACKOFFICE", productsByFreeSearch.getView());
+        assertEquals("-1", productsByFreeSearch.getIdCategory());
+        assertEquals(1, productsByFreeSearch.getVecProducts().get(0).getId());
+        assertEquals("R", productsByFreeSearch.getVecProducts().get(0).getRef());
+        assertEquals("n", productsByFreeSearch.getVecProducts().get(0).getName());
+        assertEquals("A", productsByFreeSearch.getVecProducts().get(0).getDescription());
+        assertEquals(1.0, productsByFreeSearch.getVecProducts().get(0).getUnitPrice());
+        assertEquals(1, productsByFreeSearch.getVecProducts().get(0).getUnitPriceConsult());
+        assertEquals(1, productsByFreeSearch.getVecProducts().get(0).getPriceRules());
+        assertEquals("NORMAL", productsByFreeSearch.getVecProducts().get(0).getIvaType());
+
+    }
+
+    @Test
+    void whenGetProductsByFreeSearchWhenNullFilterThenReturnInfo() {
+
+        when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
+
+        when(productRepository.getProductsByFreeSearch(anyInt(),anyString(), anyString(), any()))
+                .thenReturn(TestData.getProductsByFreeSearchData().getVecProducts());
+
+
+        PromotionsDTO productsByFreeSearch = backOfficeService.getProductsByFreeSearch(1, 1, null);
+
+        assertEquals(null, productsByFreeSearch.getViewOnlyPromotions());
+        assertEquals("BACKOFFICE", productsByFreeSearch.getView());
+        assertEquals("-1", productsByFreeSearch.getIdCategory());
+        assertEquals(1, productsByFreeSearch.getVecProducts().get(0).getId());
+        assertEquals("R", productsByFreeSearch.getVecProducts().get(0).getRef());
+        assertEquals("n", productsByFreeSearch.getVecProducts().get(0).getName());
+        assertEquals("A", productsByFreeSearch.getVecProducts().get(0).getDescription());
+        assertEquals(1.0, productsByFreeSearch.getVecProducts().get(0).getUnitPrice());
+        assertEquals(1, productsByFreeSearch.getVecProducts().get(0).getUnitPriceConsult());
+        assertEquals(1, productsByFreeSearch.getVecProducts().get(0).getPriceRules());
+        assertEquals("NORMAL", productsByFreeSearch.getVecProducts().get(0).getIvaType());
+
+    }
+
+    @Test
+    void whenGetProductsByFreeSearchThenThrows() {
+        when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
+
+        when(productRepository.getProductsByFreeSearch(anyInt(),anyString(), anyString(), any()))
+                .thenThrow(RuntimeException.class);
+
+        assertThrows(ShopCartException.class, ()-> backOfficeService.getProductsByFreeSearch(1,1,null));
     }
 }

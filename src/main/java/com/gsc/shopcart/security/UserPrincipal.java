@@ -2,7 +2,6 @@ package com.gsc.shopcart.security;
 
 import com.gsc.shopcart.constants.AppProfile;
 import lombok.Getter;
-
 import java.util.Set;
 
 

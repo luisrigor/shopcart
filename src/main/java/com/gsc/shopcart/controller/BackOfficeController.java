@@ -2,7 +2,7 @@ package com.gsc.shopcart.controller;
 
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.PromotionsDTO;
-import com.gsc.shopcart.security.UserPrincipal;
+import com.gsc.shopcart.dto.ShopCartFilter;
 import com.gsc.shopcart.service.BackOfficeService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +22,17 @@ public class BackOfficeController {
     private final BackOfficeService backOfficeService;
 
     @GetMapping(ApiEndpoints.GET_PROMOTIONS)
-    public ResponseEntity<PromotionsDTO> getPromotions(@RequestParam Integer idCatalog, @AuthenticationPrincipal UserPrincipal user) {
-        PromotionsDTO promotions = backOfficeService.getPromotions(idCatalog,user);
+    public ResponseEntity<PromotionsDTO> getPromotions(@RequestParam Integer idCatalog) {
+        PromotionsDTO promotions = backOfficeService.getPromotions(idCatalog);
 
         return ResponseEntity.status(HttpStatus.OK).body(promotions);
+    }
+
+    @PostMapping(ApiEndpoints.GET_PRODUCTS_BY_FREE_SEARCH)
+    public ResponseEntity<PromotionsDTO> getProductsByFreeSearch(@RequestParam Integer idCategory, @RequestParam Integer idCatalog,
+                                                                 @RequestBody ShopCartFilter filter) {
+        PromotionsDTO products = backOfficeService.getProductsByFreeSearch(idCategory, idCatalog, filter);
+        return ResponseEntity.status(HttpStatus.OK).body(products);
+
     }
 }

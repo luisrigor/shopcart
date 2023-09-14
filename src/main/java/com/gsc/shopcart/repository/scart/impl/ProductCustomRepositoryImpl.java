@@ -1,7 +1,10 @@
 package com.gsc.shopcart.repository.scart.impl;
 
+import com.gsc.shopcart.dto.ShopCartFilter;
 import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.ProductCustomRepository;
+import com.sc.commons.utils.DataBaseTasks;
+import com.sc.commons.utils.StringTasks;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -75,6 +78,88 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
         List<Product> result = query
                 .setParameter(1, idCategory)
+                .getResultList();
+
+        return result;
+    }
+
+    @Override
+    public List<Product> getProductsByFreeSearch(int idRootCategory, String view, String userOidDealer, ShopCartFilter filter) {
+
+        StringBuilder SQL = new StringBuilder("");
+
+        SQL.append("WITH TEMP1 (ID_CATEGORY) AS ( ");
+        SQL.append("SELECT C.ID AS ID_CATEGORY ");
+        SQL.append("FROM CATEGORY C ");
+        SQL.append("WHERE C.ID_PARENT = ?1 ");
+        if (filter.getState().equals("A")) {
+            SQL.append(" AND (C.STATUS = 'ACTIVO') ");
+        } else if (filter.getState().equals("I")) {
+            SQL.append(" AND (C.STATUS = 'INACTIVO') ");
+        }
+        SQL.append("UNION ALL ");
+        SQL.append("SELECT CATEGORY.ID AS ID_CATEGORY FROM CATEGORY, TEMP1 ");
+        SQL.append("WHERE TEMP1.ID_CATEGORY = CATEGORY.ID_PARENT ");
+        if (filter.getState().equals("A")) {
+            SQL.append(" AND (CATEGORY.STATUS = 'ACTIVO') ");
+        } else if (filter.getState().equals("I")) {
+            SQL.append(" AND (CATEGORY.STATUS = 'INACTIVO') ");
+        }
+        SQL.append("), ");
+        SQL.append("TEMP2 (ID_CATEGORY) AS ( ");
+        SQL.append("SELECT C.ID AS ID_CATEGORY ");
+        SQL.append("FROM CATEGORY C ");
+        SQL.append("WHERE C.ID_PARENT = ?2 ");
+        SQL.append("UNION ALL ");
+        SQL.append("SELECT CATEGORY.ID AS ID_CATEGORY FROM CATEGORY, TEMP2 ");
+        SQL.append("WHERE TEMP2.ID_CATEGORY = CATEGORY.ID_PARENT ");
+        SQL.append(") ");
+        SQL.append("SELECT P.* FROM PRODUCT P ");
+        SQL.append(" LEFT JOIN PRODUCT_VARIANT PV ON PV.ID_PRODUCT = P.ID ");
+        SQL.append("WHERE P.ID IN (SELECT ID_PRODUCT FROM TEMP1, CATEGORY_PRODUCTS CP WHERE CP.ID_PRODUCT=P.ID AND CP.ID_CATEGORY = TEMP1.ID_CATEGORY UNION SELECT ID_PRODUCT FROM TEMP2, CATEGORY_PRODUCTS CP WHERE CP.ID_PRODUCT=P.ID AND CP.ID_CATEGORY = TEMP2.ID_CATEGORY) ");
+        if (view.equalsIgnoreCase("CATALOG")) {
+            if (userOidDealer != null) {
+                SQL.append(" AND (P.ID IN (SELECT PD.ID_PRODUCT FROM PRODUCT_DEALER PD WHERE PD.OID_DEALER_PARENT = '" + userOidDealer + "') OR P.ID IN (SELECT P1.ID FROM PRODUCT P1 WHERE P1.ID NOT IN (SELECT ID_PRODUCT FROM PRODUCT_DEALER))) ");
+            }
+            SQL.append(" AND (P.STATUS = 'ACTIVO') AND ");
+            SQL.append(" ( ");
+            SQL.append(" (P.START_DATE<=CURRENT DATE AND P.END_DATE>=CURRENT_DATE) ");
+            SQL.append(" OR ");
+            SQL.append(" (P.START_DATE IS NULL AND P.END_DATE>=CURRENT_DATE) ");
+            SQL.append(" OR ");
+            SQL.append(" (P.END_DATE IS NULL AND P.START_DATE<=CURRENT DATE) ");
+            SQL.append(" OR ");
+            SQL.append(" (P.START_DATE IS NULL AND P.END_DATE IS NULL) ");
+            SQL.append(" ) ");
+        } else {
+            if (filter.getState().equals("A")) {
+                SQL.append(" AND (P.STATUS = 'ACTIVO') ");
+            } else if (filter.getState().equals("I")) {
+                SQL.append(" AND (P.STATUS = 'INACTIVO') ");
+            }
+        }
+        SQL.append("AND ( ");
+        String cleanFreeSearch = StringTasks.ReplaceSpecialChar(filter.getFreeSearch());
+        cleanFreeSearch = StringTasks.ReplaceStr(cleanFreeSearch, "'", "''");
+        SQL.append(" VARCHAR(UPPER(P.REF),45) LIKE '" + DataBaseTasks.prepareStringToLike(filter.getFreeSearch().toUpperCase()) + "' OR ");
+        SQL.append(" COLLATION_KEY_BIT(P.NAME, 'UCA500R1_S1') = COLLATION_KEY_BIT('" + cleanFreeSearch + "', 'UCA500R1_S1') OR ");
+        SQL.append(" VARCHAR(UPPER(P.NAME),90) LIKE '" + DataBaseTasks.prepareStringToLike(filter.getFreeSearch().toUpperCase()) + "' OR ");
+        SQL.append(" VARCHAR(UPPER(P.NAME),90) LIKE '" + DataBaseTasks.prepareStringToLike(StringTasks.ReplaceSpecialChar(filter.getFreeSearch()).toUpperCase()) + "' OR ");
+        SQL.append(" VARCHAR(UPPER(P.KEYWORDS),90) LIKE '" + DataBaseTasks.prepareStringToLike(filter.getFreeSearch().toUpperCase()) + "' OR ");
+        SQL.append(" COLLATION_KEY_BIT(PV.SKU, 'UCA500R1_S1') = COLLATION_KEY_BIT('" + cleanFreeSearch + "', 'UCA500R1_S1') OR ");
+        SQL.append(" VARCHAR(UPPER(PV.SKU),18) LIKE '" + DataBaseTasks.prepareStringToLike(filter.getFreeSearch().toUpperCase()) + "' OR ");
+        SQL.append(" VARCHAR(UPPER(PV.SKU),18) LIKE '" + DataBaseTasks.prepareStringToLike(StringTasks.ReplaceSpecialChar(filter.getFreeSearch()).toUpperCase()) + "' OR ");
+        SQL.append(" COLLATION_KEY_BIT(PV.NAME, 'UCA500R1_S1') = COLLATION_KEY_BIT('" + cleanFreeSearch + "', 'UCA500R1_S1') OR ");
+        SQL.append(" VARCHAR(UPPER(PV.NAME),90) LIKE '" + DataBaseTasks.prepareStringToLike(filter.getFreeSearch().toUpperCase()) + "' OR ");
+        SQL.append(" VARCHAR(UPPER(PV.NAME),90) LIKE '" + DataBaseTasks.prepareStringToLike(StringTasks.ReplaceSpecialChar(filter.getFreeSearch()).toUpperCase()) + "' ");
+        SQL.append(") ");
+        SQL.append("ORDER BY P.DISPLAY_ORDER,COLLATION_KEY_BIT(UPPER(P.NAME), 'UCA500R1_S1') ASC ");
+
+        Query query = em.createNativeQuery(SQL.toString(), Product.class);
+
+        List<Product> result = query
+                .setParameter(1, idRootCategory)
+                .setParameter(2, idRootCategory)
                 .getResultList();
 
         return result;

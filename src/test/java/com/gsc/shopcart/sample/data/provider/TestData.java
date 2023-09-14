@@ -89,6 +89,32 @@ public class TestData {
     }
 
 
+    public static PromotionsDTO getProductsByFreeSearchData() {
+        List<Product> products = new ArrayList<>();
+
+        Product product1 = Product.builder()
+                .id(1)
+                .ref("R")
+                .name("n")
+                .description("A")
+                .unitPrice(1.0)
+                .unitPriceConsult(1)
+                .priceRules(1)
+                .ivaType("NORMAL")
+                .startDate(null)
+                .build();
+
+        products.add(product1);
+
+        PromotionsDTO promotionsDTO = PromotionsDTO.builder()
+                .vecProducts(products)
+                .view("BACKOFFICE")
+                .idCategory("-1")
+                .build();
+
+        return promotionsDTO;
+    }
+
 
 
 }

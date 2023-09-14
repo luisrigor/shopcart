@@ -38,7 +38,6 @@ public class BackOfficeServiceImpl implements BackOfficeService {
                     .build();
         } catch (Exception e) {
             throw new ShopCartException("Error fetching promotion ", e);
-
         }
     }
 }

@@ -5,10 +5,7 @@ import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.model.scart.entity.Category;
-import com.gsc.shopcart.repository.scart.ClientRepository;
-import com.gsc.shopcart.repository.scart.ConfigurationRepository;
-import com.gsc.shopcart.repository.scart.LoginKeyRepository;
-import com.gsc.shopcart.repository.scart.ServiceLoginRepository;
+import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.TokenProvider;
@@ -53,6 +50,8 @@ public class CatalogControllerTest {
     @MockBean
     private ConfigurationRepository configurationRepository;
     @MockBean
+    private ConfigRepository configRepository;
+    @MockBean
     private LoginKeyRepository loginKeyRepository;
     @MockBean
     private ServiceLoginRepository serviceLoginRepository;
@@ -87,7 +86,7 @@ public class CatalogControllerTest {
 
         String accessToken = generatedToken;
 
-        when(catalogService.getCart(any(), any(), any()))
+        when(catalogService.getCart(any(), any(), any(), any()))
                 .thenReturn(TestData.getCartData());
 
 

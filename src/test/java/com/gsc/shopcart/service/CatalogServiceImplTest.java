@@ -12,6 +12,7 @@ import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.sample.data.provider.ReadJsonTest;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
+import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.impl.BackOfficeServiceImpl;
 import com.gsc.shopcart.service.impl.CatalogServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,6 +66,9 @@ public class CatalogServiceImplTest {
     @Test
     void whenGetCartThenReturnInfo() throws IOException, URISyntaxException {
 
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
         URI uriRs1_orderCart = this.getClass().getResource("/data/rs_orderCart.json").toURI();
 
         List<OrderCartProduct> orderCartProducts = readJ.readJson(uriRs1_orderCart.getPath(), new TypeToken<List<OrderCartProduct>>() {}.getType());
@@ -88,7 +92,7 @@ public class CatalogServiceImplTest {
         when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
 
 
-        CartDTO cart = catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected());
+        CartDTO cart = catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal);
 
         assertEquals(1, cart.getIdCategory());
         assertEquals(1, cart.getListCategorySelected().get(0).getId());
@@ -109,6 +113,9 @@ public class CatalogServiceImplTest {
 
     @Test
     void whenGetCartThenReturnInfoForCategoryId() throws IOException, URISyntaxException {
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
 
         URI uriRs1_orderCart = this.getClass().getResource("/data/rs_orderCart.json").toURI();
 
@@ -133,7 +140,7 @@ public class CatalogServiceImplTest {
         when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
 
 
-        CartDTO cart = catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected());
+        CartDTO cart = catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal);
 
         assertEquals(1, cart.getIdCategory());
         assertEquals(1, cart.getListCategorySelected().get(0).getId());
@@ -154,17 +161,19 @@ public class CatalogServiceImplTest {
 
     @Test
     void whenGetCartThenThrows() {
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
 
         when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
 
         when(categoryRepository.getCategoriesByIdParent(anyInt()))
-                .thenReturn(TestData.getCartData().getVecCategories());
+                .thenThrow(RuntimeException.class);
 
         when(productRepository.getProductsByIdCategory(anyInt(), anyString(), anyString()))
                 .thenThrow(RuntimeException.class);
 
 
-        assertThrows(ShopCartException.class, ()-> catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected()));
+        assertThrows(ShopCartException.class, ()-> catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal));
     }
 }
 

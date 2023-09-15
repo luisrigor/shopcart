@@ -9,6 +9,7 @@ import com.gsc.shopcart.repository.scart.ClientRepository;
 import com.gsc.shopcart.repository.scart.ConfigurationRepository;
 import com.gsc.shopcart.repository.scart.LoginKeyRepository;
 import com.gsc.shopcart.repository.scart.ServiceLoginRepository;
+import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.TokenProvider;
@@ -48,6 +49,8 @@ class BackOfficeControllerTest {
 
     @MockBean
     private ConfigurationRepository configurationRepository;
+    @MockBean
+    private ConfigRepository configRepository;
     @MockBean
     private LoginKeyRepository loginKeyRepository;
     @MockBean
@@ -103,7 +106,7 @@ class BackOfficeControllerTest {
 
         ShopCartFilter filter = new ShopCartFilter();
 
-        when(backOfficeService.getProductsByFreeSearch(any(),anyInt(), any()))
+        when(backOfficeService.getProductsByFreeSearch(any(),anyInt(), any(), any()))
                 .thenReturn(TestData.getProductsByFreeSearchData());
 
 

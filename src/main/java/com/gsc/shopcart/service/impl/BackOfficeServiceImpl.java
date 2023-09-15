@@ -53,11 +53,11 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     }
 
     @Override
-    public PromotionsDTO getProductsByFreeSearch(Integer idCategory, Integer idCatalog, ShopCartFilter filter) {
+    public PromotionsDTO getProductsByFreeSearch(Integer idCategory, Integer idCatalog, ShopCartFilter filter, UserPrincipal userPrincipal) {
 
         List<Product> vecProducts = new ArrayList<>();
         String view = "BACKOFFICE";
-        String userOidDealer = "1";
+        String userOidDealer =  userPrincipal.getOidDealerParent();
 
         try {
             ShopCartFilter freeSearch = getFilterFreeSearchProduct(filter);

@@ -88,7 +88,6 @@ public class TestData {
                 .build();
     }
 
-
     public static PromotionsDTO getProductsByFreeSearchData() {
         List<Product> products = new ArrayList<>();
 

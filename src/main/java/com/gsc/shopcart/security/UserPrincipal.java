@@ -16,6 +16,18 @@ public class UserPrincipal {
    private Boolean caMember;
    private String oidDealer;
    private String oidDealerParent;
+   private String idCatalog;
+   private String uploadDir;
+   private String virtualPath;
+   private String application;
+   private String tcapProfile;
+   private String dealerProfile;
+   private String supplierProfile;
+   private Integer idUser;
+   private Integer idEntity;
+
+
+
 
    public UserPrincipal(String username, Set<AppProfile> roles, Long clientId) {
       this.username = username;
@@ -30,6 +42,24 @@ public class UserPrincipal {
       this.oidNet = oidNet;
       this.oidDealerParent = oidDealerParent;
       this.oidDealer = oidDealer;
+   }
+
+   public UserPrincipal(String username, Set<AppProfile> roles, Long clientId, String oidNet, String oidDealer,
+                        String oidDealerParent, String idCatalog, String uploadDir, String virtualPath, String application,
+                        String tcapProfile, String dealerProfile, String supplierProfile) {
+      this.username = username;
+      this.roles = roles;
+      this.clientId = clientId;
+      this.oidNet = oidNet;
+      this.oidDealer = oidDealer;
+      this.oidDealerParent = oidDealerParent;
+      this.idCatalog = idCatalog;
+      this.uploadDir = uploadDir;
+      this.virtualPath = virtualPath;
+      this.application = application;
+      this.tcapProfile = tcapProfile;
+      this.dealerProfile = dealerProfile;
+      this.supplierProfile = supplierProfile;
    }
 
    public void setOidNet(String oidNet) {
@@ -48,5 +78,39 @@ public class UserPrincipal {
    }
 
 
+   public void setIdCatalog(String idCatalog) {
+      this.idCatalog = idCatalog;
+   }
 
+   public void setUploadDir(String uploadDir) {
+      this.uploadDir = uploadDir;
+   }
+
+   public void setVirtualPath(String virtualPath) {
+      this.virtualPath = virtualPath;
+   }
+
+   public void setApplication(String application) {
+      this.application = application;
+   }
+
+   public void setTcapProfile(String tcapProfile) {
+      this.tcapProfile = tcapProfile;
+   }
+
+   public void setDealerProfile(String dealerProfile) {
+      this.dealerProfile = dealerProfile;
+   }
+
+   public void setSupplierProfile(String supplierProfile) {
+      this.supplierProfile = supplierProfile;
+   }
+
+   public void setIdUser(Integer idUser) {
+      this.idUser = idUser;
+   }
+
+   public void setIdEntity(Integer idEntity) {
+      this.idEntity = idEntity;
+   }
 }

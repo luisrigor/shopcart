@@ -2,8 +2,10 @@ package com.gsc.shopcart.security;
 
 import com.gsc.shopcart.constants.AppProfile;
 import com.gsc.shopcart.exceptions.AuthTokenException;
+import com.gsc.shopcart.model.scart.entity.Configuration;
 import com.gsc.shopcart.model.scart.entity.LoginKey;
 import com.gsc.shopcart.model.scart.entity.ServiceLogin;
+import com.gsc.shopcart.repository.scart.ConfigRepository;
 import com.gsc.shopcart.repository.scart.ConfigurationRepository;
 import com.gsc.shopcart.repository.scart.LoginKeyRepository;
 import com.gsc.shopcart.repository.scart.ServiceLoginRepository;
@@ -43,17 +45,26 @@ public class TokenProvider {
    private static final String OID_DEALER_PARENT = "dealer_parent";
    private static final String OID_DEALER = "dealer";
    private static final String OID_NET = "oid_net";
+   private static final String ID_CATALOG = "ID_CATALOG";
+   private static final String UPLOAD_DIR = "UPLOAD_DIR";
+   private static final String VIRTUAL_PATH = "VIRTUAL_PATH";
+   private static final String APPLICATION = "APPLICATION";
+   private static final String TCAP_PROFILE = "TCAP_PROFILE";
+   private static final String DEALER_PROFILE = "DEALER_PROFILE";
+   private static final String SUPPLIER_PROFILE = "SUPPLIER_PROFILE";
 
    private final ConfigurationRepository configurationRepository;
    private final ServiceLoginRepository serviceLoginRepository;
    private final LoginKeyRepository loginKeyRepository;
+   private final ConfigRepository configRepository;
    private final String activeProfile;
 
    public TokenProvider(ConfigurationRepository configurationRepository, LoginKeyRepository loginKeyRepository,
-                        ServiceLoginRepository serviceLoginRepository, @Value("${spring.profiles.active}") String activeProfile) {
+                        ServiceLoginRepository serviceLoginRepository, ConfigRepository configRepository, @Value("${spring.profiles.active}") String activeProfile) {
       this.configurationRepository = configurationRepository;
       this.loginKeyRepository = loginKeyRepository;
       this.serviceLoginRepository = serviceLoginRepository;
+      this.configRepository = configRepository;
       this.activeProfile = activeProfile;
    }
 
@@ -74,6 +85,10 @@ public class TokenProvider {
       Date now = new Date();
       Date expiryDate = new Date(now.getTime() + configurationRepository.getTokenExpirationMsec());
 
+      List<Configuration> configuration = configRepository.findAll();
+
+      setConfigFields(userPrincipal, configuration);
+
       return Jwts.builder()
               .setIssuer(ISSUER)
               .setSubject(userPrincipal.getUsername())
@@ -89,6 +104,13 @@ public class TokenProvider {
               .claim(OID_DEALER_PARENT, userPrincipal.getOidDealerParent())
               .claim(OID_DEALER, userPrincipal.getOidDealer())
               .claim(OID_NET, userPrincipal.getOidNet())
+              .claim(ID_CATALOG, userPrincipal.getIdCatalog())
+              .claim(UPLOAD_DIR, userPrincipal.getUploadDir())
+              .claim(VIRTUAL_PATH, userPrincipal.getVirtualPath())
+              .claim(APPLICATION, userPrincipal.getApplication())
+              .claim(TCAP_PROFILE, userPrincipal.getTcapProfile())
+              .claim(DEALER_PROFILE, userPrincipal.getDealerProfile())
+              .claim(SUPPLIER_PROFILE, userPrincipal.getSupplierProfile())
               .compact();
    }
 
@@ -147,7 +169,14 @@ public class TokenProvider {
                          claims.get(JWT_CLIENT_ID, Long.class),
                          claims.get(OID_NET, String.class),
                          claims.get(OID_DEALER_PARENT, String.class),
-                         claims.get(OID_DEALER, String.class)
+                         claims.get(OID_DEALER, String.class),
+                         claims.get(ID_CATALOG, String.class),
+                         claims.get(UPLOAD_DIR, String.class),
+                         claims.get(VIRTUAL_PATH, String.class),
+                         claims.get(APPLICATION, String.class),
+                         claims.get(TCAP_PROFILE, String.class),
+                         claims.get(DEALER_PROFILE, String.class),
+                         claims.get(SUPPLIER_PROFILE, String.class)
                  ),
             Collections.emptyList()
          );
@@ -207,6 +236,52 @@ public class TokenProvider {
             .map(key -> Keys.hmacShaKeyFor(Decoders.BASE64.decode(key.getKeyValue())))
             .orElse(null);
       }
+   }
+
+   private void setConfigFields(UserPrincipal userPrincipal, List<Configuration> configurations) {
+
+      Map<Map<String,String>, String> configMap = configToMap(configurations);
+
+      if(activeProfile.contains("local")) {
+         setUserMapFields(userPrincipal, configMap, "local");
+      } else if (activeProfile.contains("development")) {
+         setUserMapFields(userPrincipal, configMap, "staging");
+      } else if (activeProfile.contains("staging")) {
+         setUserMapFields(userPrincipal, configMap, "staging");
+      } else if (activeProfile.contains("production")) {
+         setUserMapFields(userPrincipal, configMap, "production");
+      }
+   }
+
+   private Map<Map<String,String>, String> configToMap(List<Configuration> configurations) {
+      Map<Map<String,String>, String> configMap = new HashMap<>();
+
+      for (Configuration config: configurations) {
+         Map<String,String> keyLocal = new HashMap<>();
+         keyLocal.put("local", config.getKey());
+         configMap.put(keyLocal, config.getLocal());
+
+         Map<String,String> keyStage = new HashMap<>();
+         keyStage.put( "staging", config.getKey());
+         configMap.put(keyStage, config.getStaging());
+
+         Map<String,String> keyProd = new HashMap<>();
+         keyProd.put( "production", config.getKey());
+         configMap.put(keyProd, config.getProduction());
+      }
+
+      return configMap;
+   }
+
+   private void setUserMapFields(UserPrincipal userPrincipal, Map<Map<String,String>, String> configMap, String profile) {
+
+      userPrincipal.setIdCatalog(configMap.get(new HashMap<String, String>() {{put(profile, ID_CATALOG);}}));
+      userPrincipal.setUploadDir(configMap.get(new HashMap<String, String>() {{put(profile, UPLOAD_DIR);}}));
+      userPrincipal.setVirtualPath(configMap.get(new HashMap<String, String>() {{put(profile, VIRTUAL_PATH);}}));
+      userPrincipal.setApplication(configMap.get(new HashMap<String, String>() {{put(profile, APPLICATION);}}));
+      userPrincipal.setTcapProfile(configMap.get(new HashMap<String, String>() {{put(profile, TCAP_PROFILE);}}));
+      userPrincipal.setDealerProfile(configMap.get(new HashMap<String, String>() {{put(profile, DEALER_PROFILE);}}));
+      userPrincipal.setSupplierProfile(configMap.get(new HashMap<String, String>() {{put(profile, SUPPLIER_PROFILE);}}));
    }
 
 }

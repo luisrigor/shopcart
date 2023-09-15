@@ -46,7 +46,7 @@ log4j:
 #Ficheiro de configuracao da SC
 sc:
   config:
-    file: "C:/Users/Luis Parra/OneDrive - Rigor/Documentos/REPOSITORIOS/Proyectos GITHUB/shopcart/src/main/resources/sc_config.properties"
+    file: "/home/ronald/Documents/rigor/repos/S4/shopcart/src/main/resources/sc_config.properties"
 
 #customom properties ex local url
 app:
@@ -58,6 +58,11 @@ app:
   datasource:
     first:
       url: jdbc:db2://scdbesrva.sc.pt:50000/DBDMV
+      username: db2inst1
+      password: db2admin
+      driver-class-name: com.ibm.db2.jcc.DB2Driver
+    second:
+      url: jdbc:db2://scdbesrvb.sc.pt:50000/USRLOGON
       username: db2inst1
       password: db2admin
       driver-class-name: com.ibm.db2.jcc.DB2Driver

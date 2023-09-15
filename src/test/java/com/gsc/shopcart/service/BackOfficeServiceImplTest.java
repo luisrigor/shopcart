@@ -76,13 +76,17 @@ public class BackOfficeServiceImplTest {
     @Test
     void whenGetProductsByFreeSearchThenReturnInfo() {
 
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setOidNet("1");
+        userPrincipal.setOidDealerParent("1");
+
         when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
 
         when(productRepository.getProductsByFreeSearch(anyInt(),anyString(), anyString(), any()))
                 .thenReturn(TestData.getProductsByFreeSearchData().getVecProducts());
 
 
-        PromotionsDTO productsByFreeSearch = backOfficeService.getProductsByFreeSearch(1, 1, new ShopCartFilter());
+        PromotionsDTO productsByFreeSearch = backOfficeService.getProductsByFreeSearch(1, 1, new ShopCartFilter(), userPrincipal);
 
         assertEquals(null, productsByFreeSearch.getViewOnlyPromotions());
         assertEquals("BACKOFFICE", productsByFreeSearch.getView());
@@ -100,6 +104,9 @@ public class BackOfficeServiceImplTest {
 
     @Test
     void whenGetProductsByFreeSearchWhenNullFilterThenReturnInfo() {
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setOidDealer("1");
+        userPrincipal.setOidDealerParent("1");
 
         when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
 
@@ -107,7 +114,7 @@ public class BackOfficeServiceImplTest {
                 .thenReturn(TestData.getProductsByFreeSearchData().getVecProducts());
 
 
-        PromotionsDTO productsByFreeSearch = backOfficeService.getProductsByFreeSearch(1, 1, null);
+        PromotionsDTO productsByFreeSearch = backOfficeService.getProductsByFreeSearch(1, 1, null, userPrincipal);
 
         assertEquals(null, productsByFreeSearch.getViewOnlyPromotions());
         assertEquals("BACKOFFICE", productsByFreeSearch.getView());
@@ -125,11 +132,15 @@ public class BackOfficeServiceImplTest {
 
     @Test
     void whenGetProductsByFreeSearchThenThrows() {
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setOidDealerParent("1");
+
         when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
 
         when(productRepository.getProductsByFreeSearch(anyInt(),anyString(), anyString(), any()))
                 .thenThrow(RuntimeException.class);
 
-        assertThrows(ShopCartException.class, ()-> backOfficeService.getProductsByFreeSearch(1,1,null));
+        assertThrows(ShopCartException.class, ()-> backOfficeService.getProductsByFreeSearch(1,1,null, userPrincipal));
     }
 }

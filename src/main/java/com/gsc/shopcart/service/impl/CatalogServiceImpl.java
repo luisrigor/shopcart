@@ -10,9 +10,10 @@ import com.gsc.shopcart.repository.scart.CategoryRepository;
 import com.gsc.shopcart.repository.scart.CatalogRepository;
 import com.gsc.shopcart.repository.scart.OrderCartRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
+import com.gsc.shopcart.security.UserPrincipal;
+import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.CatalogService;
 import com.gsc.shopcart.utils.ShopCartUtils;
-import com.sc.commons.financial.FinancialTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
@@ -28,9 +29,10 @@ public class CatalogServiceImpl implements CatalogService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final OrderCartRepository orderCartRepository;
+    private final UsrLogonSecurity usrLogonSecurity;
 
     @Override
-    public CartDTO getCart(Integer idCategory, Integer idCatalog, List<Category> listCategorySelected) {
+    public CartDTO getCart(Integer idCategory, Integer idCatalog, List<Category> listCategorySelected, UserPrincipal userPrincipal) {
 
         List<Category> vecCategories;
         List<Product> vecProducts;
@@ -38,10 +40,9 @@ public class CatalogServiceImpl implements CatalogService {
 
 
         String view = "CATALOG";
-        String userOidDealer = "1";
-        Integer userIdUser = 137;
-        String userVirtualPath = "1";
-        String userIdCatalog= "1";
+        if (userPrincipal.getIdUser() == null || userPrincipal.getIdUser() == -1)
+            usrLogonSecurity.setUserLogin(userPrincipal);
+
 
         try {
             Integer idRootCategory = catalogRepository.getidRootCategoryByIdCatalog(idCatalog);
@@ -51,7 +52,7 @@ public class CatalogServiceImpl implements CatalogService {
             Integer idCategoryQuery = isId ? idRootCategory:  idCategory;
 
             vecCategories = categoryRepository.getCategoriesByIdParent(idCategoryQuery);
-            vecProducts = productRepository.getProductsByIdCategory(idCategoryQuery, view, userOidDealer);
+            vecProducts = productRepository.getProductsByIdCategory(idCategoryQuery, view, userPrincipal.getOidDealerParent());
             category = categoryRepository.findById(idCategoryQuery).orElse(null);
 
             boolean isToAdd = true;
@@ -63,7 +64,7 @@ public class CatalogServiceImpl implements CatalogService {
             if (isToAdd && category != null)
                 listCategorySelected.add(category);
 
-            List<OrderCartProduct> vecOrderCartF = orderCartRepository.getOrderCartByIdUserAndIdCatalog(userIdUser, idCatalog);
+            List<OrderCartProduct> vecOrderCartF = orderCartRepository.getOrderCartByIdUserAndIdCatalog(userPrincipal.getIdUser(), idCatalog);
 
             vecOrderCart = formatFields(vecOrderCartF);
 
@@ -73,8 +74,8 @@ public class CatalogServiceImpl implements CatalogService {
                     .vecCategories(vecCategories)
                     .vecProducts(vecProducts)
                     .vecOrderCart(vecOrderCart)
-                    .virtualPath(userVirtualPath)
-                    .idCatalog(userIdCatalog)
+                    .virtualPath(userPrincipal.getVirtualPath())
+                    .idCatalog(userPrincipal.getIdCatalog())
                     .view(view)
                     .build();
 

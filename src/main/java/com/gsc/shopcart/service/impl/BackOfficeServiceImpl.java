@@ -8,6 +8,7 @@ import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.CatalogRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
+import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.BackOfficeService;
 import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.utils.PortletTasks;
@@ -49,11 +50,11 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     }
 
     @Override
-    public PromotionsDTO getProductsByFreeSearch(Integer idCategory, Integer idCatalog, ShopCartFilter filter) {
+    public PromotionsDTO getProductsByFreeSearch(Integer idCategory, Integer idCatalog, ShopCartFilter filter, UserPrincipal userPrincipal) {
 
         List<Product> vecProducts = new ArrayList<>();
         String view = "BACKOFFICE";
-        String userOidDealer = "1";
+        String userOidDealer =  userPrincipal.getOidDealerParent();
 
         try {
             ShopCartFilter freeSearch = getFilterFreeSearchProduct(filter);

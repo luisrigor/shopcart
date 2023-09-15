@@ -13,6 +13,7 @@ import com.gsc.shopcart.service.BackOfficeService;
 import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.utils.PortletTasks;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.Vector;
 
 @RequiredArgsConstructor
 @Service
+@Log4j
 public class BackOfficeServiceImpl implements BackOfficeService {
 
     private final CatalogRepository catalogRepository;
@@ -30,6 +32,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
 
     @Override
     public PromotionsDTO getPromotions(Integer idCatalog) {
+
         List<Product> vecProducts = new ArrayList<>();
         String view = "BACKOFFICE";
 

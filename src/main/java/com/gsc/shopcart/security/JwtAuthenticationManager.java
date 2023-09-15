@@ -16,10 +16,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.StringUtils;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+
+import javax.naming.directory.Attributes;
+import java.util.*;
 
 public class JwtAuthenticationManager implements AuthenticationManager {
 
@@ -45,7 +44,7 @@ public class JwtAuthenticationManager implements AuthenticationManager {
         }
 
         String loginToken = authentication.getPrincipal() != null ? authentication.getPrincipal().toString() : null;
-        String tokenParts[] = loginToken.split("\\|\\|\\|");
+        String tokenParts[] = loginToken != null ? loginToken.split("\\|\\|\\|") : new String[0];
         loginToken = tokenParts[1];
 
         if (!StringUtils.hasText(loginToken)) {

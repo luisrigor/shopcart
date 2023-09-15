@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import static com.gsc.shopcart.constants.ApiConstants.LEXUS_APP;
 import static com.gsc.shopcart.constants.ApiConstants.TOYOTA_APP;
+import javax.naming.directory.Attributes;
 
 @Service
 public class TokenProvider {
@@ -200,7 +201,7 @@ public class TokenProvider {
       return JwtAuthenticationToken.authenticated(
          new UserPrincipal(
             parts[0],
-            getRoles(sl),
+                 getRoles(sl),
             JwtAuthenticationManager.CLIENT_ID
          ),
          Collections.emptyList()

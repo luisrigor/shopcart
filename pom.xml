@@ -163,7 +163,7 @@
                         <exclude>com/gsc/shopcart/model/**</exclude>
                         <exclude>com/gsc/shopcart/repository/**</exclude>
                         <exclude>com/gsc/shopcart/security/**</exclude>
-                        <exclude>com/gsc/shopcart/utils/**</exclude>
+                        <exclude>com/gsc/shopcart/util/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

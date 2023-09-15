@@ -47,7 +47,7 @@ public class CatalogServiceImpl implements CatalogService {
         try {
             Integer idRootCategory = catalogRepository.getidRootCategoryByIdCatalog(idCatalog);
             Category category = null;
-            boolean isId = (idCategory == 0 || idCategory == idRootCategory);
+            boolean isId = (idCategory == 0 || idCategory.equals(idRootCategory));
 
             Integer idCategoryQuery = isId ? idRootCategory:  idCategory;
 

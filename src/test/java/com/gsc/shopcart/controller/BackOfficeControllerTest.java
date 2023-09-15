@@ -4,10 +4,12 @@ import com.google.gson.Gson;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
+import com.gsc.shopcart.dto.ShopCartFilter;
 import com.gsc.shopcart.repository.scart.ClientRepository;
 import com.gsc.shopcart.repository.scart.ConfigurationRepository;
 import com.gsc.shopcart.repository.scart.LoginKeyRepository;
 import com.gsc.shopcart.repository.scart.ServiceLoginRepository;
+import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.TokenProvider;
@@ -19,16 +21,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -46,6 +49,8 @@ class BackOfficeControllerTest {
 
     @MockBean
     private ConfigurationRepository configurationRepository;
+    @MockBean
+    private ConfigRepository configRepository;
     @MockBean
     private LoginKeyRepository loginKeyRepository;
     @MockBean
@@ -93,6 +98,35 @@ class BackOfficeControllerTest {
                 .andExpect(jsonPath("$.vecProducts[0].unitPriceConsult").value("1"));
 
     }
+
+
+    @Test
+    void whenGetProductsByFreeSearchThenReturnInfo() throws Exception {
+        String accessToken = generatedToken;
+
+        ShopCartFilter filter = new ShopCartFilter();
+
+        when(backOfficeService.getProductsByFreeSearch(any(),anyInt(), any(), any()))
+                .thenReturn(TestData.getProductsByFreeSearchData());
+
+
+        mvc.perform(post(BASE_REQUEST_MAPPING+ApiEndpoints.GET_PRODUCTS_BY_FREE_SEARCH+"?idCatalog=1&idCategory=1")
+                        .header("accessToken", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(gson.toJson(filter)))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.view").value("BACKOFFICE"))
+                .andExpect(jsonPath("$.idCategory").value("-1"))
+                .andExpect(jsonPath("$.vecProducts[0].id").value("1"))
+                .andExpect(jsonPath("$.vecProducts[0].ref").value("R"))
+                .andExpect(jsonPath("$.vecProducts[0].name").value("n"))
+                .andExpect(jsonPath("$.vecProducts[0].description").value("A"))
+                .andExpect(jsonPath("$.vecProducts[0].unitPrice").value("1.0"))
+                .andExpect(jsonPath("$.vecProducts[0].unitPriceConsult").value("1"));
+
+    }
+
+
 
 
 

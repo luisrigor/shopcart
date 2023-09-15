@@ -61,6 +61,11 @@ app:
       username: db2inst1
       password: db2admin
       driver-class-name: com.ibm.db2.jcc.DB2Driver
+    second:
+      url: jdbc:db2://scdbesrvb.sc.pt:50000/USRLOGON
+      username: db2inst1
+      password: db2admin
+      driver-class-name: com.ibm.db2.jcc.DB2Driver
 logging:
   level:
     org:

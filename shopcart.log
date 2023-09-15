@@ -105,7 +105,7 @@ com.gsc.shopcart.exceptions.ShopCartException: Error fetching order status
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
 	at java.lang.Thread.run(Thread.java:750)
-Caused by: com.gsc.shopcart.exceptions.ShopCartException: Error fetching PATotals
+Caused by: com.gsc.shopcart.exceptions.ShopCartException: Error fetching beforeQueryPATotals
 	at com.gsc.shopcart.repository.scart.impl.OrderCustomRepositoryImpl.getOrderByCriteria(OrderCustomRepositoryImpl.java:108)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)

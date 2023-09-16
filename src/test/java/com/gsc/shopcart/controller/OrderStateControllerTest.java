@@ -5,7 +5,7 @@ import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
-import com.gsc.shopcart.dto.OrderStatusDTO;
+import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.repository.scart.ClientRepository;
 import com.gsc.shopcart.repository.scart.ConfigurationRepository;
 import com.gsc.shopcart.repository.scart.LoginKeyRepository;
@@ -13,7 +13,6 @@ import com.gsc.shopcart.repository.scart.ServiceLoginRepository;
 import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.security.TokenProvider;
-import com.gsc.shopcart.service.BackOfficeService;
 import com.gsc.shopcart.service.OrderStatusService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,9 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -80,14 +77,14 @@ class OrderStateControllerTest {
     void whenRequestGetOrderStateThenItsSuccessfully() throws Exception {
         String accessToken = generatedToken;
         GetOrderStateDTO getOrderStateDTO = new GetOrderStateDTO();
-        OrderStatusDTO orderStatusDTO = OrderData.getOrderStatusDTO();
-        when(orderStatusService.getOrderState(any(),any())).thenReturn(orderStatusDTO);
+        OrderStateDTO orderStateDTO = OrderData.getOrderStatusDTO();
+        when(orderStatusService.getOrderState(any(),any())).thenReturn(orderStateDTO);
         mvc.perform(get(BASE_REQUEST_MAPPING+ ApiEndpoints.GET_ORDER_STATE)
                         .header("accessToken", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(getOrderStateDTO)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(gson.toJson(orderStatusDTO)));
+                .andExpect(content().string(gson.toJson(orderStateDTO)));
     }
 
 }

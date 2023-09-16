@@ -12,11 +12,4 @@ public interface OrderCustomRepository {
 
     List<Order> getOrderByCriteria(GetOrderStateDTO getOrderStateDTO, UserPrincipal userPrincipal, StringBuilder criteria, StringBuilder criteriaDetail);
 
-    Map<String, String> getSuppliers(Integer idProfileTcap, Integer idProfileSupplier, String oidNet);
-
-    LinkedHashMap<String, String> getUsersByApplication(String oidNet, String oidDealerParent);
-
-
-
-
 }

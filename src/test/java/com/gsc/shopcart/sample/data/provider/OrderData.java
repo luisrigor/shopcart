@@ -1,19 +1,16 @@
 package com.gsc.shopcart.sample.data.provider;
 
 import com.gsc.shopcart.dto.GetOrderStateDTO;
-import com.gsc.shopcart.dto.OrderStatusDTO;
-import com.gsc.shopcart.dto.PromotionsDTO;
-import com.gsc.shopcart.model.scart.entity.Product;
+import com.gsc.shopcart.dto.OrderStateDTO;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 public class OrderData {
 
-    public static OrderStatusDTO getOrderStatusDTO() {
-        return OrderStatusDTO.builder()
+    public static OrderStateDTO getOrderStatusDTO() {
+        return OrderStateDTO.builder()
                 .dealerList(new ArrayList<>())
                 .hsmDealers(new HashMap<>())
                 .orderList(new ArrayList<>())

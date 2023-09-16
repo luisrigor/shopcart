@@ -5,8 +5,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ToyotaUserRepository extends JpaRepository<ToyotaUser, Integer> {
 
     @Query("SELECT TU FROM ToyotaUser TU WHERE UPPER(TU.loginUtilizador) = :loginUtilizador")
     ToyotaUser getUserinfo(@Param("loginUtilizador") String loginUtilizador);
+
+    @Query(value = "SELECT ID_UTILIZADOR, NOME_UTILIZADOR FROM TOYOTA_USERS ORDER BY COLLATION_KEY_BIT(NOME_UTILIZADOR, 'UCA500R1_S1') ",nativeQuery = true)
+    List<Object[]> getIdAndName();
+
+    @Query(value = "SELECT ID_UTILIZADOR, NOME_UTILIZADOR FROM TOYOTA_USERS WHERE OID_DEALER_PARENT=:oidDealerParent ORDER BY COLLATION_KEY_BIT(NOME_UTILIZADOR, 'UCA500R1_S1') ",nativeQuery = true)
+    List<Object[]> getIdAndName(@Param("oidDealerParent") String oidDealerParent);
+
+
 }

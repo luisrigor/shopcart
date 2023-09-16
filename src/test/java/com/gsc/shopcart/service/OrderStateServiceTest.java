@@ -1,7 +1,7 @@
 package com.gsc.shopcart.service;
 
 import com.gsc.shopcart.dto.GetOrderStateDTO;
-import com.gsc.shopcart.dto.OrderStatusDTO;
+import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
@@ -10,7 +10,6 @@ import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.security.UserPrincipal;
-import com.gsc.shopcart.service.impl.BackOfficeServiceImpl;
 import com.gsc.shopcart.service.impl.OrderStateServiceImpl;
 import com.rg.dealer.Dealer;
 import com.rg.dealer.DealerHelper;
@@ -72,12 +71,12 @@ import static org.junit.jupiter.api.Assertions.*;
           when(orderStatusRepository.findAll()).thenReturn(orderStatusList);
           when(orderDetailRepository.findAll()).thenReturn(orderDetails);
 
-          OrderStatusDTO orderStatusDTO = orderStateService.getOrderState(user,getOrderStateDTO);
+          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-          Assertions.assertEquals(dealerList, orderStatusDTO.getDealerList());
-          Assertions.assertEquals(orderList, orderStatusDTO.getOrderList());
-          Assertions.assertEquals(orderStatusList, orderStatusDTO.getOrderStatusList());
-          Assertions.assertEquals(hsmDealers, orderStatusDTO.getHsmDealers());
+          Assertions.assertEquals(dealerList, orderStateDTO.getDealerList());
+          Assertions.assertEquals(orderList, orderStateDTO.getOrderList());
+          Assertions.assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
+          Assertions.assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
        }
     }
 

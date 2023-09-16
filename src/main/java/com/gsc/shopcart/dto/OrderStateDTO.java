@@ -13,15 +13,15 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OrderStatusDTO {
+public class OrderStateDTO {
 
         private List<Dealer> dealerList;
         private Map<String,Dealer> hsmDealers;
         private List<Order> orderList = new ArrayList<>();
         private List<OrderStatus> orderStatusList = new ArrayList<>();
         private Map<Integer, List<OrderDetail>> hsmOrderDetails;
-        private Map<String,String> suppliers;
-        private LinkedHashMap<String, String> users;
+        private Map<Integer,String> suppliers;
+        private Map<Integer, String> users;
         private Integer idCatalog;
         private Map<String, String> preferences = new HashMap<>();
         private Integer idApplication;

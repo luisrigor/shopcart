@@ -2,15 +2,18 @@ package com.gsc.shopcart.service.impl;
 
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
-import com.gsc.shopcart.dto.OrderStatusDTO;
+import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.model.scart.entity.OrderStatus;
+import com.gsc.shopcart.model.usrlogon.entity.*;
 import com.gsc.shopcart.repository.scart.OrderDetailRepository;
 import com.gsc.shopcart.repository.scart.OrderRepository;
 import com.gsc.shopcart.repository.scart.OrderStatusRepository;
+import com.gsc.shopcart.repository.usrlogon.*;
 import com.gsc.shopcart.security.UserPrincipal;
+import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.OrderStatusService;
 import com.rg.dealer.Dealer;
 import com.sc.commons.utils.StringTasks;
@@ -30,11 +33,27 @@ public class OrderStateServiceImpl  implements OrderStatusService {
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final OrderStatusRepository orderStatusRepository;
+    private final ToyotaUserRepository toyotaUserRepository;
+    private final ToyotaUserEntityProfileRepository toyotaUserEntityProfileRepository;
+    private final LexusUserRepository lexusUserRepository;
+    private final LexusEntityProfileRepository lexusEntityProfileRepository;
+    private final CbusUserRepository cbusUserRepository;
+    private final LigacaoRepository ligacaoRepository;
+    private final CbusEntityProfileRepository cbusEntityProfileRepository;
+    private final UsrLogonSecurity usrLogonSecurity;
 
     @Override
-    public OrderStatusDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO) {
+    public OrderStateDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO) {
 
         try {
+            List<ToyotaUser> toys7 = toyotaUserRepository.findAll();
+            List<LexusUserEntityProfile> lexa = lexusEntityProfileRepository.findAll();
+            List<CbusUserEntityProfile> cbs = cbusEntityProfileRepository.findAll();
+            List<Ligacao> ligacaos = ligacaoRepository.findAll();
+            ligacaos.forEach(System.out::println);
+
+            if (userPrincipal.getIdUser() == null || userPrincipal.getIdUser() == -1)
+                usrLogonSecurity.setUserLogin(userPrincipal);
 
             String oidParent = StringTasks.cleanString(getOrderStateDTO.getOidParent(),StringUtils.EMPTY);
             StringBuilder criteria = new StringBuilder(" 1=1 ");
@@ -61,22 +80,25 @@ public class OrderStateServiceImpl  implements OrderStatusService {
             List<Order> orderList = orderRepository.getOrderByCriteria(getOrderStateDTO,userPrincipal,criteria,criteriaDetail);
             List<OrderStatus> orderStatusList = orderStatusRepository.findAll();
 
-            Map<String,String> suppliers = new HashMap<>();
-/*            if (userPrincipal.getAuthorities().contains(ScConstants.PROFILE_TCAP) || userPrincipal.getAuthorities().contains(ScConstants.PROFILE_DEALER))
-                suppliers = orderRepository.getSuppliers(getOrderStateDTO.getIdProfileTcap(), getOrderStateDTO.getIdSupplier(), userPrincipal.getOidNet());
- */
-           // LinkedHashMap<String, String> users = orderRepository.getUsersByApplication(userPrincipal.getOidNet(), oidParent);
+            Map<Integer, String> suppliers = new HashMap<>();
+            if (userPrincipal.getAuthorities().contains(ScConstants.PROFILE_TCAP) || userPrincipal.getAuthorities().contains(ScConstants.PROFILE_DEALER)) {
+                List<Object[]> listSupps = getSuppliers(userPrincipal.getOidNet(), getOrderStateDTO.getIdProfileTcap(),getOrderStateDTO.getIdSupplier());
+                suppliers = setMapData(listSupps);
+            }
+
+            List<Object[]> listUser = getUsers(userPrincipal.getOidNet(), oidParent);
+            Map<Integer, String> users =  setMapData(listUser);
             Map<Integer, List<OrderDetail>> hsmOrderDetails = orderDetailRepository.findAll().stream()
                     .collect(Collectors.groupingBy(OrderDetail::getIdOrder));
 
-            return OrderStatusDTO.builder()
+            return OrderStateDTO.builder()
                     .dealerList(dealerList)
                     .hsmDealers(hsmDealers)
                     .orderList(orderList)
                     .orderStatusList(orderStatusList)
                     .hsmOrderDetails(hsmOrderDetails)
                     .suppliers(suppliers)
-                    .users(new LinkedHashMap<>())
+                    .users(users)
                     .idCatalog(getOrderStateDTO.getIdCatalog())
                     .preferences(preferences)
                     .idApplication(getOrderStateDTO.getIdApplication())
@@ -84,6 +106,42 @@ public class OrderStateServiceImpl  implements OrderStatusService {
         } catch (Exception e) {
             throw new ShopCartException("Error fetching order status ", e);
         }
+    }
+
+    private Map<Integer, String> setMapData(List<Object[]> data) {
+        HashMap<Integer, String> mapUsers = new HashMap<>();
+        for (Object[] currentRow: data) {
+            mapUsers.put((Integer) currentRow[0], (String) currentRow[1]);
+        }
+        return mapUsers;
+    }
+
+    private List<Object[]> getUsers(String oidNet, String oidDealerParent){
+        if (oidDealerParent.isEmpty()) {
+            if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA))
+                return toyotaUserRepository.getIdAndName();
+            else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
+                return lexusUserRepository.getIdAndName();
+            else
+                return cbusUserRepository.getIdAndName();
+        }
+        if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA))
+            return toyotaUserRepository.getIdAndName(oidDealerParent);
+        else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
+            return lexusUserRepository.getIdAndName(oidDealerParent);
+        else
+            return cbusUserRepository.getIdAndName(oidDealerParent);
+    }
+
+    private List<Object[]> getSuppliers(String oidNet,Integer idProfileTcap, Integer idSupplier){
+        String profileTcap = idProfileTcap.toString();
+        String supplier = idSupplier.toString();
+        if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA))
+            return toyotaUserEntityProfileRepository.getSuppliers(profileTcap,supplier);
+        else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
+            return lexusEntityProfileRepository.getSuppliers(profileTcap,supplier);
+        else
+            return cbusEntityProfileRepository.getSuppliers(profileTcap,supplier);
     }
 
 }

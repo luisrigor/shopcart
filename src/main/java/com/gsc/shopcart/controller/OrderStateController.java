@@ -3,10 +3,8 @@ package com.gsc.shopcart.controller;
 import com.google.gson.Gson;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
-import com.gsc.shopcart.dto.OrderStatusDTO;
-import com.gsc.shopcart.dto.PromotionsDTO;
+import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.security.UserPrincipal;
-import com.gsc.shopcart.service.BackOfficeService;
 import com.gsc.shopcart.service.OrderStatusService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +25,8 @@ public class OrderStateController {
     @GetMapping(ApiEndpoints.GET_ORDER_STATE)
     public ResponseEntity<?> getOrderState(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody GetOrderStateDTO getOrderStateDTO) {
         Gson gson = new Gson();
-        OrderStatusDTO orderStatusDTO = orderStatusService.getOrderState(userPrincipal,getOrderStateDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(orderStatusDTO));
+        OrderStateDTO orderStateDTO = orderStatusService.getOrderState(userPrincipal,getOrderStateDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(orderStateDTO));
     }
 
 

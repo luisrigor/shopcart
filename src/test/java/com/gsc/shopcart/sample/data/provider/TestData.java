@@ -1,14 +1,14 @@
 package com.gsc.shopcart.sample.data.provider;
 
 import com.gsc.shopcart.dto.CartDTO;
+import com.gsc.shopcart.dto.InfoProductDTO;
 import com.gsc.shopcart.dto.OrderCartProduct;
 import com.gsc.shopcart.dto.PromotionsDTO;
-import com.gsc.shopcart.model.scart.entity.Category;
-import com.gsc.shopcart.model.scart.entity.OrderCart;
-import com.gsc.shopcart.model.scart.entity.Product;
+import com.gsc.shopcart.model.scart.entity.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public class TestData {
 
@@ -112,6 +112,55 @@ public class TestData {
                 .build();
 
         return promotionsDTO;
+    }
+
+    public static InfoProductDTO getInfoProductData() {
+
+
+        Product product = Product.builder()
+                .id(1)
+                .ref("r")
+                .name("n")
+                .description("d")
+                .unitPrice(1.0)
+                .unitPriceConsult(0)
+                .priceRules(1)
+                .ivaType("E")
+                .build();
+
+        List<ProductItem> vecProductItem = new ArrayList<>();
+        List<ProductPriceRule> vecProductPriceRules = new Vector();
+
+        ProductPriceRule productPriceRule1 = ProductPriceRule.builder()
+                .id(1)
+                .idProduct(2)
+                .minimumQuantity(10)
+                .incrementalQuantity(5)
+                .unitPrice(1.0)
+                .createdBy("test")
+                .build();
+
+        ProductPriceRule productPriceRule2 = ProductPriceRule.builder()
+                .id(2)
+                .idProduct(21)
+                .minimumQuantity(10)
+                .incrementalQuantity(5)
+                .unitPrice(1.0)
+                .createdBy("test")
+                .build();
+
+        vecProductPriceRules.add(productPriceRule1);
+        vecProductPriceRules.add(productPriceRule2);
+
+
+        return InfoProductDTO.builder()
+                .product(product)
+                .namespace("namespace")
+                .virtualpath("virtualpath")
+                .productItemList(vecProductItem)
+                .productPriceRules(vecProductPriceRules)
+                .idCatalog(String.valueOf("idCatalog"))
+                .build();
     }
 
 

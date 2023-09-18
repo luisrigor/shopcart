@@ -15,7 +15,6 @@ public class GetOrderStateDTO {
     private Integer idOrderStatus;
     private Integer idSupplier;
     private Integer idUser;
-    private Integer idApplication;
     private Integer orderNr;
     private String iPec;
     private String reference;

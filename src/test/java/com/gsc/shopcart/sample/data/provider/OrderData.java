@@ -31,7 +31,6 @@ public class OrderData {
                 .idOrderStatus(4)
                 .idSupplier(5)
                 .idUser(6)
-                .idApplication(7)
                 .orderNr(8)
                 .iPec("IPecValue")
                 .reference("ReferenceValue")

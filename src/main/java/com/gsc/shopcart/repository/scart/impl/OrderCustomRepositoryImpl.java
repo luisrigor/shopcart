@@ -28,20 +28,21 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 
         StringBuilder sql = new StringBuilder("");
         try {
-            Integer idCatalog = getOrderStateDTO.getIdCatalog();
-            Integer idSupplier = getOrderStateDTO.getIdSupplier();
-            Integer idUser = getOrderStateDTO.getIdUser();
-            Integer orderNr = getOrderStateDTO.getOrderNr();
-            String iPec = getOrderStateDTO.getIPec();
+            Integer idCatalog = getOrderStateDTO.getIdCatalog()==null||getOrderStateDTO.getIdCatalog()==0?0:getOrderStateDTO.getIdCatalog();
+            Integer idSupplier = getOrderStateDTO.getIdSupplier()==null||getOrderStateDTO.getIdSupplier()==0?0:getOrderStateDTO.getIdSupplier();
+            Integer idUser = getOrderStateDTO.getIdUser()==null||getOrderStateDTO.getIdUser()==0?0:getOrderStateDTO.getIdUser();
+            Integer orderNr = getOrderStateDTO.getOrderNr()==null||getOrderStateDTO.getOrderNr()==0?0:getOrderStateDTO.getOrderNr();
+            Integer idOrderStatus = getOrderStateDTO.getIdOrderStatus()==null||getOrderStateDTO.getIdOrderStatus()==0?0:getOrderStateDTO.getIdOrderStatus();
+            String iPec = StringTasks.cleanString(getOrderStateDTO.getIPec(), StringUtils.EMPTY);
             String reference = StringTasks.cleanString(getOrderStateDTO.getReference(), StringUtils.EMPTY);
             String oidParent = StringTasks.cleanString(getOrderStateDTO.getOidParent(), StringUtils.EMPTY);
             String orderType = StringTasks.cleanString(getOrderStateDTO.getOrderType(), ScConstants.ORDER_TYPE_EXTRANET);
 
-            if (getOrderStateDTO.getIdOrderStatus() == 1) {
+            if (idOrderStatus == 1) {
                 criteria.append(" AND ID NOT IN (SELECT ID_ORDER FROM ORDER_DETAIL WHERE ID_ORDER_STATUS = "
                         + ScConstants.ID_ORDER_STATUS_DELIVERED + ") ");
                 criteriaDetail.append(" AND ID_ORDER_STATUS <> " + ScConstants.ID_ORDER_STATUS_CANCEL + " ");
-            } else if (getOrderStateDTO.getIdOrderStatus() == 2) {
+            } else if (idOrderStatus == 2) {
                 criteria.append(" AND ID NOT IN (SELECT ID_ORDER FROM ORDER_DETAIL WHERE ID_ORDER_STATUS IN("
                         + ScConstants.ID_ORDER_STATUS_CANCEL_REQUEST + ", " + ScConstants.ID_ORDER_STATUS_PENDENT + ", "
                         + ScConstants.ID_ORDER_STATUS_RECEIVED + ")) ");

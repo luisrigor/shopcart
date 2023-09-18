@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -79,7 +80,7 @@ class OrderStateControllerTest {
 
         when(orderStatusService.getOrderState(any(),any())).thenReturn(orderStateDTO);
 
-        mvc.perform(get(BASE_REQUEST_MAPPING+ ApiEndpoints.GET_ORDER_STATE)
+        mvc.perform(post(BASE_REQUEST_MAPPING+ ApiEndpoints.GET_ORDER_STATE)
                         .header("accessToken", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(getOrderStateDTO)))

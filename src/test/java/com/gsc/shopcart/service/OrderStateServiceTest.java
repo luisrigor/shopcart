@@ -72,7 +72,7 @@ import static org.junit.jupiter.api.Assertions.*;
        UserPrincipal user = SecurityData.getUserDefaultStatic();
        GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
 
-       doNothing().when(usrLogonSecurity).setUserLogin(any());
+       doNothing().when(usrLogonSecurity).getAuthorities(any());
 
        user.setOidNet(Dealer.OID_NET_TOYOTA);
        user.setAuthorities(new ArrayList<>(Collections.singletonList(ScConstants.PROFILE_TCAP)));

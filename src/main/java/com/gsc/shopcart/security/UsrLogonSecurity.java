@@ -39,15 +39,20 @@ public class UsrLogonSecurity {
             CbusUser cbusUser = cbusUserRepository.getUserinfo("tcap1@tpo".toUpperCase());
             setUserProperties(userPrincipal, cbusUser.getIdUtilizador(), cbusUser.getIdEntidade(), cbusUser.getOidDealer(), cbusUser.getOidDealerParent());
         }
-        List<Ligacao> ligacaos = ligacaoRepository.getAuths(userPrincipal.getIdUser(),  Integer.valueOf(userPrincipal.getSupplierProfile()),
-                Integer.valueOf(userPrincipal.getTcapProfile()), Integer.valueOf(userPrincipal.getDealerProfile()));
-        setUserAuthorities(userPrincipal,userPrincipal.getSupplierProfile(),userPrincipal.getTcapProfile(),userPrincipal.getDealerProfile(),ligacaos);
     }
     private static void setUserProperties(UserPrincipal userPrincipal, Integer idUser, Integer idEntidade, String oidDealer, String oidDealerParent) {
         userPrincipal.setIdUser(idUser);
         userPrincipal.setIdEntity(idEntidade);
         userPrincipal.setOidDealer(oidDealer);
         userPrincipal.setOidDealerParent(oidDealerParent);
+    }
+
+    public void getAuthorities(UserPrincipal userPrincipal) {
+        if (userPrincipal.getIdUser()==null || userPrincipal.getIdUser() == -1)
+            setUserLogin(userPrincipal);
+        List<Ligacao> ligacaos = ligacaoRepository.getAuths(userPrincipal.getIdUser(),  Integer.valueOf(userPrincipal.getSupplierProfile()),
+                Integer.valueOf(userPrincipal.getTcapProfile()), Integer.valueOf(userPrincipal.getDealerProfile()));
+        setUserAuthorities(userPrincipal,userPrincipal.getSupplierProfile(),userPrincipal.getTcapProfile(),userPrincipal.getDealerProfile(),ligacaos);
     }
 
     private static void setUserAuthorities(UserPrincipal userPrincipal, String idProfileSupplier, String idProfileTcap,

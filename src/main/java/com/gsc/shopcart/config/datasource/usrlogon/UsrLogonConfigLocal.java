@@ -12,6 +12,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -32,15 +33,29 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableJpaRepositories(
         entityManagerFactoryRef = "usrlogonEntityManagerFactory",
+        transactionManagerRef = "msTransactionManager",
         basePackages = {"com.gsc.shopcart.repository.usrlogon"}
 )
 public class UsrLogonConfigLocal {
 
     @Autowired
     private Environment env;
+    @Value("${sc.config.file}")
+    private String scConfigFile;
 
     @PostConstruct
     private void init() {
+        SCGlobalPreferences.setResources(scConfigFile);
+        ServerJDBCConnection conn = ServerJDBCConnection.getInstance();
+        DB2SimpleDataSource dbToynet = new DB2SimpleDataSource();
+        dbToynet.setServerName("scdbesrva.sc.pt");
+        dbToynet.setPortNumber(50000);
+        dbToynet.setDatabaseName("USRLOGON");
+        dbToynet.setDriverType(4);
+        dbToynet.setUser("db2inst1");
+        dbToynet.setPassword("db2admin");
+        conn.setDataSource(dbToynet, "jdbc/usrlogon");
+        log.info("Datasource initialized successfully: jdbc/usrlogon");
     }
 
     @Bean(name="usrlogonDataSource")
@@ -63,7 +78,6 @@ public class UsrLogonConfigLocal {
                 .properties(getHibernateProperties())
                 .build();
     }
-
     @Bean(name = "usrlogonTransactionManager")
     PlatformTransactionManager usrlogonTransactionManager(@Qualifier("usrlogonEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);

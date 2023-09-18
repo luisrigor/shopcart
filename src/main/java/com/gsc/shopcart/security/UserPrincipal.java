@@ -2,6 +2,8 @@ package com.gsc.shopcart.security;
 
 import com.gsc.shopcart.constants.AppProfile;
 import lombok.Getter;
+
+import java.util.List;
 import java.util.Set;
 
 
@@ -24,6 +26,7 @@ public class UserPrincipal {
    private String supplierProfile;
    private Integer idUser;
    private Integer idEntity;
+   private List<String> authorities;
 
 
 
@@ -111,5 +114,9 @@ public class UserPrincipal {
 
    public void setIdEntity(Integer idEntity) {
       this.idEntity = idEntity;
+   }
+
+   public void setAuthorities(List<String> authorities) {
+      this.authorities = authorities;
    }
 }

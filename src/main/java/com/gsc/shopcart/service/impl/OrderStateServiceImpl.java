@@ -44,8 +44,8 @@ public class OrderStateServiceImpl  implements OrderStatusService {
     public OrderStateDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO) {
 
         try {
-            if (userPrincipal.getIdUser() == null || userPrincipal.getIdUser() == -1)
-                usrLogonSecurity.setUserLogin(userPrincipal);
+            if (userPrincipal.getAuthorities()==null || userPrincipal.getAuthorities().isEmpty())
+                usrLogonSecurity.getAuthorities(userPrincipal);
 
             String oidParent = StringTasks.cleanString(getOrderStateDTO.getOidParent(),StringUtils.EMPTY);
             StringBuilder criteria = new StringBuilder(" 1=1 ");
@@ -127,8 +127,6 @@ public class OrderStateServiceImpl  implements OrderStatusService {
 
     private List<Object[]> getSuppliers(String oidNet,Integer idProfileTcap, Integer idProfileSupplier){
         if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA)) {
-            System.out.println(idProfileTcap);
-            System.out.println(idProfileSupplier);
             return toyotaUserEntityProfileRepository.getSuppliers(idProfileTcap, idProfileSupplier);
         }
         else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))

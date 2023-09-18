@@ -10,7 +10,7 @@ import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.security.TokenProvider;
-import com.gsc.shopcart.service.OrderStatusService;
+import com.gsc.shopcart.service.OrderStateService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,7 +40,7 @@ class OrderStateControllerTest {
     @Autowired
     private MockMvc mvc;
     @MockBean
-    private OrderStatusService orderStatusService;
+    private OrderStateService orderStateService;
     @MockBean
     private ConfigurationRepository configurationRepository;
     @MockBean
@@ -77,9 +78,9 @@ class OrderStateControllerTest {
         GetOrderStateDTO getOrderStateDTO = new GetOrderStateDTO();
         OrderStateDTO orderStateDTO = OrderData.getOrderStatusDTO();
 
-        when(orderStatusService.getOrderState(any(),any())).thenReturn(orderStateDTO);
+        when(orderStateService.getOrderState(any(),any())).thenReturn(orderStateDTO);
 
-        mvc.perform(get(BASE_REQUEST_MAPPING+ ApiEndpoints.GET_ORDER_STATE)
+        mvc.perform(post(BASE_REQUEST_MAPPING+ ApiEndpoints.GET_ORDER_STATE)
                         .header("accessToken", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(getOrderStateDTO)))

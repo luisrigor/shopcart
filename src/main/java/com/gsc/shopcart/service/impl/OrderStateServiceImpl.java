@@ -1,5 +1,6 @@
 package com.gsc.shopcart.service.impl;
 
+import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
@@ -10,24 +11,27 @@ import com.gsc.shopcart.model.scart.entity.OrderStatus;
 import com.gsc.shopcart.repository.scart.OrderDetailRepository;
 import com.gsc.shopcart.repository.scart.OrderRepository;
 import com.gsc.shopcart.repository.scart.OrderStatusRepository;
+import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.repository.usrlogon.*;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.security.UsrLogonSecurity;
-import com.gsc.shopcart.service.OrderStatusService;
+import com.gsc.shopcart.service.OrderStateService;
 import com.rg.dealer.Dealer;
+import com.sc.commons.utils.DateTimerTasks;
 import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Log4j
 @RequiredArgsConstructor
-public class OrderStateServiceImpl  implements OrderStatusService {
+public class OrderStateServiceImpl  implements OrderStateService {
 
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
@@ -38,6 +42,7 @@ public class OrderStateServiceImpl  implements OrderStatusService {
     private final LexusEntityProfileRepository lexusEntityProfileRepository;
     private final CbusUserRepository cbusUserRepository;
     private final CbusEntityProfileRepository cbusEntityProfileRepository;
+    private final ProductRepository productRepository;
     private final UsrLogonSecurity usrLogonSecurity;
 
     @Override
@@ -127,8 +132,6 @@ public class OrderStateServiceImpl  implements OrderStatusService {
 
     private List<Object[]> getSuppliers(String oidNet,Integer idProfileTcap, Integer idProfileSupplier){
         if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA)) {
-            System.out.println(idProfileTcap);
-            System.out.println(idProfileSupplier);
             return toyotaUserEntityProfileRepository.getSuppliers(idProfileTcap, idProfileSupplier);
         }
         else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
@@ -136,5 +139,154 @@ public class OrderStateServiceImpl  implements OrderStatusService {
         else
             return cbusEntityProfileRepository.getSuppliers(idProfileTcap,idProfileSupplier);
     }
+
+    @Override
+    public Map sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders) {
+        Map<String, List<Order>> orders = groupOrdersByDealer(idOrders);
+
+        return orders;
+    }
+
+    public Map<String, List<Order>> groupOrdersByDealer(List<Integer> orderIds) {
+        Map<String, List<Order>> result = new HashMap<>();
+        for (Integer orderId : orderIds) {
+            if (orderId == null || orderId == 0)
+                continue;
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new ShopCartException("Order not found by " + orderId));
+            result.computeIfAbsent(order.getOidDealer(), key -> new ArrayList<>()).add(order);
+        }
+        return result;
+    }
+
+    public  String generateInvoice(Dealer dealer, List<Order> orders, UserPrincipal user, int idApplication) {
+        int year = DateTimerTasks.getCurYear();
+        String registryKeyPrefix = "CRCMP";
+        String program;
+        double price;
+        int quantity;
+        String fileName=StringUtils.EMPTY;
+        String fileNameFinal=StringUtils.EMPTY;
+
+        if (idApplication==10008) program = "CARRCMP-02";
+        else program = "CARRCMP-01";
+
+        String costCenter = "";// o mesmo que billTo na base de dados
+        String invoiceOperation = "00069";
+        String movementType = "D";
+
+        String billTo=StringUtils.EMPTY;
+        String orderBillTo=StringUtils.EMPTY;//chave do mapa com o centro de custo
+        int orderNumber = orders.get(0).getOrderNumber();//apenas � passada uma order de cada vez no construtor
+        int num=0;
+        List<OrderDetail> orderDetailList;
+        String group = new DecimalFormat("00").format(year) + new DecimalFormat("0000").format(orderNumber);
+
+
+        Map<String, List<OrderDetail>> mapListProductsByOrderAndBillTo = new HashMap<>();//
+
+        for(Order oOrder : orders){//percorre a lista de orders recebidas
+            orderDetailList = orderDetailRepository.findByIdOrderAndIdOrderStatus(oOrder.getId(),ScConstants.ID_ORDER_STATUS_DELIVERED);//obtem o vetor de produtos da encomenda
+
+            for(OrderDetail orderDetail : orderDetailList){
+                billTo= productRepository.getBillToByIdProduct(orderDetail.getIdProduct());//obtem o centro de custo por id do produto
+
+                if (billTo == null || billTo.trim() == StringUtils.EMPTY) {// no caso de n�o// centro de      // custo   // definido na // BD                             // existir
+                    if (idApplication == ApiConstants.TOYOTA_APP) //idApplication ShopCart Toyota
+                        billTo = "0238";// centro de custos da toyota
+                    else if(idApplication == ApiConstants.LEXUS_APP)
+                        billTo = "0288";// no caso lexus
+                }
+                orderBillTo = oOrder.getOrderNumber()+billTo;// chave constituida por orderNumber + billTo (centro de custo)
+                /*
+                if(!(mapListProductsByOrderAndBillTo.containsKey(orderBillTo)))
+                    mapListProductsByOrderAndBillTo.put(orderBillTo, new Vector<OrderDetail>());
+                mapListProductsByOrderAndBillTo.get(orderBillTo).add(orderDetail);
+                */
+                mapListProductsByOrderAndBillTo.computeIfAbsent(orderBillTo, key -> new ArrayList<>()).add(orderDetail);
+            }
+        }
+
+        Iterator<Map.Entry<String,  Vector<OrderDetail>>> iterator = mapListProductsByOrderAndBillTo.entrySet().iterator();
+        while (iterator.hasNext()) {
+
+            Entry<String, Vector<OrderDetail>> entry = iterator.next();
+
+            Vector<OrderDetail> vecOrderD = mapListProductsByOrderAndBillTo.get(entry.getKey());
+
+            if(entry.getKey().length()>4){
+                costCenter = (entry.getKey()).substring(entry.getKey().length()-4);
+            }
+            Vector<AlObservations> vecObservations = new Vector<AlObservations>();
+            Vector<AlMovement>    vecMovement = new Vector<AlMovement>();
+            AlObservations alObs = new AlObservations();
+
+
+            num=0;
+
+
+            for(OrderDetail OorderD : vecOrderD){
+
+                String registryKeyAl = registryKeyPrefix + new DecimalFormat("0000").format(year)
+                        + new DecimalFormat("0000000").format(OorderD.getId_order())+ OorderD.getId();
+
+                AlMovement oAlMovement = new AlMovement();
+
+                oAlMovement.setCostCenter(costCenter);
+                oAlMovement.setClientDivisionCode(null);
+
+                oAlMovement.setClientCostCenter(null);
+                oAlMovement.setAddressCode("01");
+
+                oAlMovement.setClientNumber(dealer.getToyotaDealerCode());
+                oAlMovement.setInvoiceOperation(invoiceOperation);
+
+                oAlMovement.setMovementType(movementType);
+                oAlMovement.setCurrencyCode(null);
+
+
+                price = OorderD.getUnitPrice()/2;
+                quantity = OorderD.getOrder_quantity();
+                // nota 1: preencher Quantit e Price ou FinalValue
+                oAlMovement.setQuantity(quantity);
+                oAlMovement.setPrice(price);
+
+                // oAlMovement.setFinalValue(getTotal(orders));
+
+                oAlMovement.setVatRate(FinancialTasks.getVAT());
+                oAlMovement.setInvoiceItem("N");
+                oAlMovement.setVatSchemeCode("");
+                oAlMovement.setVatFree("N");
+                oAlMovement.setProgram(program);
+
+                oAlMovement.setRegistryKey(registryKeyAl);
+
+                oAlMovement.setGroup(group);
+
+                oAlMovement.setSapOrder(null);
+                oAlMovement.setInvoiceOrderItem(0);
+
+                vecMovement.add(oAlMovement);
+                //vecObservations = generateInvoiceDetails(program, registryKey, group, vecOrderD);
+
+                alObs = populateAlObservations("L", OorderD.getProductReference() + " - " + OorderD.getProductName(), program, registryKeyAl, group);
+                vecObservations.add(alObs);
+                num ++;
+
+                if(num == vecOrderD.size()){
+                    alObs = populateAlObservations("L", vecObservations.size() + 1, "A fatura corresponde � vossa comparticipa��o (50%) no custo dos materiais (MPVs) fornecidos. ", program, registryKeyAl, group);
+                    vecObservations.add(alObs);
+
+                }
+
+            }
+            fileName =  writeFiles(vecMovement, vecObservations, entry.getKey());
+            fileNameFinal = fileName +";"+fileName;//como podem ser gerados masi que um ficheiro AL para a mesma order, tenho de atualizar na BD todos os ficheiros gerados e enviados ao AS400
+        }
+
+        return fileNameFinal;
+    }
+
+
+
 
 }

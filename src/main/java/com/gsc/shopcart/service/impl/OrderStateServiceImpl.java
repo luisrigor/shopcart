@@ -49,9 +49,6 @@ public class OrderStateServiceImpl  implements OrderStateService {
     public OrderStateDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO) {
 
         try {
-            if (userPrincipal.getIdUser() == null || userPrincipal.getIdUser() == -1)
-                usrLogonSecurity.setUserLogin(userPrincipal);
-
             String oidParent = StringTasks.cleanString(getOrderStateDTO.getOidParent(),StringUtils.EMPTY);
             StringBuilder criteria = new StringBuilder(" 1=1 ");
             StringBuilder criteriaDetail = new StringBuilder(" 1=1 ");
@@ -76,6 +73,9 @@ public class OrderStateServiceImpl  implements OrderStateService {
 
             List<Order> orderList = orderRepository.getOrderByCriteria(getOrderStateDTO,userPrincipal,criteria,criteriaDetail);
             List<OrderStatus> orderStatusList = orderStatusRepository.findAll();
+
+            if (userPrincipal.getAuthorities()==null || userPrincipal.getAuthorities().isEmpty())
+                usrLogonSecurity.getAuthorities(userPrincipal);
 
             Map<Integer, String> suppliers = new HashMap<>();
             if (userPrincipal.getAuthorities().contains(ScConstants.PROFILE_TCAP) || userPrincipal.getAuthorities().contains(ScConstants.PROFILE_DEALER)) {

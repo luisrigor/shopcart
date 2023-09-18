@@ -124,14 +124,5 @@ public class OrderDetail {
 
     @Column(name = "DT_CHANGED")
     private LocalDateTime dtChanged;
-/*
-    protected Product ivProduct;
-    protected ProductVariant ivProductVariant;
-    protected OrderStatus ivOrderStatus;
-    protected Order ivOrder;
-    protected Vector<ProductProperty> ivVecOrderDetailProductProperty;
-
- */
-
 
 }

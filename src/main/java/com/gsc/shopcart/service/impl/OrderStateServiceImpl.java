@@ -80,6 +80,7 @@ public class OrderStateServiceImpl  implements OrderStatusService {
 
             List<Object[]> listUser = getUsers(userPrincipal.getOidNet(), oidParent);
             Map<Integer, String> users =  setMapData(listUser);
+
             Map<Integer, List<OrderDetail>> hsmOrderDetails = orderDetailRepository.findAll().stream()
                     .collect(Collectors.groupingBy(OrderDetail::getIdOrder));
 
@@ -93,7 +94,6 @@ public class OrderStateServiceImpl  implements OrderStatusService {
                     .users(users)
                     .idCatalog(getOrderStateDTO.getIdCatalog())
                     .preferences(preferences)
-                    .idApplication(getOrderStateDTO.getIdApplication())
                     .build();
         } catch (Exception e) {
             throw new ShopCartException("Error fetching order status ", e);

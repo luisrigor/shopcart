@@ -22,7 +22,7 @@ public class OrderStateController {
 
     private final OrderStatusService orderStatusService;
 
-    @GetMapping(ApiEndpoints.GET_ORDER_STATE)
+    @PostMapping(ApiEndpoints.GET_ORDER_STATE)
     public ResponseEntity<?> getOrderState(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody GetOrderStateDTO getOrderStateDTO) {
         Gson gson = new Gson();
         OrderStateDTO orderStateDTO = orderStatusService.getOrderState(userPrincipal,getOrderStateDTO);

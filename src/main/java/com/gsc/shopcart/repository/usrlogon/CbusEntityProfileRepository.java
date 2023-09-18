@@ -10,6 +10,6 @@ import java.util.List;
 public interface CbusEntityProfileRepository extends JpaRepository<CbusUserEntityProfile,Integer> {
 
     @Query("SELECT DISTINCT(CU.idEntidade), CU.desigEntidade FROM CbusUserEntityProfile CU WHERE idPerfil IN (:idProfileTcap, :idProfileSupplier)")
-    List<Object[]> getSuppliers(@Param("idProfileTcap") String idProfileTcap, @Param("idProfileSupplier") String idProfileSupplier);
+    List<Object[]> getSuppliers(@Param("idProfileTcap") Integer idProfileTcap, @Param("idProfileSupplier") Integer idProfileSupplier);
 
 }

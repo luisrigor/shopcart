@@ -7,7 +7,6 @@ import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.model.scart.entity.OrderStatus;
-import com.gsc.shopcart.model.usrlogon.entity.*;
 import com.gsc.shopcart.repository.scart.OrderDetailRepository;
 import com.gsc.shopcart.repository.scart.OrderRepository;
 import com.gsc.shopcart.repository.scart.OrderStatusRepository;
@@ -38,7 +37,6 @@ public class OrderStateServiceImpl  implements OrderStatusService {
     private final LexusUserRepository lexusUserRepository;
     private final LexusEntityProfileRepository lexusEntityProfileRepository;
     private final CbusUserRepository cbusUserRepository;
-    private final LigacaoRepository ligacaoRepository;
     private final CbusEntityProfileRepository cbusEntityProfileRepository;
     private final UsrLogonSecurity usrLogonSecurity;
 
@@ -46,12 +44,6 @@ public class OrderStateServiceImpl  implements OrderStatusService {
     public OrderStateDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO) {
 
         try {
-            List<ToyotaUser> toys7 = toyotaUserRepository.findAll();
-            List<LexusUserEntityProfile> lexa = lexusEntityProfileRepository.findAll();
-            List<CbusUserEntityProfile> cbs = cbusEntityProfileRepository.findAll();
-            List<Ligacao> ligacaos = ligacaoRepository.findAll();
-            ligacaos.forEach(System.out::println);
-
             if (userPrincipal.getIdUser() == null || userPrincipal.getIdUser() == -1)
                 usrLogonSecurity.setUserLogin(userPrincipal);
 
@@ -134,14 +126,12 @@ public class OrderStateServiceImpl  implements OrderStatusService {
     }
 
     private List<Object[]> getSuppliers(String oidNet,Integer idProfileTcap, Integer idSupplier){
-        String profileTcap = idProfileTcap.toString();
-        String supplier = idSupplier.toString();
         if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA))
-            return toyotaUserEntityProfileRepository.getSuppliers(profileTcap,supplier);
+            return toyotaUserEntityProfileRepository.getSuppliers(idProfileTcap,idSupplier);
         else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
-            return lexusEntityProfileRepository.getSuppliers(profileTcap,supplier);
+            return lexusEntityProfileRepository.getSuppliers(idProfileTcap,idSupplier);
         else
-            return cbusEntityProfileRepository.getSuppliers(profileTcap,supplier);
+            return cbusEntityProfileRepository.getSuppliers(idProfileTcap,idSupplier);
     }
 
 }

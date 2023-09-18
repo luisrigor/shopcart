@@ -14,7 +14,7 @@ public interface ToyotaUserEntityProfileRepository extends JpaRepository<ToyotaU
     ToyotaUser getUserinfo(@Param("loginUtilizador") String loginUtilizador);
 
     @Query("SELECT DISTINCT(TU.idEntidade), TU.desigEntidade FROM ToyotaUserEntityProfile TU WHERE idPerfil IN (:idProfileTcap, :idProfileSupplier)")
-    List<Object[]> getSuppliers(@Param("idProfileTcap") String idProfileTcap, @Param("idProfileSupplier") String idProfileSupplier);
+    List<Object[]> getSuppliers(@Param("idProfileTcap") Integer idProfileTcap, @Param("idProfileSupplier") Integer idProfileSupplier);
 
 
 }

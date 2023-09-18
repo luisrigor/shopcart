@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface LexusUserRepository extends JpaRepository<LexusUser, Integer>,LigacaoCustomRepository {
+public interface LexusUserRepository extends JpaRepository<LexusUser, Integer> {
 
     @Query("SELECT LU FROM LexusUser LU WHERE UPPER(LU.loginUtilizador) = :loginUtilizador")
     LexusUser getUserinfo(@Param("loginUtilizador") String loginUtilizador);

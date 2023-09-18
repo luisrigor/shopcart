@@ -6,10 +6,7 @@ import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
-import com.gsc.shopcart.repository.scart.ClientRepository;
-import com.gsc.shopcart.repository.scart.ConfigurationRepository;
-import com.gsc.shopcart.repository.scart.LoginKeyRepository;
-import com.gsc.shopcart.repository.scart.ServiceLoginRepository;
+import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.security.TokenProvider;
@@ -43,9 +40,10 @@ class OrderStateControllerTest {
     private MockMvc mvc;
     @MockBean
     private OrderStatusService orderStatusService;
-
     @MockBean
     private ConfigurationRepository configurationRepository;
+    @MockBean
+    private ConfigRepository configRepository;
     @MockBean
     private LoginKeyRepository loginKeyRepository;
     @MockBean
@@ -78,7 +76,9 @@ class OrderStateControllerTest {
         String accessToken = generatedToken;
         GetOrderStateDTO getOrderStateDTO = new GetOrderStateDTO();
         OrderStateDTO orderStateDTO = OrderData.getOrderStatusDTO();
+
         when(orderStatusService.getOrderState(any(),any())).thenReturn(orderStateDTO);
+
         mvc.perform(get(BASE_REQUEST_MAPPING+ ApiEndpoints.GET_ORDER_STATE)
                         .header("accessToken", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)

@@ -74,7 +74,7 @@ public class OrderStateServiceImpl  implements OrderStatusService {
 
             Map<Integer, String> suppliers = new HashMap<>();
             if (userPrincipal.getAuthorities().contains(ScConstants.PROFILE_TCAP) || userPrincipal.getAuthorities().contains(ScConstants.PROFILE_DEALER)) {
-                List<Object[]> listSupps = getSuppliers(userPrincipal.getOidNet(), getOrderStateDTO.getIdProfileTcap(),getOrderStateDTO.getIdSupplier());
+                List<Object[]> listSupps = getSuppliers(userPrincipal.getOidNet(), getOrderStateDTO.getIdProfileTcap(),getOrderStateDTO.getIdProfileSupplier());
                 suppliers = setMapData(listSupps);
             }
 
@@ -125,13 +125,16 @@ public class OrderStateServiceImpl  implements OrderStatusService {
             return cbusUserRepository.getIdAndName(oidDealerParent);
     }
 
-    private List<Object[]> getSuppliers(String oidNet,Integer idProfileTcap, Integer idSupplier){
-        if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA))
-            return toyotaUserEntityProfileRepository.getSuppliers(idProfileTcap,idSupplier);
+    private List<Object[]> getSuppliers(String oidNet,Integer idProfileTcap, Integer idProfileSupplier){
+        if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA)) {
+            System.out.println(idProfileTcap);
+            System.out.println(idProfileSupplier);
+            return toyotaUserEntityProfileRepository.getSuppliers(idProfileTcap, idProfileSupplier);
+        }
         else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
-            return lexusEntityProfileRepository.getSuppliers(idProfileTcap,idSupplier);
+            return lexusEntityProfileRepository.getSuppliers(idProfileTcap,idProfileSupplier);
         else
-            return cbusEntityProfileRepository.getSuppliers(idProfileTcap,idSupplier);
+            return cbusEntityProfileRepository.getSuppliers(idProfileTcap,idProfileSupplier);
     }
 
 }

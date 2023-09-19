@@ -127,7 +127,7 @@
         <dependency>
             <groupId>GSC</groupId>
             <artifactId>SCCommons</artifactId>
-            <version>20230221</version>
+            <version>20230912</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>

@@ -104,7 +104,7 @@ public class CatalogServiceImpl implements CatalogService {
             double totalIva = 0.0;
 
   //         if (!ivaType.equalsIgnoreCase("EXEMPT"))
-  //              totalIva = FinancialTasks.getVATatScale(new java.sql.Date(System.currentTimeMillis()), ivaType);
+  //         totalIva = FinancialTasks.getVATatScale("PT", ivaType);
 
             double unitPrice = cart.getUnitPrice();
             if (ShopCartUtils.isProductInPromotion(cart.getPromoStart(), cart.getPromoEnd()))

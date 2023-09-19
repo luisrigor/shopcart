@@ -62,7 +62,7 @@ public class CartConfigLocal {
         dbFwk.setDriverType(4);
         dbFwk.setUser("db2inst1");
         dbFwk.setPassword("db2admin");
-        conn.setDataSource(dbToynet, "jdbc/dbfwk");
+        conn.setDataSource(dbFwk, "jdbc/dbfwk");
         log.info("Datasource initialized successfully: jdbc/dbfwk");
     }
 

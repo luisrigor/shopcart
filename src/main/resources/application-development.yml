@@ -52,6 +52,8 @@ app:
   datasource:
     first:
       jndi: jdbc/dbdmv
+    second:
+      jndi: jdbc/usrlogon
 
 secundary:
   dbs:

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
+import com.gsc.shopcart.dto.SendInvoiceDTO;
 import com.gsc.shopcart.repository.scart.OrderDetailRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.security.UserPrincipal;
@@ -14,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("${app.baseUrl}")
@@ -42,9 +45,8 @@ public class OrderStateController {
 
  */
     @GetMapping(ApiEndpoints.SEND_INVOICE)
-    @ResponseBody
-    public ResponseEntity<?> testController(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Integer id){
-        return ResponseEntity.status(HttpStatus.OK).body(productRepository.getBillToByIdProduct(id));
+    public ResponseEntity<?> testController(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody SendInvoiceDTO sendInvoiceDTO){
+        return ResponseEntity.status(HttpStatus.OK).body(orderStateService.sendInvoice(userPrincipal,sendInvoiceDTO.getOrderList(),sendInvoiceDTO.getAppId()));
     }
 
 

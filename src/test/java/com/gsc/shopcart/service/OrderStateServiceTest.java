@@ -14,6 +14,7 @@ import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.impl.OrderStateServiceImpl;
+import com.gsc.shopcart.utils.FileShopUtils;
 import com.rg.dealer.Dealer;
 import com.rg.dealer.DealerHelper;
 import com.sc.commons.exceptions.SCErrorException;
@@ -56,6 +57,8 @@ import static org.junit.jupiter.api.Assertions.*;
     private UsrLogonSecurity usrLogonSecurity;
     @Mock
     private DealerHelper dealerHelper;
+    @Mock
+    private FileShopUtils fileShopUtils;
     @InjectMocks
     private OrderStateServiceImpl orderStateService;
 
@@ -293,7 +296,6 @@ import static org.junit.jupiter.api.Assertions.*;
       userList.add(new Object[] { 1, "oidDealerParent1" });
       Hashtable<String, Dealer> hsmDealers = new Hashtable<>();
 
-
       try (MockedStatic<Dealer> utilities = Mockito.mockStatic(Dealer.class)){
 
          utilities.when(Dealer::getHelper).thenReturn(dealerHelper);
@@ -317,15 +319,10 @@ import static org.junit.jupiter.api.Assertions.*;
    }
 
    @Test
-   void whenGetOrderStateThenThrowException() throws SCErrorException {
+   void whenGetOrderStateThenThrowException() {
       UserPrincipal user = SecurityData.getUserDefaultStatic();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
 
-      Vector<Dealer> dealerList =  new Vector<>();
-      List<Order> orderList = new ArrayList<>();
-      List<OrderStatus> orderStatusList = new ArrayList<>();
-      List<OrderDetail> orderDetails = new ArrayList<>();
-      Hashtable<String, Dealer> hsmDealers = new Hashtable<>();
       try (MockedStatic<Dealer> utilities = Mockito.mockStatic(Dealer.class)){
 
          utilities.when(Dealer::getHelper).thenThrow(ShopCartException.class);

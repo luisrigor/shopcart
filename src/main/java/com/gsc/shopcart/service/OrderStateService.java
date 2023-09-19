@@ -10,5 +10,5 @@ import java.util.Map;
 public interface OrderStateService {
     OrderStateDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO);
 
-    Map sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders);
+    Map sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders, Integer idApplication);
 }

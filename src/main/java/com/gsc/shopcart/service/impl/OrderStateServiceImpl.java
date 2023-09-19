@@ -16,15 +16,16 @@ import com.gsc.shopcart.repository.usrlogon.*;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.OrderStateService;
+import com.gsc.shopcart.utils.FileShopUtils;
 import com.rg.dealer.Dealer;
-import com.sc.commons.utils.DateTimerTasks;
+import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -141,10 +142,19 @@ public class OrderStateServiceImpl  implements OrderStateService {
     }
 
     @Override
-    public Map sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders) {
-        Map<String, List<Order>> orders = groupOrdersByDealer(idOrders);
+    public Map sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders, Integer idApplication) {
+        try {
+            Map<String, List<Order>> orders = groupOrdersByDealer(idOrders);
 
-        return orders;
+            for (Map.Entry<String, List<Order>> entry : orders.entrySet()) {
+                Dealer dealer = Dealer.getHelper().getByObjectId(userPrincipal.getOidNet(), entry.getKey());
+                String fileName = generateInvoice(dealer, entry.getValue(), idApplication);
+                updateOrders(entry.getValue(), fileName, userPrincipal);
+            }
+            return orders;
+        } catch (SCErrorException e) {
+            throw new ShopCartException("Error Write Files", e);
+        }
     }
 
     public Map<String, List<Order>> groupOrdersByDealer(List<Integer> orderIds) {
@@ -158,135 +168,40 @@ public class OrderStateServiceImpl  implements OrderStateService {
         return result;
     }
 
-    public  String generateInvoice(Dealer dealer, List<Order> orders, UserPrincipal user, int idApplication) {
-        int year = DateTimerTasks.getCurYear();
-        String registryKeyPrefix = "CRCMP";
-        String program;
-        double price;
-        int quantity;
-        String fileName=StringUtils.EMPTY;
-        String fileNameFinal=StringUtils.EMPTY;
+    public String generateInvoice(Dealer dealer, List<Order> orders, int idApplication) throws SCErrorException {
 
-        if (idApplication==10008) program = "CARRCMP-02";
-        else program = "CARRCMP-01";
-
-        String costCenter = "";// o mesmo que billTo na base de dados
-        String invoiceOperation = "00069";
-        String movementType = "D";
-
-        String billTo=StringUtils.EMPTY;
-        String orderBillTo=StringUtils.EMPTY;//chave do mapa com o centro de custo
-        int orderNumber = orders.get(0).getOrderNumber();//apenas � passada uma order de cada vez no construtor
-        int num=0;
+        String billTo;
+        String orderBillTo;
+        int orderNumber = orders.get(0).getOrderNumber();
         List<OrderDetail> orderDetailList;
-        String group = new DecimalFormat("00").format(year) + new DecimalFormat("0000").format(orderNumber);
-
-
-        Map<String, List<OrderDetail>> mapListProductsByOrderAndBillTo = new HashMap<>();//
+        Map<String, List<OrderDetail>> mapListProductsByOrderAndBillTo = new HashMap<>();
 
         for(Order oOrder : orders){//percorre a lista de orders recebidas
             orderDetailList = orderDetailRepository.findByIdOrderAndIdOrderStatus(oOrder.getId(),ScConstants.ID_ORDER_STATUS_DELIVERED);//obtem o vetor de produtos da encomenda
 
             for(OrderDetail orderDetail : orderDetailList){
-                billTo= productRepository.getBillToByIdProduct(orderDetail.getIdProduct());//obtem o centro de custo por id do produto
+                billTo= productRepository.getBillToByIdProduct(orderDetail.getIdProduct());
 
-                if (billTo == null || billTo.trim() == StringUtils.EMPTY) {// no caso de n�o// centro de      // custo   // definido na // BD                             // existir
-                    if (idApplication == ApiConstants.TOYOTA_APP) //idApplication ShopCart Toyota
-                        billTo = "0238";// centro de custos da toyota
+                if (billTo == null || billTo.trim().equals(StringUtils.EMPTY)) {
+                    if (idApplication == ApiConstants.TOYOTA_APP)
+                        billTo = "0238";
                     else if(idApplication == ApiConstants.LEXUS_APP)
-                        billTo = "0288";// no caso lexus
+                        billTo = "0288";
                 }
-                orderBillTo = oOrder.getOrderNumber()+billTo;// chave constituida por orderNumber + billTo (centro de custo)
-                /*
-                if(!(mapListProductsByOrderAndBillTo.containsKey(orderBillTo)))
-                    mapListProductsByOrderAndBillTo.put(orderBillTo, new Vector<OrderDetail>());
-                mapListProductsByOrderAndBillTo.get(orderBillTo).add(orderDetail);
-                */
+                orderBillTo = oOrder.getOrderNumber()+billTo;
                 mapListProductsByOrderAndBillTo.computeIfAbsent(orderBillTo, key -> new ArrayList<>()).add(orderDetail);
             }
         }
 
-        Iterator<Map.Entry<String,  Vector<OrderDetail>>> iterator = mapListProductsByOrderAndBillTo.entrySet().iterator();
-        while (iterator.hasNext()) {
-
-            Entry<String, Vector<OrderDetail>> entry = iterator.next();
-
-            Vector<OrderDetail> vecOrderD = mapListProductsByOrderAndBillTo.get(entry.getKey());
-
-            if(entry.getKey().length()>4){
-                costCenter = (entry.getKey()).substring(entry.getKey().length()-4);
-            }
-            Vector<AlObservations> vecObservations = new Vector<AlObservations>();
-            Vector<AlMovement>    vecMovement = new Vector<AlMovement>();
-            AlObservations alObs = new AlObservations();
-
-
-            num=0;
-
-
-            for(OrderDetail OorderD : vecOrderD){
-
-                String registryKeyAl = registryKeyPrefix + new DecimalFormat("0000").format(year)
-                        + new DecimalFormat("0000000").format(OorderD.getId_order())+ OorderD.getId();
-
-                AlMovement oAlMovement = new AlMovement();
-
-                oAlMovement.setCostCenter(costCenter);
-                oAlMovement.setClientDivisionCode(null);
-
-                oAlMovement.setClientCostCenter(null);
-                oAlMovement.setAddressCode("01");
-
-                oAlMovement.setClientNumber(dealer.getToyotaDealerCode());
-                oAlMovement.setInvoiceOperation(invoiceOperation);
-
-                oAlMovement.setMovementType(movementType);
-                oAlMovement.setCurrencyCode(null);
-
-
-                price = OorderD.getUnitPrice()/2;
-                quantity = OorderD.getOrder_quantity();
-                // nota 1: preencher Quantit e Price ou FinalValue
-                oAlMovement.setQuantity(quantity);
-                oAlMovement.setPrice(price);
-
-                // oAlMovement.setFinalValue(getTotal(orders));
-
-                oAlMovement.setVatRate(FinancialTasks.getVAT());
-                oAlMovement.setInvoiceItem("N");
-                oAlMovement.setVatSchemeCode("");
-                oAlMovement.setVatFree("N");
-                oAlMovement.setProgram(program);
-
-                oAlMovement.setRegistryKey(registryKeyAl);
-
-                oAlMovement.setGroup(group);
-
-                oAlMovement.setSapOrder(null);
-                oAlMovement.setInvoiceOrderItem(0);
-
-                vecMovement.add(oAlMovement);
-                //vecObservations = generateInvoiceDetails(program, registryKey, group, vecOrderD);
-
-                alObs = populateAlObservations("L", OorderD.getProductReference() + " - " + OorderD.getProductName(), program, registryKeyAl, group);
-                vecObservations.add(alObs);
-                num ++;
-
-                if(num == vecOrderD.size()){
-                    alObs = populateAlObservations("L", vecObservations.size() + 1, "A fatura corresponde � vossa comparticipa��o (50%) no custo dos materiais (MPVs) fornecidos. ", program, registryKeyAl, group);
-                    vecObservations.add(alObs);
-
-                }
-
-            }
-            fileName =  writeFiles(vecMovement, vecObservations, entry.getKey());
-            fileNameFinal = fileName +";"+fileName;//como podem ser gerados masi que um ficheiro AL para a mesma order, tenho de atualizar na BD todos os ficheiros gerados e enviados ao AS400
-        }
-
-        return fileNameFinal;
+        return FileShopUtils.setFiles(mapListProductsByOrderAndBillTo,idApplication,orderNumber,dealer);
     }
 
-
+    private void updateOrders(List<Order> orders, String fileName, UserPrincipal user) {
+        String changedBy = user.getUsername();
+        for (Order order : orders) {
+            orderRepository.updateAlData(fileName, LocalDateTime.now(),changedBy,LocalDateTime.now(),order.getId());
+        }
+    }
 
 
 }

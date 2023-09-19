@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
+@ToString
 @Table(name = "ORDER")
 public class Order {
 

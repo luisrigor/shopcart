@@ -72,8 +72,5 @@ logging:
       hibernate:
         SQL: DEBUG
 
-#custom path files
-files:
-  write: C:\Windows\Temp
 
 

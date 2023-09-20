@@ -10,6 +10,7 @@ import java.util.Map;
 public class MapProfileVariables {
 
     public static final String PATH_TO_WRITE_FILES = "PATH_TO_WRITE_FILES";
+    public static final String PATH_TO_WRITE_FILES_VALUE = "/home/www/files/faa";
 
     public static Map<String, String> getEnvVariablesLocal() {
         Map<String, String> envVariables = new HashMap<>();
@@ -19,19 +20,19 @@ public class MapProfileVariables {
 
     public static Map<String, String> getEnvVariablesDevelopment() {
         Map<String, String> envVariables = new HashMap<>();
-        envVariables.put(PATH_TO_WRITE_FILES, "/home/www/files/faa");
+        envVariables.put(PATH_TO_WRITE_FILES, PATH_TO_WRITE_FILES_VALUE);
         return envVariables;
     }
 
     public static Map<String, String> getEnvVariablesStaging() {
         Map<String, String> envVariables = new HashMap<>();
-        envVariables.put(PATH_TO_WRITE_FILES, "/home/www/files/faa");
+        envVariables.put(PATH_TO_WRITE_FILES, PATH_TO_WRITE_FILES_VALUE);
         return envVariables;
     }
 
     public static Map<String, String> getEnvVariablesProduction() {
         Map<String, String> envVariables = new HashMap<>();
-        envVariables.put(PATH_TO_WRITE_FILES, "/home/www/files/faa");
+        envVariables.put(PATH_TO_WRITE_FILES, PATH_TO_WRITE_FILES_VALUE);
         return envVariables;
     }
 

@@ -36,7 +36,7 @@ public class OrderStateController {
 
     @PostMapping(ApiEndpoints.SEND_INVOICE)
     public ResponseEntity<String> sendInvoice(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody SendInvoiceDTO sendInvoiceDTO){
-        orderStateService.sendInvoice(userPrincipal,sendInvoiceDTO.getOrderList(),sendInvoiceDTO.getAppId());
+        orderStateService.sendInvoice(userPrincipal,sendInvoiceDTO.getOrderList());
         return ResponseEntity.status(HttpStatus.OK).body("Send Invoice Successfully Executed");
     }
 

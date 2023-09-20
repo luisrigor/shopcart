@@ -1,5 +1,7 @@
 package com.gsc.shopcart.service;
 
+import com.gsc.shopcart.config.environment.EnvironmentConfig;
+import com.gsc.shopcart.config.environment.MapProfileVariables;
 import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
@@ -24,7 +26,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
@@ -35,7 +40,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles(SecurityData.ACTIVE_PROFILE)
- class OrderStateServiceImplTest {
+class OrderStateServiceImplTest {
 
     @Mock
     private OrderRepository orderRepository;
@@ -62,7 +67,7 @@ import static org.mockito.Mockito.*;
     @Mock
     private DealerHelper dealerHelper;
     @Mock
-    private FileShopUtils fileShopUtils;
+    private EnvironmentConfig environmentConfig;
     @InjectMocks
     private OrderStateServiceImpl orderStateService;
 
@@ -335,13 +340,14 @@ import static org.mockito.Mockito.*;
       String expectedFileName = "FileName";
       Map<String, List<Order>> orders = new HashMap<>();
       orders.put(order.getOidDealer(),Collections.singletonList(order));
-
+      Map<String, String> envVariables = new HashMap<>();
+      envVariables.put(MapProfileVariables.PATH_TO_WRITE_FILES, "C:\\Windows\\Temp");
       try (MockedStatic<FileShopUtils> fileShopUtils = Mockito.mockStatic(FileShopUtils.class)) {
-
+         when(environmentConfig.getEnvVariables()).thenReturn(envVariables);
          when(dealerHelper.getByObjectId(anyString(),anyString())).thenReturn(dealer);
          when(orderDetailRepository.findByIdOrderAndIdOrderStatus(anyInt(),anyInt())).thenReturn(Collections.singletonList(orderDetail));
          when(productRepository.getBillToByIdProduct(anyInt())).thenReturn(billTo);
-         fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any()))
+         fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any(),anyString()))
                  .thenReturn(expectedFileName);
          String fileName = orderStateService.generateInvoice(dealer,Collections.singletonList(order), ApiConstants.LEXUS_APP);
          assertEquals(expectedFileName,fileName);
@@ -365,7 +371,7 @@ import static org.mockito.Mockito.*;
          when(dealerHelper.getByObjectId(anyString(),anyString())).thenReturn(dealer);
          when(orderDetailRepository.findByIdOrderAndIdOrderStatus(anyInt(),anyInt())).thenReturn(Collections.singletonList(orderDetail));
          when(productRepository.getBillToByIdProduct(anyInt())).thenReturn(billTo);
-         fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any()))
+         fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any(),anyString()))
                  .thenReturn(expectedFileName);
          orderStateService.sendInvoice(user,new ArrayList<>(Arrays.asList(1,0)));
          verify(productRepository).getBillToByIdProduct(anyInt());

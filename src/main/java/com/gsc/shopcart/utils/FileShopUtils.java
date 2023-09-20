@@ -13,15 +13,18 @@ import com.sc.commons.utils.DateTimerTasks;
 import com.sc.commons.utils.ServerTasks;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.*;
 
+
 @Log4j
 public class FileShopUtils {
 
-    public static String setFiles(Map<String, List<OrderDetail>> mapList, Integer idApplication, Integer orderNumber, Dealer dealer) throws SCErrorException {
+    public static String setFiles(Map<String, List<OrderDetail>> mapList, Integer idApplication, Integer orderNumber, Dealer dealer, String pathToWriteFiles) throws SCErrorException {
         int year = DateTimerTasks.getCurYear();
         String registryKeyPrefix = "CRCMP";
         String program = idApplication == ApiConstants.LEXUS_APP ? "CARRCMP-02" : "CARRCMP-01";
@@ -94,7 +97,7 @@ public class FileShopUtils {
                     observationsList.add(alObs);
                 }
             }
-            fileName = writeFiles(movementList, observationsList, entry.getKey());
+            fileName = writeFiles(movementList, observationsList, entry.getKey(), pathToWriteFiles);
             fileNameFinal = fileName + ";" + fileName;
         }
         return fileNameFinal;
@@ -116,26 +119,26 @@ public class FileShopUtils {
         return oAlObservations;
     }
 
-    private static String writeFiles(List<AlMovement> vecMovement, List<AlObservations> vecObservations, String orderNumber) {
+    private static String writeFiles(List<AlMovement> vecMovement, List<AlObservations> vecObservations, String orderNumber, String pathToWriteFiles) {
         try {
             String fileName = "m" + orderNumber;
             String fileObs = "o" + orderNumber;
-            String path = "C:\\Users\\Carlos Barrios\\Documents\\tests";
-            log.info(path);
+            String path = pathToWriteFiles;
+            log.info("Path to write files: " + path);
             File flMovement = null;
             File flObservations = null;
 
             String tmp = path + File.separator + fileName;
             String tmpObs = path + File.separator + fileObs;
-            log.info(tmp);
-            log.info(tmpObs);
+            log.info("tmp: " + tmp);
+            log.info("tmpObs: " + tmpObs);
             Vector<AlMovement> alMovements = new Vector<>(vecMovement);
             Vector<AlObservations> alObservations = new Vector<>(vecObservations);
 
             flMovement = InvokeAlInfo.createMovementFile(alMovements, tmp);
-            log.info(flMovement);
+            log.info("flMovement: " + flMovement.getName());
             flObservations = InvokeAlInfo.createObservationsFile(alObservations, tmpObs);
-            log.info(flObservations);
+            log.info("flObservations: " + flObservations.getName());
             InvokeAlInfo.GenerateAl(flMovement, flObservations, ServerTasks.getServerType());
             return flMovement.getName();
         } catch (SCErrorException e) {

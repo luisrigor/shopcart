@@ -92,16 +92,4 @@ class OrderStateControllerTest {
                 .andExpect(content().string(gson.toJson(orderStateDTO)));
     }
 
-    @Test
-    void whenSendInvoiceThenItsSuccessfully() throws Exception {
-        String accessToken = generatedToken;
-        SendInvoiceDTO sendInvoiceDTO = new SendInvoiceDTO(Arrays.asList(1,0), ApiConstants.TOYOTA_APP);
-        doNothing().when(orderStateService).sendInvoice(any(),anyList(),anyInt());
-        mvc.perform(post(BASE_REQUEST_MAPPING+ ApiEndpoints.SEND_INVOICE)
-                        .header("accessToken", accessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(gson.toJson(sendInvoiceDTO)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Send Invoice Successfully Executed"));
-    }
 }

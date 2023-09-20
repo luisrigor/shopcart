@@ -1,10 +1,23 @@
 package com.gsc.shopcart.utils;
 
+import com.gsc.as400.al.AlMovement;
+import com.gsc.as400.al.AlObservations;
+import com.gsc.as400.invoke.InvokeAlInfo;
+import com.gsc.shopcart.constants.ApiConstants;
+import com.gsc.shopcart.exceptions.ShopCartException;
+import com.gsc.shopcart.model.scart.entity.OrderDetail;
+import com.rg.dealer.Dealer;
+import com.sc.commons.exceptions.SCErrorException;
+import com.sc.commons.utils.DateTimerTasks;
+import com.sc.commons.utils.ServerTasks;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.sql.Date;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.util.Calendar;
+import java.util.*;
 
 
 @Log4j
@@ -16,13 +29,13 @@ public class ShopCartUtils {
 
         try {
             dtPromoStart = Date.valueOf(dtPromoStartLc);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error parsing date ", e);
         }
 
         try {
             dtPromoEnd = Date.valueOf(dtPromoEndLc);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error parsing date ", e);
         }
 
@@ -65,3 +78,9 @@ public class ShopCartUtils {
         return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
     }
 }
+
+
+
+
+
+

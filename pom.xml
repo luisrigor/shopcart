@@ -93,14 +93,24 @@
             <version>20230210-STAGING</version>
         </dependency>
         <dependency>
+            <groupId>GSC</groupId>
+            <artifactId>SCAS400Client</artifactId>
+            <version>20220330</version>
+        </dependency>
+        <dependency>
             <groupId>com.ibm.db2</groupId>
             <artifactId>jcc</artifactId>
             <version>11.5.6.0</version>
         </dependency>
         <dependency>
             <groupId>GSC</groupId>
-            <artifactId>SCDealer</artifactId>
-            <version>20230321</version>
+            <artifactId>SCAS400Client</artifactId>
+            <version>20220811</version>
+        </dependency>
+        <dependency>
+            <groupId>GSCNotOfficialMaven</groupId>
+            <artifactId>jt400</artifactId>
+            <version>7.2.0.5</version>
         </dependency>
         <dependency>
         <groupId>GSC</groupId>
@@ -148,6 +158,16 @@
             <groupId>GSC</groupId>
             <artifactId>SCDealer</artifactId>
             <version>20230321</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.8.0</version>
         </dependency>
     </dependencies>
 

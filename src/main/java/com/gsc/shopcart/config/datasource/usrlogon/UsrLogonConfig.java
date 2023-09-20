@@ -1,5 +1,7 @@
 package com.gsc.shopcart.config.datasource.usrlogon;
 
+import com.sc.commons.dbconnection.ServerJDBCConnection;
+import com.sc.commons.initialization.SCGlobalPreferences;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,12 +43,12 @@ public class UsrLogonConfig {
     @Value("${spring.jpa.properties.hibernate.dialect}")
     private String hibernateDialect;
 
-    @Value("${app.datasource.third.jndi}")
+    @Value("${app.datasource.second.jndi}")
     private String jndi;
 
     @PostConstruct
     private void init() {
-
+       
     }
 
     @Bean(name="usrlogonDataSource", destroyMethod = "")

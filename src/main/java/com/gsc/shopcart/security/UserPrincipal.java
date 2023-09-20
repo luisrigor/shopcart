@@ -27,7 +27,10 @@ public class UserPrincipal {
    private Integer idUser;
    private Integer idEntity;
    private List<String> authorities;
-
+   private String login;
+   private String displayName;
+   private String nifUtilizador;
+   private String email;
 
 
 

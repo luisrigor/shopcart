@@ -81,11 +81,11 @@ class BackOfficeControllerTest {
     void whenGetPromotionsThenReturnInfo() throws Exception {
         String accessToken = generatedToken;
 
-        when(backOfficeService.getPromotions(any()))
+        when(backOfficeService.getPromotions(any(), any(), any()))
                 .thenReturn(TestData.getPromotionsData());
 
 
-        mvc.perform(get(BASE_REQUEST_MAPPING+ApiEndpoints.GET_PROMOTIONS+"?idCatalog=1").header("accessToken", accessToken))
+        mvc.perform(get(BASE_REQUEST_MAPPING+ApiEndpoints.GET_PROMOTIONS+"?idCatalog=1&isCatalog=false").header("accessToken", accessToken))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.view").value("V"))
                 .andExpect(jsonPath("$.idCategory").value("1"))
@@ -106,11 +106,11 @@ class BackOfficeControllerTest {
 
         ShopCartFilter filter = new ShopCartFilter();
 
-        when(backOfficeService.getProductsByFreeSearch(any(),anyInt(), any(), any()))
+        when(backOfficeService.getProductsByFreeSearch(any(),anyInt(), any(),any(),any()))
                 .thenReturn(TestData.getProductsByFreeSearchData());
 
 
-        mvc.perform(post(BASE_REQUEST_MAPPING+ApiEndpoints.GET_PRODUCTS_BY_FREE_SEARCH+"?idCatalog=1&idCategory=1")
+        mvc.perform(post(BASE_REQUEST_MAPPING+ApiEndpoints.GET_PRODUCTS_BY_FREE_SEARCH+"?idCatalog=1&idCategory=1&isCatalog=false")
                         .header("accessToken", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(filter)))

@@ -1,5 +1,6 @@
 package com.gsc.shopcart.service;
 
+import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
@@ -342,7 +343,7 @@ import static org.mockito.Mockito.*;
          when(productRepository.getBillToByIdProduct(anyInt())).thenReturn(billTo);
          fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any()))
                  .thenReturn(expectedFileName);
-         String fileName = orderStateService.generateInvoice(dealer,orders.get(order.getOidDealer()));
+         String fileName = orderStateService.generateInvoice(dealer,Collections.singletonList(order), ApiConstants.LEXUS_APP);
          assertEquals(expectedFileName,fileName);
       }
    }
@@ -380,6 +381,5 @@ import static org.mockito.Mockito.*;
               orderStateService.sendInvoice(user,new ArrayList<>(Arrays.asList(1,0))));
 
    }
-
 
 }

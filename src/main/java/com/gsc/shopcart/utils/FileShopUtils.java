@@ -11,12 +11,14 @@ import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.financial.FinancialTasks;
 import com.sc.commons.utils.DateTimerTasks;
 import com.sc.commons.utils.ServerTasks;
+import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.*;
 
+@Log4j
 public class FileShopUtils {
 
     public static String setFiles(Map<String, List<OrderDetail>> mapList, Integer idApplication, Integer orderNumber, Dealer dealer) throws SCErrorException {
@@ -118,18 +120,22 @@ public class FileShopUtils {
         try {
             String fileName = "m" + orderNumber;
             String fileObs = "o" + orderNumber;
-            String path = "/home/www/files/faa";
-
+            String path = "C:\\Users\\Carlos Barrios\\Documents\\tests";
+            log.info(path);
             File flMovement = null;
             File flObservations = null;
 
             String tmp = path + File.separator + fileName;
             String tmpObs = path + File.separator + fileObs;
+            log.info(tmp);
+            log.info(tmpObs);
             Vector<AlMovement> alMovements = new Vector<>(vecMovement);
             Vector<AlObservations> alObservations = new Vector<>(vecObservations);
 
             flMovement = InvokeAlInfo.createMovementFile(alMovements, tmp);
+            log.info(flMovement);
             flObservations = InvokeAlInfo.createObservationsFile(alObservations, tmpObs);
+            log.info(flObservations);
             InvokeAlInfo.GenerateAl(flMovement, flObservations, ServerTasks.getServerType());
             return flMovement.getName();
         } catch (SCErrorException e) {

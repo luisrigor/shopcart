@@ -3,14 +3,16 @@ package com.gsc.shopcart.controller;
 import com.google.gson.Gson;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
+import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
+import com.gsc.shopcart.dto.SendInvoiceDTO;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.security.TokenProvider;
-import com.gsc.shopcart.service.OrderStatusService;
+import com.gsc.shopcart.service.OrderStateService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,10 +24,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,7 +44,7 @@ class OrderStateControllerTest {
     @Autowired
     private MockMvc mvc;
     @MockBean
-    private OrderStatusService orderStatusService;
+    private OrderStateService orderStateService;
     @MockBean
     private ConfigurationRepository configurationRepository;
     @MockBean
@@ -78,7 +82,7 @@ class OrderStateControllerTest {
         GetOrderStateDTO getOrderStateDTO = new GetOrderStateDTO();
         OrderStateDTO orderStateDTO = OrderData.getOrderStatusDTO();
 
-        when(orderStatusService.getOrderState(any(),any())).thenReturn(orderStateDTO);
+        when(orderStateService.getOrderState(any(),any())).thenReturn(orderStateDTO);
 
         mvc.perform(post(BASE_REQUEST_MAPPING+ ApiEndpoints.GET_ORDER_STATE)
                         .header("accessToken", accessToken)
@@ -86,6 +90,19 @@ class OrderStateControllerTest {
                         .content(gson.toJson(getOrderStateDTO)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(gson.toJson(orderStateDTO)));
+    }
+
+    @Test
+    void whenSendInvoiceThenItsSuccessfully() throws Exception {
+        String accessToken = generatedToken;
+        SendInvoiceDTO sendInvoiceDTO = new SendInvoiceDTO(Arrays.asList(1,0));
+        doNothing().when(orderStateService).sendInvoice(any(),anyList());
+        mvc.perform(post(BASE_REQUEST_MAPPING+ ApiEndpoints.SEND_INVOICE)
+                        .header("accessToken", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(gson.toJson(sendInvoiceDTO)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Send Invoice Successfully Executed"));
     }
 
 }

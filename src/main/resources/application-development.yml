@@ -58,3 +58,7 @@ app:
 secundary:
   dbs:
     jndi: jdbc/usrlogon,jdbc/dbfwk,jdbc/dbtoynet,jdbc/dbdmv
+
+#custom path files
+files:
+  write: /home/www/files/faa

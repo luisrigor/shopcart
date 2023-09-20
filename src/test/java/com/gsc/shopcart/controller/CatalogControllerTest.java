@@ -39,7 +39,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(CatalogController.class)
 public class CatalogControllerTest {
 
-
     @Autowired
     private MockMvc mvc;
 

@@ -1,5 +1,6 @@
 package com.gsc.shopcart.service.impl;
 
+import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
@@ -10,24 +11,29 @@ import com.gsc.shopcart.model.scart.entity.OrderStatus;
 import com.gsc.shopcart.repository.scart.OrderDetailRepository;
 import com.gsc.shopcart.repository.scart.OrderRepository;
 import com.gsc.shopcart.repository.scart.OrderStatusRepository;
+import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.repository.usrlogon.*;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.security.UsrLogonSecurity;
-import com.gsc.shopcart.service.OrderStatusService;
+import com.gsc.shopcart.service.OrderStateService;
+import com.gsc.shopcart.utils.FileShopUtils;
 import com.rg.dealer.Dealer;
+import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Log4j
 @RequiredArgsConstructor
-public class OrderStateServiceImpl  implements OrderStatusService {
+public class OrderStateServiceImpl implements OrderStateService {
 
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
@@ -38,7 +44,11 @@ public class OrderStateServiceImpl  implements OrderStatusService {
     private final LexusEntityProfileRepository lexusEntityProfileRepository;
     private final CbusUserRepository cbusUserRepository;
     private final CbusEntityProfileRepository cbusEntityProfileRepository;
+    private final ProductRepository productRepository;
     private final UsrLogonSecurity usrLogonSecurity;
+
+    @Value("${files.write}")
+    private String pathToWriteFiles;
 
     @Override
     public OrderStateDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO) {
@@ -58,6 +68,9 @@ public class OrderStateServiceImpl  implements OrderStatusService {
             preferences.put("orderType", StringTasks.cleanString(getOrderStateDTO.getOrderType(), ScConstants.ORDER_TYPE_EXTRANET));
             preferences.put("reference", getOrderStateDTO.getReference());
 
+            if (userPrincipal.getAuthorities()==null || userPrincipal.getAuthorities().isEmpty())
+                usrLogonSecurity.getAuthorities(userPrincipal);
+
             List<Dealer> dealerList = Dealer.getHelper().GetAllActiveMainDealers(userPrincipal.getOidNet());
             dealerList.add(Dealer.getHelper().getByObjectId(userPrincipal.getOidNet(), Dealer.OID_NMSC));
 
@@ -69,8 +82,6 @@ public class OrderStateServiceImpl  implements OrderStatusService {
             List<Order> orderList = orderRepository.getOrderByCriteria(getOrderStateDTO,userPrincipal,criteria,criteriaDetail);
             List<OrderStatus> orderStatusList = orderStatusRepository.findAll();
 
-            if (userPrincipal.getAuthorities()==null || userPrincipal.getAuthorities().isEmpty())
-                usrLogonSecurity.getAuthorities(userPrincipal);
 
             Map<Integer, String> suppliers = new HashMap<>();
             if (userPrincipal.getAuthorities().contains(ScConstants.PROFILE_TCAP) || userPrincipal.getAuthorities().contains(ScConstants.PROFILE_DEALER)) {
@@ -135,4 +146,61 @@ public class OrderStateServiceImpl  implements OrderStatusService {
             return cbusEntityProfileRepository.getSuppliers(idProfileTcap,idProfileSupplier);
     }
 
+    @Override
+    public void sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders) {
+        try {
+            Map<String, List<Order>> orders = groupOrdersByDealer(idOrders);
+
+            for (Map.Entry<String, List<Order>> entry : orders.entrySet()) {
+                Dealer dealer = Dealer.getHelper().getByObjectId(userPrincipal.getOidNet(), entry.getKey());
+                String fileName = generateInvoice(dealer, entry.getValue(), userPrincipal.getClientId().intValue());
+                updateOrders(entry.getValue(), fileName, userPrincipal);
+            }
+        } catch (Exception e) {
+            throw new ShopCartException("Error Write Files", e);
+        }
+    }
+
+    public Map<String, List<Order>> groupOrdersByDealer(List<Integer> orderIds) {
+        Map<String, List<Order>> result = new HashMap<>();
+        for (Integer orderId : orderIds) {
+            if (orderId == null || orderId == 0)
+                continue;
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new ShopCartException("Order not found by " + orderId));
+            result.computeIfAbsent(order.getOidDealer(), key -> new ArrayList<>()).add(order);
+        }
+        return result;
+    }
+
+    public String generateInvoice(Dealer dealer, List<Order> orders, int idApplication) throws SCErrorException {
+
+        String billTo;
+        String orderBillTo;
+        int orderNumber = orders.get(0).getOrderNumber();
+
+        Map<String, List<OrderDetail>> mapListProductsByOrderAndBillTo = new HashMap<>();
+
+        for(Order oOrder : orders){//percorre a lista de orders recebidas
+            List<OrderDetail> orderDetailList = orderDetailRepository.findByIdOrderAndIdOrderStatus(oOrder.getId(),ScConstants.ID_ORDER_STATUS_DELIVERED);//obtem o vetor de produtos da encomenda
+            for(OrderDetail orderDetail : orderDetailList){
+                billTo= productRepository.getBillToByIdProduct(orderDetail.getIdProduct());
+                if (billTo == null || billTo.trim().equals(StringUtils.EMPTY)) {
+                    if (idApplication == ApiConstants.TOYOTA_APP)
+                        billTo = "0238";
+                    else if(idApplication == ApiConstants.LEXUS_APP)
+                        billTo = "0288";
+                }
+                orderBillTo = oOrder.getOrderNumber()+billTo;
+                mapListProductsByOrderAndBillTo.computeIfAbsent(orderBillTo, key -> new ArrayList<>()).add(orderDetail);
+            }
+        }
+        return FileShopUtils.setFiles(mapListProductsByOrderAndBillTo,idApplication,orderNumber,dealer,pathToWriteFiles);
+    }
+
+    private void updateOrders(List<Order> orders, String fileName, UserPrincipal user) {
+        String changedBy = user.getUsername();
+        for (Order order : orders) {
+            orderRepository.updateAlData(fileName, LocalDateTime.now(),changedBy,LocalDateTime.now(),order.getId());
+        }
+    }
 }

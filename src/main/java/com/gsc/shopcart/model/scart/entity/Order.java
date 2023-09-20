@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
+@ToString
 @Table(name = "ORDER")
 public class Order {
 
@@ -78,5 +79,5 @@ public class Order {
     @Column(name = "AL_GENERATED_FILE_NAME")
     private String alGeneratedFileName;
     @Transient
-    private List<OrderDetail> vecOrderDetail;
+    private List<OrderDetail> listOrderDetail;
 }

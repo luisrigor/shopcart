@@ -1,5 +1,7 @@
 package com.gsc.shopcart.service;
 
+import com.gsc.shopcart.config.environment.EnvironmentConfig;
+import com.gsc.shopcart.config.environment.MapProfileVariables;
 import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
@@ -65,7 +67,7 @@ class OrderStateServiceImplTest {
     @Mock
     private DealerHelper dealerHelper;
     @Mock
-    private FileShopUtils fileShopUtils;
+    private EnvironmentConfig environmentConfig;
     @InjectMocks
     private OrderStateServiceImpl orderStateService;
 
@@ -338,9 +340,10 @@ class OrderStateServiceImplTest {
       String expectedFileName = "FileName";
       Map<String, List<Order>> orders = new HashMap<>();
       orders.put(order.getOidDealer(),Collections.singletonList(order));
-
+      Map<String, String> envVariables = new HashMap<>();
+      envVariables.put(MapProfileVariables.PATH_TO_WRITE_FILES, "C:\\Windows\\Temp");
       try (MockedStatic<FileShopUtils> fileShopUtils = Mockito.mockStatic(FileShopUtils.class)) {
-
+         when(environmentConfig.getEnvVariables()).thenReturn(envVariables);
          when(dealerHelper.getByObjectId(anyString(),anyString())).thenReturn(dealer);
          when(orderDetailRepository.findByIdOrderAndIdOrderStatus(anyInt(),anyInt())).thenReturn(Collections.singletonList(orderDetail));
          when(productRepository.getBillToByIdProduct(anyInt())).thenReturn(billTo);

@@ -1,5 +1,7 @@
 package com.gsc.shopcart.service.impl;
 
+import com.gsc.shopcart.config.environment.EnvironmentConfig;
+import com.gsc.shopcart.config.environment.MapProfileVariables;
 import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
@@ -23,12 +25,13 @@ import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.gsc.shopcart.config.environment.MapProfileVariables.*;
 
 @Service
 @Log4j
@@ -47,8 +50,7 @@ public class OrderStateServiceImpl implements OrderStateService {
     private final ProductRepository productRepository;
     private final UsrLogonSecurity usrLogonSecurity;
 
-    @Value("${files.write}")
-    private String pathToWriteFiles;
+    private final EnvironmentConfig environmentConfig;
 
     @Override
     public OrderStateDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO) {
@@ -179,6 +181,7 @@ public class OrderStateServiceImpl implements OrderStateService {
         int orderNumber = orders.get(0).getOrderNumber();
 
         Map<String, List<OrderDetail>> mapListProductsByOrderAndBillTo = new HashMap<>();
+        Map<String, String> envV = environmentConfig.getEnvVariables();
 
         for(Order oOrder : orders){//percorre a lista de orders recebidas
             List<OrderDetail> orderDetailList = orderDetailRepository.findByIdOrderAndIdOrderStatus(oOrder.getId(),ScConstants.ID_ORDER_STATUS_DELIVERED);//obtem o vetor de produtos da encomenda
@@ -194,7 +197,7 @@ public class OrderStateServiceImpl implements OrderStateService {
                 mapListProductsByOrderAndBillTo.computeIfAbsent(orderBillTo, key -> new ArrayList<>()).add(orderDetail);
             }
         }
-        return FileShopUtils.setFiles(mapListProductsByOrderAndBillTo,idApplication,orderNumber,dealer,pathToWriteFiles);
+        return FileShopUtils.setFiles(mapListProductsByOrderAndBillTo,idApplication,orderNumber,dealer,envV.get(PATH_TO_WRITE_FILES));
     }
 
     private void updateOrders(List<Order> orders, String fileName, UserPrincipal user) {

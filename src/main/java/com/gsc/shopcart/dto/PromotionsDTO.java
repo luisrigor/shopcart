@@ -16,4 +16,5 @@ public class PromotionsDTO {
    private String view;
    private String idCategory;
    private String viewOnlyPromotions;
+   private List<OrderCartProduct>  vecOrderCart;
 }

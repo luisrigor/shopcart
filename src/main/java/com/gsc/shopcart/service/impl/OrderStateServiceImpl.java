@@ -23,6 +23,7 @@ import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @Log4j
 @RequiredArgsConstructor
-public class OrderStateServiceImpl  implements OrderStateService {
+public class OrderStateServiceImpl implements OrderStateService {
 
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
@@ -45,6 +46,9 @@ public class OrderStateServiceImpl  implements OrderStateService {
     private final CbusEntityProfileRepository cbusEntityProfileRepository;
     private final ProductRepository productRepository;
     private final UsrLogonSecurity usrLogonSecurity;
+
+    @Value("${files.write}")
+    private String pathToWriteFiles;
 
     @Override
     public OrderStateDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO) {
@@ -190,7 +194,7 @@ public class OrderStateServiceImpl  implements OrderStateService {
                 mapListProductsByOrderAndBillTo.computeIfAbsent(orderBillTo, key -> new ArrayList<>()).add(orderDetail);
             }
         }
-        return FileShopUtils.setFiles(mapListProductsByOrderAndBillTo,idApplication,orderNumber,dealer);
+        return FileShopUtils.setFiles(mapListProductsByOrderAndBillTo,idApplication,orderNumber,dealer,pathToWriteFiles);
     }
 
     private void updateOrders(List<Order> orders, String fileName, UserPrincipal user) {

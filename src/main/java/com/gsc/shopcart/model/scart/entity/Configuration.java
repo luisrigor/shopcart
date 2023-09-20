@@ -1,6 +1,7 @@
 package com.gsc.shopcart.model.scart.entity;
 
 
+import com.gsc.shopcart.model.scart.CompositeConfig;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,13 +13,14 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 @Entity
+@IdClass(CompositeConfig.class)
 @Table(name = "CONFIGURATION")
 public class Configuration {
 
+    @Id
     @Column(name = "APPLICATION")
     private String application;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "KEY")
     private String key;
     @Column(name = "LOCAL")

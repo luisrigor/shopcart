@@ -29,7 +29,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import static com.gsc.shopcart.constants.ApiConstants.LEXUS_APP;
 import static com.gsc.shopcart.constants.ApiConstants.TOYOTA_APP;
-import javax.naming.directory.Attributes;
 
 @Service
 public class TokenProvider {
@@ -53,20 +52,26 @@ public class TokenProvider {
    private static final String TCAP_PROFILE = "TCAP_PROFILE";
    private static final String DEALER_PROFILE = "DEALER_PROFILE";
    private static final String SUPPLIER_PROFILE = "SUPPLIER_PROFILE";
+   private static final String ID_USER = "ID_USER";
+   private static final String ID_ENTITY = "ID_ENTITY";
 
    private final ConfigurationRepository configurationRepository;
    private final ServiceLoginRepository serviceLoginRepository;
    private final LoginKeyRepository loginKeyRepository;
    private final ConfigRepository configRepository;
    private final String activeProfile;
+   private final UsrLogonSecurity usrLogonSecurity;
+
 
    public TokenProvider(ConfigurationRepository configurationRepository, LoginKeyRepository loginKeyRepository,
-                        ServiceLoginRepository serviceLoginRepository, ConfigRepository configRepository, @Value("${spring.profiles.active}") String activeProfile) {
+                        ServiceLoginRepository serviceLoginRepository, ConfigRepository configRepository, @Value("${spring.profiles.active}") String activeProfile,
+                        UsrLogonSecurity usrLogonSecurity) {
       this.configurationRepository = configurationRepository;
       this.loginKeyRepository = loginKeyRepository;
       this.serviceLoginRepository = serviceLoginRepository;
       this.configRepository = configRepository;
       this.activeProfile = activeProfile;
+      this.usrLogonSecurity = usrLogonSecurity;
    }
 
    public String createToken(Authentication authentication, String appId) throws AuthenticationException {
@@ -88,7 +93,20 @@ public class TokenProvider {
 
       List<Configuration> configuration = configRepository.findAll();
 
-      setConfigFields(userPrincipal, configuration);
+      if(appId.equals(String.valueOf(TOYOTA_APP))) {
+         configuration = configuration.stream()
+                 .filter(configp -> configp.getApplication().equals("ToyotaShopping"))
+                 .collect(Collectors.toList());
+      } else if (appId.equals(String.valueOf(LEXUS_APP))) {
+         configuration = configuration.stream()
+                 .filter(configp -> configp.getApplication().equals("LexusShopping"))
+                 .collect(Collectors.toList());
+      }
+
+      if(configuration!=null && !configuration.isEmpty())
+         setConfigFields(userPrincipal, configuration);
+
+      usrLogonSecurity.setUserLogin(userPrincipal);
 
       return Jwts.builder()
               .setIssuer(ISSUER)
@@ -112,6 +130,8 @@ public class TokenProvider {
               .claim(TCAP_PROFILE, userPrincipal.getTcapProfile())
               .claim(DEALER_PROFILE, userPrincipal.getDealerProfile())
               .claim(SUPPLIER_PROFILE, userPrincipal.getSupplierProfile())
+              .claim(ID_USER, userPrincipal.getIdUser())
+              .claim(ID_ENTITY, userPrincipal.getIdEntity())
               .compact();
    }
 
@@ -163,22 +183,27 @@ public class TokenProvider {
             .map(role -> AppProfile.valueOf(role.toString()))
             .collect(Collectors.toSet());
 
+         UserPrincipal userPrincipalClaims = new UserPrincipal(
+                 claims.getSubject(),
+                 roles,
+                 claims.get(JWT_CLIENT_ID, Long.class),
+                 claims.get(OID_NET, String.class),
+                 claims.get(OID_DEALER_PARENT, String.class),
+                 claims.get(OID_DEALER, String.class),
+                 claims.get(ID_CATALOG, String.class),
+                 claims.get(UPLOAD_DIR, String.class),
+                 claims.get(VIRTUAL_PATH, String.class),
+                 claims.get(APPLICATION, String.class),
+                 claims.get(TCAP_PROFILE, String.class),
+                 claims.get(DEALER_PROFILE, String.class),
+                 claims.get(SUPPLIER_PROFILE, String.class)
+         );
+
+         userPrincipalClaims.setIdUser(claims.get(ID_USER, Integer.class));
+         userPrincipalClaims.setIdEntity(claims.get(ID_ENTITY, Integer.class));
+
          return JwtAuthenticationToken.authenticated(
-                 new UserPrincipal(
-                         claims.getSubject(),
-                         roles,
-                         claims.get(JWT_CLIENT_ID, Long.class),
-                         claims.get(OID_NET, String.class),
-                         claims.get(OID_DEALER_PARENT, String.class),
-                         claims.get(OID_DEALER, String.class),
-                         claims.get(ID_CATALOG, String.class),
-                         claims.get(UPLOAD_DIR, String.class),
-                         claims.get(VIRTUAL_PATH, String.class),
-                         claims.get(APPLICATION, String.class),
-                         claims.get(TCAP_PROFILE, String.class),
-                         claims.get(DEALER_PROFILE, String.class),
-                         claims.get(SUPPLIER_PROFILE, String.class)
-                 ),
+                 userPrincipalClaims,
             Collections.emptyList()
          );
       } catch (SignatureException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException ex) {

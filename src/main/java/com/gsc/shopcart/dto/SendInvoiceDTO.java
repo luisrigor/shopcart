@@ -19,5 +19,4 @@ import java.util.Map;
 public class SendInvoiceDTO {
 
     private List<Integer> orderList;
-    private Integer appId;
 }

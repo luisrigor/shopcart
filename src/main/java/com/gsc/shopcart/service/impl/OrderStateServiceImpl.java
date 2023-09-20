@@ -143,13 +143,13 @@ public class OrderStateServiceImpl  implements OrderStateService {
     }
 
     @Override
-    public void sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders, Integer idApplication) {
+    public void sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders) {
         try {
             Map<String, List<Order>> orders = groupOrdersByDealer(idOrders);
 
             for (Map.Entry<String, List<Order>> entry : orders.entrySet()) {
                 Dealer dealer = Dealer.getHelper().getByObjectId(userPrincipal.getOidNet(), entry.getKey());
-                String fileName = generateInvoice(dealer, entry.getValue(), idApplication);
+                String fileName = generateInvoice(dealer, entry.getValue(), userPrincipal.getClientId().intValue());
                 updateOrders(entry.getValue(), fileName, userPrincipal);
             }
         } catch (Exception e) {

@@ -9,5 +9,5 @@ import java.util.List;
 public interface OrderStateService {
     OrderStateDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO);
 
-    void sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders, Integer idApplication);
+    void sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders);
 }

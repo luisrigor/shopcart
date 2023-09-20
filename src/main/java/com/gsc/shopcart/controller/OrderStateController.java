@@ -26,8 +26,6 @@ import java.util.List;
 public class OrderStateController {
 
     private final OrderStateService orderStateService;
-    private final OrderDetailRepository orderDetailRepository;
-    private final ProductRepository productRepository;
 
     @PostMapping(ApiEndpoints.GET_ORDER_STATE)
     public ResponseEntity<?> getOrderState(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody GetOrderStateDTO getOrderStateDTO) {
@@ -35,19 +33,11 @@ public class OrderStateController {
         OrderStateDTO orderStateDTO = orderStateService.getOrderState(userPrincipal,getOrderStateDTO);
         return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(orderStateDTO));
     }
-/* idOrder 373 & idStatus 3
-    @GetMapping(ApiEndpoints.SEND_INVOICE)
-    @ResponseBody
-    public ResponseEntity<?> testController(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Integer idOrder,
-                                            @RequestParam Integer idOrderStatus){
-        return ResponseEntity.status(HttpStatus.OK).body(orderDetailRepository.findByIdOrderAndIdOrderStatus(idOrder,idOrderStatus));
-    }
 
- */
-    @GetMapping(ApiEndpoints.SEND_INVOICE)
-    public ResponseEntity<?> testController(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody SendInvoiceDTO sendInvoiceDTO){
-        return ResponseEntity.status(HttpStatus.OK).body(orderStateService.sendInvoice(userPrincipal,sendInvoiceDTO.getOrderList(),sendInvoiceDTO.getAppId()));
+    @PostMapping(ApiEndpoints.SEND_INVOICE)
+    public ResponseEntity<String> sendInvoice(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody SendInvoiceDTO sendInvoiceDTO){
+        orderStateService.sendInvoice(userPrincipal,sendInvoiceDTO.getOrderList(),sendInvoiceDTO.getAppId());
+        return ResponseEntity.status(HttpStatus.OK).body("Send Invoice Successfully Executed");
     }
-
 
 }

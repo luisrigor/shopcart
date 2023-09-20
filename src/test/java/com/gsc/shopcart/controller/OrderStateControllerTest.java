@@ -3,9 +3,11 @@ package com.gsc.shopcart.controller;
 import com.google.gson.Gson;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
+import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
+import com.gsc.shopcart.dto.SendInvoiceDTO;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
@@ -22,10 +24,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -88,4 +92,16 @@ class OrderStateControllerTest {
                 .andExpect(content().string(gson.toJson(orderStateDTO)));
     }
 
+    @Test
+    void whenSendInvoiceThenItsSuccessfully() throws Exception {
+        String accessToken = generatedToken;
+        SendInvoiceDTO sendInvoiceDTO = new SendInvoiceDTO(Arrays.asList(1,0), ApiConstants.TOYOTA_APP);
+        doNothing().when(orderStateService).sendInvoice(any(),anyList(),anyInt());
+        mvc.perform(post(BASE_REQUEST_MAPPING+ ApiEndpoints.SEND_INVOICE)
+                        .header("accessToken", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(gson.toJson(sendInvoiceDTO)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Send Invoice Successfully Executed"));
+    }
 }

@@ -68,7 +68,7 @@ public class FileShopUtils {
                 oAlMovement.setQuantity(quantity);
                 oAlMovement.setPrice(price);
 
-                //oAlMovement.setVatRate(FinancialTasks.getVAT());
+//                oAlMovement.setVatRate(FinancialTasks.getVAT("PT"));
                 oAlMovement.setInvoiceItem("N");
                 oAlMovement.setVatSchemeCode("");
                 oAlMovement.setVatFree("N");

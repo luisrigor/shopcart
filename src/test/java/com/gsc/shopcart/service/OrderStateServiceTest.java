@@ -1,5 +1,6 @@
 package com.gsc.shopcart.service;
 
+import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
@@ -18,12 +19,13 @@ import com.gsc.shopcart.utils.FileShopUtils;
 import com.rg.dealer.Dealer;
 import com.rg.dealer.DealerHelper;
 import com.sc.commons.exceptions.SCErrorException;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.StringUtils;
 import org.mockito.*;
 import org.springframework.test.context.ActiveProfiles;
+import sun.plugin2.main.server.WindowsHelper;
 
 import java.util.*;
 
@@ -56,6 +58,8 @@ import static org.junit.jupiter.api.Assertions.*;
     @Mock
     private UsrLogonSecurity usrLogonSecurity;
     @Mock
+    private ProductRepository productRepository;
+    @Mock
     private DealerHelper dealerHelper;
     @Mock
     private FileShopUtils fileShopUtils;
@@ -74,8 +78,6 @@ import static org.junit.jupiter.api.Assertions.*;
     void whenGetOrderStateThenReturnInfo() throws SCErrorException {
        UserPrincipal user = SecurityData.getUserDefaultStatic();
        GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
-
-       doNothing().when(usrLogonSecurity).getAuthorities(any());
 
        user.setOidNet(Dealer.OID_NET_TOYOTA);
        user.setAuthorities(new ArrayList<>(Collections.singletonList(ScConstants.PROFILE_TCAP)));
@@ -117,9 +119,6 @@ import static org.junit.jupiter.api.Assertions.*;
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
       getOrderStateDTO.setOidParent("");
 
-
-      doNothing().when(usrLogonSecurity).setUserLogin(any());
-
       user.setOidNet(Dealer.OID_NET_TOYOTA);
       user.setAuthorities(new ArrayList<>(Collections.singletonList(ScConstants.PROFILE_TCAP)));
       Vector<Dealer> dealerList =  new Vector<>();
@@ -158,8 +157,6 @@ import static org.junit.jupiter.api.Assertions.*;
    void whenGetOrderStateWhenOidNetIsCbusThenReturnInfo() throws SCErrorException {
       UserPrincipal user = SecurityData.getUserDefaultStatic();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
-
-      doNothing().when(usrLogonSecurity).setUserLogin(any());
 
       user.setOidNet(Dealer.OID_NET_CBUS);
       user.setAuthorities(new ArrayList<>(Collections.singletonList(ScConstants.PROFILE_TCAP)));
@@ -201,8 +198,6 @@ import static org.junit.jupiter.api.Assertions.*;
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
       getOrderStateDTO.setOidParent("");
 
-      doNothing().when(usrLogonSecurity).setUserLogin(any());
-
       user.setOidNet(Dealer.OID_NET_CBUS);
       user.setAuthorities(new ArrayList<>(Collections.singletonList(ScConstants.PROFILE_TCAP)));
       Vector<Dealer> dealerList =  new Vector<>();
@@ -241,8 +236,6 @@ import static org.junit.jupiter.api.Assertions.*;
    void whenGetOrderStateWhenOidNetIsLexusThenReturnInfo() throws SCErrorException {
       UserPrincipal user = SecurityData.getUserDefaultStatic();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
-
-      doNothing().when(usrLogonSecurity).setUserLogin(any());
 
       user.setOidNet(Dealer.OID_NET_LEXUS);
       user.setAuthorities(new ArrayList<>(Collections.singletonList(ScConstants.PROFILE_TCAP)));
@@ -283,7 +276,6 @@ import static org.junit.jupiter.api.Assertions.*;
       UserPrincipal user = SecurityData.getUserDefaultStatic();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
       getOrderStateDTO.setOidParent("");
-      doNothing().when(usrLogonSecurity).setUserLogin(any());
 
       user.setOidNet(Dealer.OID_NET_LEXUS);
       user.setAuthorities(new ArrayList<>(Collections.singletonList(ScConstants.PROFILE_TCAP)));
@@ -322,13 +314,72 @@ import static org.junit.jupiter.api.Assertions.*;
    void whenGetOrderStateThenThrowException() {
       UserPrincipal user = SecurityData.getUserDefaultStatic();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
+      user.setAuthorities(null);
+      doNothing().when(usrLogonSecurity).getAuthorities(any());
 
       try (MockedStatic<Dealer> utilities = Mockito.mockStatic(Dealer.class)){
 
          utilities.when(Dealer::getHelper).thenThrow(ShopCartException.class);
-
          assertThrows(ShopCartException.class, ()->orderStateService.getOrderState(user,getOrderStateDTO));
-
       }
    }
+
+   @Test
+   void generateInvoiceWithSuccessfullyCase() throws SCErrorException {
+       Order order = OrderData.getOrderBuilder();
+       Dealer dealer = new Dealer();
+       OrderDetail orderDetail = OrderData.getOrderDetailBuilder();
+       String billTo = StringUtils.EMPTY;
+       when(orderRepository.findById(anyInt())).thenReturn(Optional.of(order));
+       String expectedFileName = "FileName";
+       Map<String, List<Order>> orders = new HashMap<>();
+       orders.put(order.getOidDealer(),Collections.singletonList(order));
+
+       try (MockedStatic<FileShopUtils> fileShopUtils = Mockito.mockStatic(FileShopUtils.class)) {
+
+            when(dealerHelper.getByObjectId(anyString(),anyString())).thenReturn(dealer);
+            when(orderDetailRepository.findByIdOrderAndIdOrderStatus(anyInt(),anyInt())).thenReturn(Collections.singletonList(orderDetail));
+            when(productRepository.getBillToByIdProduct(anyInt())).thenReturn(billTo);
+            fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any()))
+                    .thenReturn(expectedFileName);
+            String fileName = orderStateService.generateInvoice(dealer,orders.get(order.getOidDealer()), ApiConstants.LEXUS_APP);
+            assertEquals(expectedFileName,fileName);
+         }
+   }
+
+   @Test
+   void sendInvoiceWithSuccessfullyCase() throws SCErrorException {
+       UserPrincipal user = SecurityData.getUserDefaultStatic();
+       Order order = OrderData.getOrderBuilder();
+       Dealer dealer = new Dealer();
+       OrderDetail orderDetail = OrderData.getOrderDetailBuilder();
+       String billTo = StringUtils.EMPTY;
+       when(orderRepository.findById(anyInt())).thenReturn(Optional.of(order));
+       String expectedFileName = "FileName";
+       Map<String, List<Order>> orders = new HashMap<>();
+       orders.put(order.getOidDealer(),Collections.singletonList(order));
+       try (MockedStatic<Dealer> delUtils = Mockito.mockStatic(Dealer.class);
+            MockedStatic<FileShopUtils> fileShopUtils = Mockito.mockStatic(FileShopUtils.class)) {
+          delUtils.when(Dealer::getHelper).thenReturn(dealerHelper);
+          when(dealerHelper.getByObjectId(anyString(),anyString())).thenReturn(dealer);
+          when(orderDetailRepository.findByIdOrderAndIdOrderStatus(anyInt(),anyInt())).thenReturn(Collections.singletonList(orderDetail));
+          when(productRepository.getBillToByIdProduct(anyInt())).thenReturn(billTo);
+          fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any()))
+                  .thenReturn(expectedFileName);
+          orderStateService.sendInvoice(user,new ArrayList<>(Arrays.asList(1,0)), ApiConstants.TOYOTA_APP);
+          verify(productRepository).getBillToByIdProduct(anyInt());
+          verify(orderRepository,times(1)).updateAlData(any(),any(),anyString(),any(),anyInt());
+      }
+   }
+
+   @Test
+   void sendInvoiceThenThrowShopCarException() {
+      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      when(orderRepository.findById(anyInt())).thenThrow(ShopCartException.class);
+      assertThrows(ShopCartException.class,()->
+              orderStateService.sendInvoice(user,new ArrayList<>(Arrays.asList(1,0)), ApiConstants.TOYOTA_APP));
+
+   }
+
+
 }

@@ -64,6 +64,9 @@ public class OrderStateServiceImpl  implements OrderStateService {
             preferences.put("orderType", StringTasks.cleanString(getOrderStateDTO.getOrderType(), ScConstants.ORDER_TYPE_EXTRANET));
             preferences.put("reference", getOrderStateDTO.getReference());
 
+            if (userPrincipal.getAuthorities()==null || userPrincipal.getAuthorities().isEmpty())
+                usrLogonSecurity.getAuthorities(userPrincipal);
+
             List<Dealer> dealerList = Dealer.getHelper().GetAllActiveMainDealers(userPrincipal.getOidNet());
             dealerList.add(Dealer.getHelper().getByObjectId(userPrincipal.getOidNet(), Dealer.OID_NMSC));
 
@@ -75,8 +78,6 @@ public class OrderStateServiceImpl  implements OrderStateService {
             List<Order> orderList = orderRepository.getOrderByCriteria(getOrderStateDTO,userPrincipal,criteria,criteriaDetail);
             List<OrderStatus> orderStatusList = orderStatusRepository.findAll();
 
-            if (userPrincipal.getAuthorities()==null || userPrincipal.getAuthorities().isEmpty())
-                usrLogonSecurity.getAuthorities(userPrincipal);
 
             Map<Integer, String> suppliers = new HashMap<>();
             if (userPrincipal.getAuthorities().contains(ScConstants.PROFILE_TCAP) || userPrincipal.getAuthorities().contains(ScConstants.PROFILE_DEALER)) {
@@ -142,7 +143,7 @@ public class OrderStateServiceImpl  implements OrderStateService {
     }
 
     @Override
-    public Map sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders, Integer idApplication) {
+    public void sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders, Integer idApplication) {
         try {
             Map<String, List<Order>> orders = groupOrdersByDealer(idOrders);
 
@@ -151,8 +152,7 @@ public class OrderStateServiceImpl  implements OrderStateService {
                 String fileName = generateInvoice(dealer, entry.getValue(), idApplication);
                 updateOrders(entry.getValue(), fileName, userPrincipal);
             }
-            return orders;
-        } catch (SCErrorException e) {
+        } catch (Exception e) {
             throw new ShopCartException("Error Write Files", e);
         }
     }
@@ -173,15 +173,13 @@ public class OrderStateServiceImpl  implements OrderStateService {
         String billTo;
         String orderBillTo;
         int orderNumber = orders.get(0).getOrderNumber();
-        List<OrderDetail> orderDetailList;
+
         Map<String, List<OrderDetail>> mapListProductsByOrderAndBillTo = new HashMap<>();
 
         for(Order oOrder : orders){//percorre a lista de orders recebidas
-            orderDetailList = orderDetailRepository.findByIdOrderAndIdOrderStatus(oOrder.getId(),ScConstants.ID_ORDER_STATUS_DELIVERED);//obtem o vetor de produtos da encomenda
-
+            List<OrderDetail> orderDetailList = orderDetailRepository.findByIdOrderAndIdOrderStatus(oOrder.getId(),ScConstants.ID_ORDER_STATUS_DELIVERED);//obtem o vetor de produtos da encomenda
             for(OrderDetail orderDetail : orderDetailList){
                 billTo= productRepository.getBillToByIdProduct(orderDetail.getIdProduct());
-
                 if (billTo == null || billTo.trim().equals(StringUtils.EMPTY)) {
                     if (idApplication == ApiConstants.TOYOTA_APP)
                         billTo = "0238";
@@ -192,7 +190,6 @@ public class OrderStateServiceImpl  implements OrderStateService {
                 mapListProductsByOrderAndBillTo.computeIfAbsent(orderBillTo, key -> new ArrayList<>()).add(orderDetail);
             }
         }
-
         return FileShopUtils.setFiles(mapListProductsByOrderAndBillTo,idApplication,orderNumber,dealer);
     }
 
@@ -202,6 +199,4 @@ public class OrderStateServiceImpl  implements OrderStateService {
             orderRepository.updateAlData(fileName, LocalDateTime.now(),changedBy,LocalDateTime.now(),order.getId());
         }
     }
-
-
 }

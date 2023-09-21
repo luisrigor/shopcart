@@ -24,16 +24,17 @@ public class BackOfficeController {
     private final BackOfficeService backOfficeService;
 
     @GetMapping(ApiEndpoints.GET_PROMOTIONS)
-    public ResponseEntity<PromotionsDTO> getPromotions(@RequestParam Integer idCatalog) {
-        PromotionsDTO promotions = backOfficeService.getPromotions(idCatalog);
+    public ResponseEntity<PromotionsDTO> getPromotions(@RequestParam Integer idCatalog, @RequestParam Boolean isCatalog,
+                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        PromotionsDTO promotions = backOfficeService.getPromotions(idCatalog, userPrincipal.getIdUser(), isCatalog);
 
         return ResponseEntity.status(HttpStatus.OK).body(promotions);
     }
 
     @PostMapping(ApiEndpoints.GET_PRODUCTS_BY_FREE_SEARCH)
-    public ResponseEntity<PromotionsDTO> getProductsByFreeSearch(@RequestParam Integer idCategory, @RequestParam Integer idCatalog,
+    public ResponseEntity<PromotionsDTO> getProductsByFreeSearch(@RequestParam Integer idCategory, @RequestParam Integer idCatalog, @RequestParam Boolean isCatalog,
                                                                  @RequestBody ShopCartFilter filter, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        PromotionsDTO products = backOfficeService.getProductsByFreeSearch(idCategory, idCatalog, filter, userPrincipal);
+        PromotionsDTO products = backOfficeService.getProductsByFreeSearch(idCategory, idCatalog, filter, isCatalog, userPrincipal);
         return ResponseEntity.status(HttpStatus.OK).body(products);
 
     }

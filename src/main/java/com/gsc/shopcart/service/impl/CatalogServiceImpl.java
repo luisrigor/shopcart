@@ -14,6 +14,7 @@ import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.CatalogService;
 import com.gsc.shopcart.utils.ShopCartUtils;
+import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.financial.FinancialTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -85,7 +86,7 @@ public class CatalogServiceImpl implements CatalogService {
         }
     }
 
-    public static List<OrderCart> formatFields(List<OrderCartProduct> vecOrderCart) {
+    public static List<OrderCart> formatFields(List<OrderCartProduct> vecOrderCart) throws SCErrorException {
 
         List<OrderCart> vecOrderCartF = new ArrayList<>();
 
@@ -103,8 +104,8 @@ public class CatalogServiceImpl implements CatalogService {
             String ivaType = cart.getIvaType();
             double totalIva = 0.0;
 
-  //         if (!ivaType.equalsIgnoreCase("EXEMPT"))
-  //         totalIva = FinancialTasks.getVATatScale("PT", ivaType);
+           if (!ivaType.equalsIgnoreCase("EXEMPT"))
+            totalIva = FinancialTasks.getVATatScale("PT", ivaType);
 
             double unitPrice = cart.getUnitPrice();
             if (ShopCartUtils.isProductInPromotion(cart.getPromoStart(), cart.getPromoEnd()))

@@ -8,6 +8,6 @@ import com.gsc.shopcart.security.UserPrincipal;
 import java.util.List;
 
 public interface BackOfficeService {
-    PromotionsDTO getPromotions(Integer idCatalog);
-    PromotionsDTO getProductsByFreeSearch(Integer idCategory, Integer idCatalog, ShopCartFilter filter, UserPrincipal userPrincipal);
+    PromotionsDTO getPromotions(Integer idCatalog, Integer idUser, Boolean isCatalog);
+    PromotionsDTO getProductsByFreeSearch(Integer idCategory, Integer idCatalog, ShopCartFilter filter, Boolean isCatalog, UserPrincipal userPrincipal);
 }

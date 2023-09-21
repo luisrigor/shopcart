@@ -11,10 +11,7 @@ import io.jsonwebtoken.security.Keys;
 
 import javax.naming.directory.Attributes;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class SecurityData {
 
@@ -83,4 +80,18 @@ public class SecurityData {
         userPrincipal.setOidNet(Dealer.OID_NET_TOYOTA);
         return userPrincipal;
     }
+
+    public UserPrincipal getUserToyotaProfile() {
+        Set<AppProfile> roles = new HashSet<>();
+        roles.add(AppProfile.TOYOTA_LEXUS_PRF_TCAP);
+        UserPrincipal userPrincipal = new UserPrincipal("137||tcap1@tpo||tiago.fernandes@parceiro.rigorcg.pt",
+                roles,59L);
+        userPrincipal.setOidNet(Dealer.OID_NET_TOYOTA);
+        userPrincipal.setTcapProfile("116");
+        userPrincipal.setSupplierProfile("117");
+        userPrincipal.setDealerProfile("134");
+        return userPrincipal;
+    }
 }
+
+

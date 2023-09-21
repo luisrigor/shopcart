@@ -4,6 +4,7 @@ import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
+import com.gsc.shopcart.model.scart.entity.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -79,6 +80,7 @@ public class OrderData {
 
     public static OrderDetail getOrderDetailBuilder() {
         return OrderDetail.builder()
+                .id(1)
                 .idOrder(1)
                 .idProduct(2)
                 .idOrderStatus(3)
@@ -110,6 +112,18 @@ public class OrderData {
                 .description("DescriptionValue")
                 .color("ColorValue")
                 .size("SizeValue")
+                .createdBy("CreatedByValue")
+                .dtCreated(LocalDateTime.now())
+                .changedBy("ChangedByValue")
+                .dtChanged(LocalDateTime.now())
+                .build();
+    }
+
+    public static OrderStatus getOrderStatusBuilder() {
+        return OrderStatus.builder()
+                .id(1)
+                .status("StatusValue")
+                .description("DescriptionValue")
                 .createdBy("CreatedByValue")
                 .dtCreated(LocalDateTime.now())
                 .changedBy("ChangedByValue")

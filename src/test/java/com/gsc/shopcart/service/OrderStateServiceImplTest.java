@@ -5,6 +5,7 @@ import com.gsc.shopcart.config.environment.MapProfileVariables;
 import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.ListOrderDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Order;
@@ -349,7 +350,7 @@ class OrderStateServiceImplTest {
          when(productRepository.getBillToByIdProduct(anyInt())).thenReturn(billTo);
          fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any(),anyString()))
                  .thenReturn(expectedFileName);
-         String fileName = orderStateService.generateInvoice(dealer,Collections.singletonList(order), ApiConstants.LEXUS_APP);
+         String fileName = orderStateService.generateInvoice(dealer,Collections.singletonList(order), ApiConstants.TOYOTA_APP);
          assertEquals(expectedFileName,fileName);
       }
    }
@@ -385,7 +386,41 @@ class OrderStateServiceImplTest {
       when(orderRepository.findById(anyInt())).thenThrow(ShopCartException.class);
       assertThrows(ShopCartException.class,()->
               orderStateService.sendInvoice(user,new ArrayList<>(Arrays.asList(1,0))));
+   }
 
+   @Test
+   void whenListOrderDetailSuccessfully() {
+      UserPrincipal user = securityData.getUserToyotaProfile();
+      Integer finalIdOrder = 1;
+      Integer finalIdOrderDetailStatus = 2;
+      Order order = OrderData.getOrderBuilder();
+      List<OrderDetail> orderDetailList = Collections.singletonList(OrderData.getOrderDetailBuilder());
+      List<OrderStatus> orderStatusList =Collections.singletonList(OrderData.getOrderStatusBuilder());
+      List<Object[]> supplierList = new ArrayList<>();
+      user.setOidNet(Dealer.OID_NET_TOYOTA);
+      user.setAuthorities(new ArrayList<>(Collections.singletonList(ScConstants.PROFILE_TCAP)));
+
+      when(orderRepository.findById(anyInt())).thenReturn(Optional.ofNullable(order));
+      when(orderDetailRepository.getOrderDetailByIdOrder(finalIdOrder, finalIdOrderDetailStatus, user)).thenReturn(orderDetailList);
+      when(orderStatusRepository.findAll()).thenReturn(orderStatusList);
+      when(toyotaUserEntityProfileRepository.getSuppliers(anyInt(), anyInt())).thenReturn(supplierList);
+
+      ListOrderDTO listOrderDTO = orderStateService.listOrderDetail(user,finalIdOrder,finalIdOrderDetailStatus);
+
+      assertEquals(order,listOrderDTO.getOrder());
+      assertEquals(orderDetailList,listOrderDTO.getOrderDetailList());
+      assertEquals(orderStatusList,listOrderDTO.getOrderStatusList());
+   }
+
+   @Test
+   void whenListOrderDetailTheThrowException() {
+      UserPrincipal user = securityData.getUserToyotaProfile();
+      Integer finalIdOrder = 1;
+      Integer finalIdOrderDetailStatus = 2;
+
+      when(orderRepository.findById(anyInt())).thenThrow(ShopCartException.class);
+
+      assertThrows(ShopCartException.class,()->orderStateService.listOrderDetail(user,finalIdOrder,finalIdOrderDetailStatus));
    }
 
 }

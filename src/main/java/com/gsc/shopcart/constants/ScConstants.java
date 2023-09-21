@@ -12,4 +12,8 @@ public class ScConstants {
     public static final String PROFILE_SUPPLIER = "SUPPLIER";
     public static final String PROFILE_DEALER = "DEALER";
     public static final String PROFILE_TCAP = "TCAP";
+    public static final String CONFIGURATION_ID_APPLICATION = "idApplication";
+    public static final String CONFIGURATION_ID_PROFILE_TCAP = "idProfileTcap";
+    public static final String CONFIGURATION_ID_PROFILE_DEALER = "idProfileDealer";
+    public static final String CONFIGURATION_ID_PROFILE_SUPPLIER = "idProfileSupplier";
 }

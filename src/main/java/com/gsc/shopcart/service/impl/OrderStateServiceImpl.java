@@ -1,10 +1,10 @@
 package com.gsc.shopcart.service.impl;
 
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
-import com.gsc.shopcart.config.environment.MapProfileVariables;
 import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.ListOrderDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Order;
@@ -207,133 +207,27 @@ public class OrderStateServiceImpl implements OrderStateService {
         }
     }
 
-    public void listOrderDetail(UserPrincipal user, Integer idOrder, Integer idOrderDetailStatus){
-
-        idOrder=idOrder==null?0:idOrder;
-        idOrderDetailStatus=idOrderDetailStatus==null?-1:idOrder;
-
-        String criteria = "1=1";
-
-        List<OrderDetail> orderDetailList = new ArrayList<>();
-        List<OrderStatus> orderStatusList = new ArrayList<>();
-
-        Map suppliers = new HashMap();
-
-        Order order = null;
-
-        /**Confirmar si estos valores ya los puedo extraer del user*/
-        String idProfileTcap = user.getTcapProfile();
-        String idProfileDealer = user.getDealerProfile();
-        String idProfileSupplier = user.getSupplierProfile();
-
-
-        int idCatalog = Integer.parseInt(request.getPreferences().getValue("idCatalog", "0"));
-        int idApplication = StringTasks.cleanInteger(request.getPreferences().getValue("idApplication", "0"),0);
-
-        Map preferences = new HashMap();
-        preferences.put("idOrderStatus", String.valueOf(StringTasks.cleanInteger(request.getParameter("idOrderStatus"), -1)));
-        preferences.put("idSupplier", String.valueOf(StringTasks.cleanInteger(request.getParameter("idSupplier"), -1)));
-        preferences.put("oidDealer", StringTasks.cleanString(request.getParameter("oidDealer"), ""));
-        preferences.put("orderType", StringTasks.cleanString(request.getParameter("orderType"), ORDER_TYPE_EXTRANET));
-        preferences.put(ApplicationConfiguration.CONFIGURATION_ID_APPLICATION, idApplication);
-        preferences.put(ApplicationConfiguration.CONFIGURATION_ID_PROFILE_TCAP, idProfileTcap);
-        preferences.put(ApplicationConfiguration.CONFIGURATION_ID_PROFILE_DEALER, idProfileDealer);
-        preferences.put(ApplicationConfiguration.CONFIGURATION_ID_PROFILE_SUPPLIER, idProfileSupplier);
-        request.setAttribute("preferences", preferences);
+    @Override
+    public ListOrderDTO listOrderDetail(UserPrincipal user, Integer idOrder, Integer idOrderDetailStatus){
 
         try {
+            Integer finalIdOrder = idOrder!=null?idOrder:0;
+            Integer finalIdOrderDetailStatus = idOrderDetailStatus!=null?idOrderDetailStatus:-1;
+            Order order = orderRepository.findById(finalIdOrder).orElseThrow(() -> new ShopCartException("Order not found by " + finalIdOrder));
+            List<OrderDetail> orderDetailList = orderDetailRepository.getOrderDetailByIdOrder(finalIdOrder,finalIdOrderDetailStatus,user);
+            List<OrderStatus> orderStatusList = orderStatusRepository.findAll();
+            List<Object[]> listSups = getSuppliers(user.getOidNet(), Integer.parseInt(user.getTcapProfile()), Integer.parseInt(user.getSupplierProfile()));
+            Map<Integer, String> suppliers = setMapData(listSups);
 
-            order = (Order) Order.getHelper().getObjectById(idOrder, ApplicationConfiguration.DATASOURCE_DBSHOPCART);
-            if(idOrderDetailStatus!=-1)
-                criteria+= " AND ID_ORDER_STATUS = "+idOrderDetailStatus+" ";
+            return ListOrderDTO.builder()
+                    .order(order)
+                    .orderDetailList(orderDetailList)
+                    .orderStatusList(orderStatusList)
+                    .suppliers(suppliers)
+                    .build();
 
-            if (userbean.getAuthorities().contains(ApplicationConfiguration.PROFILE_SUPPLIER) && !userbean.getAuthorities().contains(ApplicationConfiguration.PROFILE_TCAP))
-                criteria+= " AND ID_SUPPLIER = "+userbean.getIdEntity()+" ";
-
-            orderDetailList = OrderDetail.getHelper().getOrderDetailByIdOrder(idOrder,criteria);
-            orderStatusList = OrderStatus.getHelper().getOrderStatus();
-            suppliers = ShopCartUtils.getSuppliers(Integer.parseInt(idProfileTcap), Integer.parseInt(idProfileSupplier),userbean.getOidNet());
-
-        } catch (SCErrorException e) {
-            StringBuffer errorMsg = new StringBuffer("");
-            errorMsg.append("Message:" + e.getMessage() + "\n");
-            errorMsg.append("LocalizedMessage:" + e.getLocalizedMessage() + "\n");
-            errorMsg.append("ExceptionStackTrace:\n" + e.getExceptionStackTrace() + "\n");
-            logger.error(errorMsg.toString());
-            msg = e.getLocalizedMessage();
+        } catch (Exception e) {
+            throw new ShopCartException("Error Listing Order Details Files", e);
         }
-
-        request.setAttribute("msg", msg);
-        request.setAttribute("orderDetailList", orderDetailList);
-        request.setAttribute("orderStatusList", orderStatusList);
-        request.setAttribute("suppliers", suppliers);
-        request.setAttribute("order", order);
-        request.setAttribute("idCatalog", idCatalog);
-        request.setAttribute("idApplication", String.valueOf(idApplication));
-
-
     }
-
-    /*private void ListOrderDetail(RenderRequest request, User userbean) {
-
-		int idOrder = StringTasks.cleanInteger(request.getParameter("idOrder"), 0);
-		int idOrderDetailStatus = StringTasks.cleanInteger(request.getParameter("idOrderDetailStatus"), -1);
-		String criteria = "1=1";
-		String msg = PortletTasks.getMessage(request);
-		Vector vecOrderDetail = new Vector();
-		Vector vecOrderStatus = new Vector();
-		Hashtable suppliers = new Hashtable();
-		Order order = null;
-
-
-		String idProfileTcap = request.getPreferences().getValue(ApplicationConfiguration.CONFIGURATION_ID_PROFILE_TCAP, "0");
-		String idProfileDealer = request.getPreferences().getValue(ApplicationConfiguration.CONFIGURATION_ID_PROFILE_DEALER, "0");
-		String idProfileSupplier = request.getPreferences().getValue(ApplicationConfiguration.CONFIGURATION_ID_PROFILE_SUPPLIER, "0");
-
-		int idCatalog = Integer.parseInt(request.getPreferences().getValue("idCatalog", "0"));
-		int idApplication = StringTasks.cleanInteger(request.getPreferences().getValue("idApplication", "0"),0);
-
-		Map preferences = new HashMap();
-		preferences.put("idOrderStatus", String.valueOf(StringTasks.cleanInteger(request.getParameter("idOrderStatus"), -1)));
-		preferences.put("idSupplier", String.valueOf(StringTasks.cleanInteger(request.getParameter("idSupplier"), -1)));
-		preferences.put("oidDealer", StringTasks.cleanString(request.getParameter("oidDealer"), ""));
-		preferences.put("orderType", StringTasks.cleanString(request.getParameter("orderType"), ORDER_TYPE_EXTRANET));
-		preferences.put(ApplicationConfiguration.CONFIGURATION_ID_APPLICATION, idApplication);
-		preferences.put(ApplicationConfiguration.CONFIGURATION_ID_PROFILE_TCAP, idProfileTcap);
-		preferences.put(ApplicationConfiguration.CONFIGURATION_ID_PROFILE_DEALER, idProfileDealer);
-		preferences.put(ApplicationConfiguration.CONFIGURATION_ID_PROFILE_SUPPLIER, idProfileSupplier);
-		request.setAttribute("preferences", preferences);
-
-		try {
-
-			order = (Order) Order.getHelper().getObjectById(idOrder, ApplicationConfiguration.DATASOURCE_DBSHOPCART);
-			if(idOrderDetailStatus!=-1)
-				criteria+= " AND ID_ORDER_STATUS = "+idOrderDetailStatus+" ";
-
-			if (userbean.getAuthorities().contains(ApplicationConfiguration.PROFILE_SUPPLIER) && !userbean.getAuthorities().contains(ApplicationConfiguration.PROFILE_TCAP))
-				criteria+= " AND ID_SUPPLIER = "+userbean.getIdEntity()+" ";
-
-			vecOrderDetail = OrderDetail.getHelper().getOrderDetailByIdOrder(idOrder,criteria);
-			vecOrderStatus = OrderStatus.getHelper().getOrderStatus();
-			suppliers = ShopCartUtils.getSuppliers(Integer.parseInt(idProfileTcap), Integer.parseInt(idProfileSupplier),userbean.getOidNet());
-
-		} catch (SCErrorException e) {
-			StringBuffer errorMsg = new StringBuffer("");
-			errorMsg.append("Message:" + e.getMessage() + "\n");
-			errorMsg.append("LocalizedMessage:" + e.getLocalizedMessage() + "\n");
-			errorMsg.append("ExceptionStackTrace:\n" + e.getExceptionStackTrace() + "\n");
-			logger.error(errorMsg.toString());
-			msg = e.getLocalizedMessage();
-		}
-
-		request.setAttribute("msg", msg);
-		request.setAttribute("vecOrderDetail", vecOrderDetail);
-		request.setAttribute("vecOrderStatus", vecOrderStatus);
-		request.setAttribute("suppliers", suppliers);
-		request.setAttribute("order", order);
-		request.setAttribute("idCatalog", idCatalog);
-		request.setAttribute("idApplication", String.valueOf(idApplication));
-	}
-
-     */
 }

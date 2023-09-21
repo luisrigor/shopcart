@@ -1,6 +1,7 @@
 package com.gsc.shopcart.service;
 
 import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.ListOrderDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.security.UserPrincipal;
 
@@ -10,4 +11,6 @@ public interface OrderStateService {
     OrderStateDTO getOrderState(UserPrincipal userPrincipal, GetOrderStateDTO getOrderStateDTO);
 
     void sendInvoice(UserPrincipal userPrincipal, List<Integer> idOrders);
+
+    ListOrderDTO listOrderDetail(UserPrincipal user, Integer idOrder, Integer idOrderDetailStatus);
 }

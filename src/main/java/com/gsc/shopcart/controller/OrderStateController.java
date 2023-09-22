@@ -46,7 +46,7 @@ public class OrderStateController {
     }
 
     @GetMapping(ApiEndpoints.CHANGE_ORDER_DETAIL_STATUS)
-    public ResponseEntity<OrderDetail> change(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Integer idOrderDetail){
+    public ResponseEntity<OrderDetail> changeOrderState(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Integer idOrderDetail){
         return ResponseEntity.status(HttpStatus.OK).body(orderStateService.changeOrderDetailStatus(idOrderDetail));
     }
 

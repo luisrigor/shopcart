@@ -10,6 +10,7 @@ import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.ListOrderDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.dto.SendInvoiceDTO;
+import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
@@ -130,6 +131,18 @@ class OrderStateControllerTest {
                         .queryParam("idOrderDetailStatus","2"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(listOrderDTO)));
+    }
+
+    @Test
+    void whenChangeOrderDetailSuccessfully() throws Exception {
+        String accessToken = generatedToken;
+        OrderDetail orderDetail = OrderData.getOrderDetailBuilder();
+        when(orderStateService.changeOrderDetailStatus(anyInt())).thenReturn(orderDetail);
+        mvc.perform(get(BASE_REQUEST_MAPPING+ ApiEndpoints.CHANGE_ORDER_DETAIL_STATUS)
+                        .header("accessToken", accessToken)
+                        .queryParam("idOrderDetail","1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(orderDetail)));
     }
 
 }

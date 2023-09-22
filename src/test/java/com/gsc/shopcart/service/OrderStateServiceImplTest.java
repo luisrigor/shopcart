@@ -7,6 +7,7 @@ import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.ListOrderDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
+import com.gsc.shopcart.exceptions.ResourceNotFoundException;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
@@ -32,6 +33,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.validation.constraints.Null;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -356,6 +358,30 @@ class OrderStateServiceImplTest {
    }
 
    @Test
+   void generateInvoiceAndIdAppIsLexusThenReturnSuccessfully() throws SCErrorException {
+      Order order = OrderData.getOrderBuilder();
+      Dealer dealer = new Dealer();
+      OrderDetail orderDetail = OrderData.getOrderDetailBuilder();
+      String billTo = StringUtils.EMPTY;
+      when(orderRepository.findById(anyInt())).thenReturn(Optional.of(order));
+      String expectedFileName = "FileName";
+      Map<String, List<Order>> orders = new HashMap<>();
+      orders.put(order.getOidDealer(),Collections.singletonList(order));
+      Map<String, String> envVariables = new HashMap<>();
+      envVariables.put(MapProfileVariables.PATH_TO_WRITE_FILES, "C:\\Windows\\Temp");
+      try (MockedStatic<FileShopUtils> fileShopUtils = Mockito.mockStatic(FileShopUtils.class)) {
+         when(environmentConfig.getEnvVariables()).thenReturn(envVariables);
+         when(dealerHelper.getByObjectId(anyString(),anyString())).thenReturn(dealer);
+         when(orderDetailRepository.findByIdOrderAndIdOrderStatus(anyInt(),anyInt())).thenReturn(Collections.singletonList(orderDetail));
+         when(productRepository.getBillToByIdProduct(anyInt())).thenReturn(billTo);
+         fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any(),anyString()))
+                 .thenReturn(expectedFileName);
+         String fileName = orderStateService.generateInvoice(dealer,Collections.singletonList(order), ApiConstants.LEXUS_APP);
+         assertEquals(expectedFileName,fileName);
+      }
+   }
+
+   @Test
    void sendInvoiceWithSuccessfullyCase() throws SCErrorException {
       UserPrincipal user = SecurityData.getUserDefaultStatic();
       Order order = OrderData.getOrderBuilder();
@@ -421,6 +447,23 @@ class OrderStateServiceImplTest {
       when(orderRepository.findById(anyInt())).thenThrow(ShopCartException.class);
 
       assertThrows(ShopCartException.class,()->orderStateService.listOrderDetail(user,finalIdOrder,finalIdOrderDetailStatus));
+   }
+
+   @Test
+   void whenChangeOrderDetailSuccessfully() {
+      OrderDetail orderDetail = OrderData.getOrderDetailBuilder();
+      when(orderDetailRepository.findById(anyInt())).thenReturn(Optional.ofNullable(orderDetail));
+
+      OrderDetail actualOrderDetail = orderStateService.changeOrderDetailStatus(1);
+
+      assertEquals(orderDetail,actualOrderDetail);
+   }
+
+   @Test
+   void whenListOrderDetailTheThrowResourceNotFoundException() {
+      when(orderDetailRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+      assertThrows(ResourceNotFoundException.class,()->orderStateService.changeOrderDetailStatus(1));
    }
 
 }

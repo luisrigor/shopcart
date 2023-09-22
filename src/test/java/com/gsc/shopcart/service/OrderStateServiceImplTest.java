@@ -7,6 +7,7 @@ import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.ListOrderDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
+import com.gsc.shopcart.exceptions.ResourceNotFoundException;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
@@ -23,14 +24,10 @@ import com.rg.dealer.Dealer;
 import com.rg.dealer.DealerHelper;
 import com.sc.commons.exceptions.SCErrorException;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
@@ -82,7 +79,7 @@ class OrderStateServiceImplTest {
 
     @Test
     void whenGetOrderStateThenReturnInfo() throws SCErrorException {
-       UserPrincipal user = SecurityData.getUserDefaultStatic();
+       UserPrincipal user = securityData.getUserToyotaProfile();
        GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
 
        user.setOidNet(Dealer.OID_NET_TOYOTA);
@@ -112,16 +109,16 @@ class OrderStateServiceImplTest {
 
           OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-          assertEquals(dealerList, orderStateDTO.getDealerList());
-          assertEquals(orderList, orderStateDTO.getOrderList());
-          assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-          assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+          assertEquals(dealerList, orderStateDTO.getVecDealers());
+          assertEquals(orderList, orderStateDTO.getVecOrderState());
+          assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+          assertEquals(hsmDealers, orderStateDTO.getHstDealers());
        }
     }
 
    @Test
    void whenGetOrderStateAndOidParentIsEmptyThenReturnInfo() throws SCErrorException {
-      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      UserPrincipal user = securityData.getUserToyotaProfile();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
       getOrderStateDTO.setOidParent("");
 
@@ -152,16 +149,16 @@ class OrderStateServiceImplTest {
 
          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-         assertEquals(dealerList, orderStateDTO.getDealerList());
-         assertEquals(orderList, orderStateDTO.getOrderList());
-         assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-         assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+         assertEquals(dealerList, orderStateDTO.getVecDealers());
+         assertEquals(orderList, orderStateDTO.getVecOrderState());
+         assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+         assertEquals(hsmDealers, orderStateDTO.getHstDealers());
       }
    }
 
    @Test
    void whenGetOrderStateWhenOidNetIsCbusThenReturnInfo() throws SCErrorException {
-      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      UserPrincipal user = securityData.getUserToyotaProfile();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
 
       user.setOidNet(Dealer.OID_NET_CBUS);
@@ -191,16 +188,16 @@ class OrderStateServiceImplTest {
 
          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-         assertEquals(dealerList, orderStateDTO.getDealerList());
-         assertEquals(orderList, orderStateDTO.getOrderList());
-         assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-         assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+         assertEquals(dealerList, orderStateDTO.getVecDealers());
+         assertEquals(orderList, orderStateDTO.getVecOrderState());
+         assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+         assertEquals(hsmDealers, orderStateDTO.getHstDealers());
       }
    }
 
    @Test
    void whenGetOrderStateWhenOidNetIsCbusAndOidParentIsEmptyThenReturnInfo() throws SCErrorException {
-      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      UserPrincipal user = securityData.getUserToyotaProfile();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
       getOrderStateDTO.setOidParent("");
 
@@ -231,17 +228,17 @@ class OrderStateServiceImplTest {
 
          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-         assertEquals(dealerList, orderStateDTO.getDealerList());
-         assertEquals(orderList, orderStateDTO.getOrderList());
-         assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-         assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+         assertEquals(dealerList, orderStateDTO.getVecDealers());
+         assertEquals(orderList, orderStateDTO.getVecOrderState());
+         assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+         assertEquals(hsmDealers, orderStateDTO.getHstDealers());
       }
    }
 
 
    @Test
    void whenGetOrderStateWhenOidNetIsLexusThenReturnInfo() throws SCErrorException {
-      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      UserPrincipal user = securityData.getUserToyotaProfile();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
 
       user.setOidNet(Dealer.OID_NET_LEXUS);
@@ -271,16 +268,16 @@ class OrderStateServiceImplTest {
 
          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-         assertEquals(dealerList, orderStateDTO.getDealerList());
-         assertEquals(orderList, orderStateDTO.getOrderList());
-         assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-         assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+         assertEquals(dealerList, orderStateDTO.getVecDealers());
+         assertEquals(orderList, orderStateDTO.getVecOrderState());
+         assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+         assertEquals(hsmDealers, orderStateDTO.getHstDealers());
       }
    }
 
    @Test
    void whenGetOrderStateWhenOidNetIsLexusAndOidParentIsEmptyThenReturnInfo() throws SCErrorException {
-      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      UserPrincipal user = securityData.getUserToyotaProfile();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
       getOrderStateDTO.setOidParent("");
 
@@ -310,10 +307,10 @@ class OrderStateServiceImplTest {
 
          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-         assertEquals(dealerList, orderStateDTO.getDealerList());
-         assertEquals(orderList, orderStateDTO.getOrderList());
-         assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-         assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+         assertEquals(dealerList, orderStateDTO.getVecDealers());
+         assertEquals(orderList, orderStateDTO.getVecOrderState());
+         assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+         assertEquals(hsmDealers, orderStateDTO.getHstDealers());
       }
    }
 
@@ -351,6 +348,30 @@ class OrderStateServiceImplTest {
          fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any(),anyString()))
                  .thenReturn(expectedFileName);
          String fileName = orderStateService.generateInvoice(dealer,Collections.singletonList(order), ApiConstants.TOYOTA_APP);
+         assertEquals(expectedFileName,fileName);
+      }
+   }
+
+   @Test
+   void generateInvoiceAndIdAppIsLexusThenReturnSuccessfully() throws SCErrorException {
+      Order order = OrderData.getOrderBuilder();
+      Dealer dealer = new Dealer();
+      OrderDetail orderDetail = OrderData.getOrderDetailBuilder();
+      String billTo = StringUtils.EMPTY;
+      when(orderRepository.findById(anyInt())).thenReturn(Optional.of(order));
+      String expectedFileName = "FileName";
+      Map<String, List<Order>> orders = new HashMap<>();
+      orders.put(order.getOidDealer(),Collections.singletonList(order));
+      Map<String, String> envVariables = new HashMap<>();
+      envVariables.put(MapProfileVariables.PATH_TO_WRITE_FILES, "C:\\Windows\\Temp");
+      try (MockedStatic<FileShopUtils> fileShopUtils = Mockito.mockStatic(FileShopUtils.class)) {
+         when(environmentConfig.getEnvVariables()).thenReturn(envVariables);
+         when(dealerHelper.getByObjectId(anyString(),anyString())).thenReturn(dealer);
+         when(orderDetailRepository.findByIdOrderAndIdOrderStatus(anyInt(),anyInt())).thenReturn(Collections.singletonList(orderDetail));
+         when(productRepository.getBillToByIdProduct(anyInt())).thenReturn(billTo);
+         fileShopUtils.when(() -> FileShopUtils.setFiles(anyMap(),anyInt(),anyInt(),any(),anyString()))
+                 .thenReturn(expectedFileName);
+         String fileName = orderStateService.generateInvoice(dealer,Collections.singletonList(order), ApiConstants.LEXUS_APP);
          assertEquals(expectedFileName,fileName);
       }
    }
@@ -421,6 +442,23 @@ class OrderStateServiceImplTest {
       when(orderRepository.findById(anyInt())).thenThrow(ShopCartException.class);
 
       assertThrows(ShopCartException.class,()->orderStateService.listOrderDetail(user,finalIdOrder,finalIdOrderDetailStatus));
+   }
+
+   @Test
+   void whenChangeOrderDetailSuccessfully() {
+      OrderDetail orderDetail = OrderData.getOrderDetailBuilder();
+      when(orderDetailRepository.findById(anyInt())).thenReturn(Optional.ofNullable(orderDetail));
+
+      OrderDetail actualOrderDetail = orderStateService.changeOrderDetailStatus(1);
+
+      assertEquals(orderDetail,actualOrderDetail);
+   }
+
+   @Test
+   void whenListOrderDetailTheThrowResourceNotFoundException() {
+      when(orderDetailRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+      assertThrows(ResourceNotFoundException.class,()->orderStateService.changeOrderDetailStatus(1));
    }
 
 }

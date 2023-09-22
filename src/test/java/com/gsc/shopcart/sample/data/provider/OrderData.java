@@ -15,26 +15,22 @@ public class OrderData {
 
     public static OrderStateDTO getOrderStatusDTO() {
         return OrderStateDTO.builder()
-                .dealerList(new ArrayList<>())
-                .hsmDealers(new HashMap<>())
-                .orderList(new ArrayList<>())
-                .orderStatusList(new ArrayList<>())
-                .hsmOrderDetails(new HashMap<>())
+                .vecDealers(new ArrayList<>())
+                .hstDealers(new HashMap<>())
+                .vecOrderState(new ArrayList<>())
+                .vecOrderStatus(new ArrayList<>())
+                .hmOrderDetails(new HashMap<>())
                 .suppliers(new HashMap<>())
                 .users(new LinkedHashMap<>())
                 .idCatalog(1)
                 .preferences(new HashMap<>())
-                .idApplication(2)
                 .build();
     }
     public static GetOrderStateDTO getGetOrderStateDTO(){
         return GetOrderStateDTO.builder()
                 .idCatalog(1)
-                .idProfileTcap(2)
-                .idProfileSupplier(3)
                 .idOrderStatus(4)
                 .idSupplier(5)
-                .idUser(6)
                 .orderNr(8)
                 .iPec("IPecValue")
                 .reference("ReferenceValue")

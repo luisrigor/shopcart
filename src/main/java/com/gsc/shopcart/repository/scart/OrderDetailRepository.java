@@ -5,10 +5,12 @@ import com.gsc.shopcart.repository.OrderDetailCustomRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface OrderDetailRepository extends JpaRepository<OrderDetail,Integer>, OrderDetailCustomRepository {
 
     List<OrderDetail> findByIdOrderAndIdOrderStatus(Integer idOrder, Integer idOrderStatus);
-    List<OrderDetail> findByIdOrder(Integer idOrder);
+
+
 }
 

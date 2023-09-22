@@ -8,6 +8,7 @@ import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.TokenProvider;
+import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.OrderService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +42,8 @@ public class OrderControllerTest {
 
     @MockBean
     private ConfigurationRepository configurationRepository;
+    @MockBean
+    private UsrLogonSecurity usrLogonSecurity;
     @MockBean
     private ConfigRepository configRepository;
     @MockBean

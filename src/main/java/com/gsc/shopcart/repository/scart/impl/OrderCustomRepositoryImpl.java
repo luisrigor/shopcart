@@ -30,7 +30,7 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
         try {
             Integer idCatalog = getOrderStateDTO.getIdCatalog()==null||getOrderStateDTO.getIdCatalog()==0?0:getOrderStateDTO.getIdCatalog();
             Integer idSupplier = getOrderStateDTO.getIdSupplier()==null||getOrderStateDTO.getIdSupplier()==0?0:getOrderStateDTO.getIdSupplier();
-            Integer idUser = getOrderStateDTO.getIdUser()==null||getOrderStateDTO.getIdUser()==0?0:getOrderStateDTO.getIdUser();
+            Integer idUser = userPrincipal.getIdUser()==null||userPrincipal.getIdUser()==0?0:userPrincipal.getIdUser();
             Integer orderNr = getOrderStateDTO.getOrderNr()==null||getOrderStateDTO.getOrderNr()==0?0:getOrderStateDTO.getOrderNr();
             Integer idOrderStatus = getOrderStateDTO.getIdOrderStatus()==null||getOrderStateDTO.getIdOrderStatus()==0?0:getOrderStateDTO.getIdOrderStatus();
             String iPec = StringTasks.cleanString(getOrderStateDTO.getIPec(), StringUtils.EMPTY);

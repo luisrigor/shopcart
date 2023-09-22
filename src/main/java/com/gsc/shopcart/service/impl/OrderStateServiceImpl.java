@@ -64,7 +64,7 @@ public class OrderStateServiceImpl implements OrderStateService {
             Map<String, String> preferences = new HashMap<>();
             preferences.put("idOrderStatus", String.valueOf(getOrderStateDTO.getIdOrderStatus()));
             preferences.put("idSupplier", String.valueOf(getOrderStateDTO.getIdSupplier()));
-            preferences.put("idUser", String.valueOf(getOrderStateDTO.getIdUser()));
+            preferences.put("idUser", String.valueOf(userPrincipal.getIdUser()));
             preferences.put("orderNr", String.valueOf(getOrderStateDTO.getOrderNr()));
             preferences.put("iPec", getOrderStateDTO.getIPec());
             preferences.put("oidDealer", oidParent);
@@ -88,7 +88,7 @@ public class OrderStateServiceImpl implements OrderStateService {
 
             Map<Integer, String> suppliers = new HashMap<>();
             if (userPrincipal.getAuthorities().contains(ScConstants.PROFILE_TCAP) || userPrincipal.getAuthorities().contains(ScConstants.PROFILE_DEALER)) {
-                List<Object[]> listSupps = getSuppliers(userPrincipal.getOidNet(), getOrderStateDTO.getIdProfileTcap(),getOrderStateDTO.getIdProfileSupplier());
+                List<Object[]> listSupps = getSuppliers(userPrincipal.getOidNet(), Integer.valueOf(userPrincipal.getTcapProfile()),Integer.valueOf(userPrincipal.getSupplierProfile()));
                 suppliers = setMapData(listSupps);
             }
 
@@ -99,11 +99,11 @@ public class OrderStateServiceImpl implements OrderStateService {
                     .collect(Collectors.groupingBy(OrderDetail::getIdOrder));
 
             return OrderStateDTO.builder()
-                    .dealerList(dealerList)
-                    .hsmDealers(hsmDealers)
-                    .orderList(orderList)
-                    .orderStatusList(orderStatusList)
-                    .hsmOrderDetails(hsmOrderDetails)
+                    .vecDealers(dealerList)
+                    .hstDealers(hsmDealers)
+                    .vecOrderState(orderList)
+                    .vecOrderStatus(orderStatusList)
+                    .hmOrderDetails(hsmOrderDetails)
                     .suppliers(suppliers)
                     .users(users)
                     .idCatalog(getOrderStateDTO.getIdCatalog())

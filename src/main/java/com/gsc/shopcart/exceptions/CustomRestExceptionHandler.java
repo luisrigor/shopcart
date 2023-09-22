@@ -70,14 +70,14 @@ public class CustomRestExceptionHandler {
             sbErrorMsg.append(delim);
         }
 
-        return new ApiError(ApiErrorConstants.ERROR_PROCESSING_REQUEST, HttpStatus.BAD_REQUEST,
+        return new ApiError(ApiErrorConstants.ERROR_PROCESSING_REQUEST, HttpStatus.UNPROCESSABLE_ENTITY,
                 ex.getMessage(), request.getDescription(false), sbErrorMsg.toString());
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ApiError missingServletRequestParameterException(MissingServletRequestParameterException ex, WebRequest request) {
+    public ApiError handleMissingServletRequestParameterException(MissingServletRequestParameterException ex, WebRequest request) {
         String cause = String.format("Parameter %s is mandatory.",
                 ex.getParameterName());
         return new ApiError(ApiErrorConstants.INCORRECT_DATA, HttpStatus.BAD_REQUEST,
@@ -85,6 +85,7 @@ public class CustomRestExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public ApiError handleNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         log.error(ex.getMessage(), ex);

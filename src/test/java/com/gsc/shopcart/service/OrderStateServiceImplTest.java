@@ -24,16 +24,11 @@ import com.rg.dealer.Dealer;
 import com.rg.dealer.DealerHelper;
 import com.sc.commons.exceptions.SCErrorException;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.validation.constraints.Null;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -84,7 +79,7 @@ class OrderStateServiceImplTest {
 
     @Test
     void whenGetOrderStateThenReturnInfo() throws SCErrorException {
-       UserPrincipal user = SecurityData.getUserDefaultStatic();
+       UserPrincipal user = securityData.getUserToyotaProfile();
        GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
 
        user.setOidNet(Dealer.OID_NET_TOYOTA);
@@ -114,16 +109,16 @@ class OrderStateServiceImplTest {
 
           OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-          assertEquals(dealerList, orderStateDTO.getDealerList());
-          assertEquals(orderList, orderStateDTO.getOrderList());
-          assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-          assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+          assertEquals(dealerList, orderStateDTO.getVecDealers());
+          assertEquals(orderList, orderStateDTO.getVecOrderState());
+          assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+          assertEquals(hsmDealers, orderStateDTO.getHstDealers());
        }
     }
 
    @Test
    void whenGetOrderStateAndOidParentIsEmptyThenReturnInfo() throws SCErrorException {
-      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      UserPrincipal user = securityData.getUserToyotaProfile();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
       getOrderStateDTO.setOidParent("");
 
@@ -154,16 +149,16 @@ class OrderStateServiceImplTest {
 
          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-         assertEquals(dealerList, orderStateDTO.getDealerList());
-         assertEquals(orderList, orderStateDTO.getOrderList());
-         assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-         assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+         assertEquals(dealerList, orderStateDTO.getVecDealers());
+         assertEquals(orderList, orderStateDTO.getVecOrderState());
+         assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+         assertEquals(hsmDealers, orderStateDTO.getHstDealers());
       }
    }
 
    @Test
    void whenGetOrderStateWhenOidNetIsCbusThenReturnInfo() throws SCErrorException {
-      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      UserPrincipal user = securityData.getUserToyotaProfile();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
 
       user.setOidNet(Dealer.OID_NET_CBUS);
@@ -193,16 +188,16 @@ class OrderStateServiceImplTest {
 
          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-         assertEquals(dealerList, orderStateDTO.getDealerList());
-         assertEquals(orderList, orderStateDTO.getOrderList());
-         assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-         assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+         assertEquals(dealerList, orderStateDTO.getVecDealers());
+         assertEquals(orderList, orderStateDTO.getVecOrderState());
+         assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+         assertEquals(hsmDealers, orderStateDTO.getHstDealers());
       }
    }
 
    @Test
    void whenGetOrderStateWhenOidNetIsCbusAndOidParentIsEmptyThenReturnInfo() throws SCErrorException {
-      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      UserPrincipal user = securityData.getUserToyotaProfile();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
       getOrderStateDTO.setOidParent("");
 
@@ -233,17 +228,17 @@ class OrderStateServiceImplTest {
 
          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-         assertEquals(dealerList, orderStateDTO.getDealerList());
-         assertEquals(orderList, orderStateDTO.getOrderList());
-         assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-         assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+         assertEquals(dealerList, orderStateDTO.getVecDealers());
+         assertEquals(orderList, orderStateDTO.getVecOrderState());
+         assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+         assertEquals(hsmDealers, orderStateDTO.getHstDealers());
       }
    }
 
 
    @Test
    void whenGetOrderStateWhenOidNetIsLexusThenReturnInfo() throws SCErrorException {
-      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      UserPrincipal user = securityData.getUserToyotaProfile();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
 
       user.setOidNet(Dealer.OID_NET_LEXUS);
@@ -273,16 +268,16 @@ class OrderStateServiceImplTest {
 
          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-         assertEquals(dealerList, orderStateDTO.getDealerList());
-         assertEquals(orderList, orderStateDTO.getOrderList());
-         assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-         assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+         assertEquals(dealerList, orderStateDTO.getVecDealers());
+         assertEquals(orderList, orderStateDTO.getVecOrderState());
+         assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+         assertEquals(hsmDealers, orderStateDTO.getHstDealers());
       }
    }
 
    @Test
    void whenGetOrderStateWhenOidNetIsLexusAndOidParentIsEmptyThenReturnInfo() throws SCErrorException {
-      UserPrincipal user = SecurityData.getUserDefaultStatic();
+      UserPrincipal user = securityData.getUserToyotaProfile();
       GetOrderStateDTO getOrderStateDTO = OrderData.getGetOrderStateDTO();
       getOrderStateDTO.setOidParent("");
 
@@ -312,10 +307,10 @@ class OrderStateServiceImplTest {
 
          OrderStateDTO orderStateDTO = orderStateService.getOrderState(user,getOrderStateDTO);
 
-         assertEquals(dealerList, orderStateDTO.getDealerList());
-         assertEquals(orderList, orderStateDTO.getOrderList());
-         assertEquals(orderStatusList, orderStateDTO.getOrderStatusList());
-         assertEquals(hsmDealers, orderStateDTO.getHsmDealers());
+         assertEquals(dealerList, orderStateDTO.getVecDealers());
+         assertEquals(orderList, orderStateDTO.getVecOrderState());
+         assertEquals(orderStatusList, orderStateDTO.getVecOrderStatus());
+         assertEquals(hsmDealers, orderStateDTO.getHstDealers());
       }
    }
 

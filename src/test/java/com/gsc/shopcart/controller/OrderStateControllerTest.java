@@ -15,6 +15,7 @@ import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.security.TokenProvider;
 import com.gsc.shopcart.security.UserPrincipal;
+import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.OrderStateService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +52,8 @@ class OrderStateControllerTest {
     private ObjectMapper objectMapper;
     @MockBean
     private OrderStateService orderStateService;
+    @MockBean
+    private UsrLogonSecurity usrLogonSecurity;
     @MockBean
     private ConfigurationRepository configurationRepository;
     @MockBean

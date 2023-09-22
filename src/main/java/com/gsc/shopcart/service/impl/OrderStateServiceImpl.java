@@ -6,6 +6,7 @@ import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.ListOrderDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
+import com.gsc.shopcart.exceptions.ResourceNotFoundException;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
@@ -211,10 +212,9 @@ public class OrderStateServiceImpl implements OrderStateService {
     public ListOrderDTO listOrderDetail(UserPrincipal user, Integer idOrder, Integer idOrderDetailStatus){
 
         try {
-            Integer finalIdOrder = idOrder!=null?idOrder:0;
             Integer finalIdOrderDetailStatus = idOrderDetailStatus!=null?idOrderDetailStatus:-1;
-            Order order = orderRepository.findById(finalIdOrder).orElseThrow(() -> new ShopCartException("Order not found by " + finalIdOrder));
-            List<OrderDetail> orderDetailList = orderDetailRepository.getOrderDetailByIdOrder(finalIdOrder,finalIdOrderDetailStatus,user);
+            Order order = orderRepository.findById(idOrder).orElseThrow(() -> new ShopCartException("Order not found by " + idOrder));
+            List<OrderDetail> orderDetailList = orderDetailRepository.getOrderDetailByIdOrder(idOrder,finalIdOrderDetailStatus,user);
             List<OrderStatus> orderStatusList = orderStatusRepository.findAll();
             List<Object[]> listSups = getSuppliers(user.getOidNet(), Integer.parseInt(user.getTcapProfile()), Integer.parseInt(user.getSupplierProfile()));
             Map<Integer, String> suppliers = setMapData(listSups);
@@ -229,5 +229,11 @@ public class OrderStateServiceImpl implements OrderStateService {
         } catch (Exception e) {
             throw new ShopCartException("Error Listing Order Details Files", e);
         }
+    }
+
+    @Override
+    public OrderDetail changeOrderDetailStatus(Integer idOrderDetail) {
+        return orderDetailRepository.findById(idOrderDetail).orElseThrow(()->
+                new ResourceNotFoundException("Order Detail","idOrderDetail",idOrderDetail.toString()));
     }
 }

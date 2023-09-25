@@ -163,11 +163,11 @@ public class BackOfficeServiceImpl implements BackOfficeService {
                 category = new Category();
                 category.setIdParent(idCategory);
                 category.setDtCreated(new Timestamp((new java.util.Date()).getTime()).toLocalDateTime());
-                category.setCreatedBy(userPrincipal.getLogin() + "||" + userPrincipal.getIdUser());
+                category.setCreatedBy(userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
             } else {
                 category = categoryRepository.findById(id).orElseThrow(()->new RuntimeException("Id not found"));
                 category.setDtChanged(new Timestamp((new java.util.Date()).getTime()).toLocalDateTime());
-                category.setChangedBy(userPrincipal.getLogin() + "||" + userPrincipal.getIdUser());
+                category.setChangedBy(userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
             }
 
             category.setName(name);

@@ -9,6 +9,7 @@ import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.TokenProvider;
+import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.BackOfficeService;
 import com.gsc.shopcart.service.CatalogService;
 import org.junit.jupiter.api.BeforeAll;
@@ -58,6 +59,8 @@ public class CatalogControllerTest {
     private EnvironmentConfig environmentConfig;
     @MockBean
     private ClientRepository clientRepository;
+    @MockBean
+    private UsrLogonSecurity usrLogonSecurity;
     private Gson gson;
     private SecurityData securityData;
 

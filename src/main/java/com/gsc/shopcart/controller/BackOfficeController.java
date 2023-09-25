@@ -1,7 +1,9 @@
 package com.gsc.shopcart.controller;
 
 import com.gsc.shopcart.constants.ApiEndpoints;
+import com.gsc.shopcart.dto.CartDTO;
 import com.gsc.shopcart.dto.PromotionsDTO;
+import com.gsc.shopcart.dto.SaveCategoryDTO;
 import com.gsc.shopcart.dto.ShopCartFilter;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.security.UserPrincipal;
@@ -12,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -38,4 +43,23 @@ public class BackOfficeController {
         return ResponseEntity.status(HttpStatus.OK).body(products);
 
     }
+
+    @PostMapping(ApiEndpoints.GET_CATEGORY)
+    public ResponseEntity<CartDTO> getCategory(@RequestParam Integer idCategory, @RequestParam Integer idCatalog,
+                                                     @RequestBody List<Category> listCategorySelected, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        CartDTO category = backOfficeService.getCategory(idCategory, idCatalog, listCategorySelected, userPrincipal);
+        return ResponseEntity.status(HttpStatus.OK).body(category);
+
+    }
+
+    @PostMapping(ApiEndpoints.SAVE_CATEGORY)
+    public ResponseEntity<String> saveCategory(@RequestPart("data") SaveCategoryDTO categoryDTO, @RequestPart("file") MultipartFile fileAttachItem,
+                                               @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+
+        backOfficeService.saveCategory(categoryDTO, fileAttachItem, userPrincipal);
+        return ResponseEntity.status(HttpStatus.OK).body("saved");
+
+    }
+
 }

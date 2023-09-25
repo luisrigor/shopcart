@@ -1,11 +1,12 @@
 package com.gsc.shopcart.service;
 
 import com.google.gson.reflect.TypeToken;
-import com.gsc.shopcart.dto.OrderCartProduct;
-import com.gsc.shopcart.dto.PromotionsDTO;
-import com.gsc.shopcart.dto.ShopCartFilter;
+import com.gsc.shopcart.constants.ApiEndpoints;
+import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
+import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.repository.scart.CatalogRepository;
+import com.gsc.shopcart.repository.scart.CategoryRepository;
 import com.gsc.shopcart.repository.scart.OrderCartRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.sample.data.provider.ReadJsonTest;
@@ -18,17 +19,24 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles(SecurityData.ACTIVE_PROFILE)
 public class BackOfficeServiceImplTest {
@@ -39,6 +47,8 @@ public class BackOfficeServiceImplTest {
     private ProductRepository productRepository;
     @Mock
     private OrderCartRepository orderCartRepository;
+    @Mock
+    private CategoryRepository categoryRepository;
 
     @InjectMocks
     private BackOfficeServiceImpl backOfficeService;
@@ -230,5 +240,142 @@ public class BackOfficeServiceImplTest {
                 .thenThrow(RuntimeException.class);
 
         assertThrows(ShopCartException.class, ()-> backOfficeService.getProductsByFreeSearch(1,1,null, false, userPrincipal));
+    }
+
+
+    @Test
+    void whenGetCategoryThenReturnInfo() {
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
+        Category category = Category.builder()
+                .id(1)
+                .build();
+
+        when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
+
+        when(categoryRepository.getCategoriesByIdParentBkOff(anyInt()))
+                .thenReturn(TestData.getCartData().getVecCategories());
+
+        when(productRepository.getProductsByIdCategory(anyInt(), anyString(), anyString()))
+                .thenReturn(TestData.getCartData().getVecProducts());
+
+        when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
+
+
+        CartDTO category1 = backOfficeService.getCategory(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal);
+
+        assertEquals(1, category1.getIdCategory());
+        assertEquals(1, category1.getListCategorySelected().get(0).getId());
+        assertEquals(1, category1.getListCategorySelected().get(0).getIdParent());
+        assertEquals("n", category1.getListCategorySelected().get(0).getName());
+        assertEquals("", category1.getListCategorySelected().get(0).getDescription());
+        assertEquals("s", category1.getListCategorySelected().get(0).getStatus());
+        assertEquals(8, category1.getVecCategories().get(0).getId());
+        assertEquals(4, category1.getVecCategories().get(0).getIdParent());
+        assertEquals("B", category1.getVecCategories().get(0).getName());
+        assertEquals("", category1.getVecCategories().get(0).getDescription());
+        assertEquals("P", category1.getVecCategories().get(0).getPath());
+    }
+
+
+    @Test
+    void whenGetCategoryThenThrows() {
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
+        when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
+
+        when(categoryRepository.getCategoriesByIdParentBkOff(anyInt()))
+                .thenThrow(RuntimeException.class);
+
+        assertThrows(ShopCartException.class, ()-> backOfficeService.getCategory(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal));
+    }
+
+    @Test
+    public void whenSaveCategoryThenSave() {
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
+        MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "File content".getBytes());
+
+        Category category = Category.builder()
+                .name("Testc")
+                .build();
+
+        SaveCategoryDTO categoryDTO = SaveCategoryDTO.builder()
+                .idCategory(0)
+                .description("test")
+                .displayOrder(1111)
+                .id(200)
+                .idCatalog(-1)
+                .ivPath("/")
+                .listCategorySelected(Arrays.asList(category))
+                .build();
+
+
+        when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
+        when(categoryRepository.save(any())).thenReturn(new Category());
+
+        backOfficeService.saveCategory(categoryDTO, file, userPrincipal);
+
+    }
+
+    @Test
+    public void whenSaveCategoryThenUpdate() {
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
+        MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "File content".getBytes());
+
+        Category category = Category.builder()
+                .name("Testc")
+                .build();
+
+        SaveCategoryDTO categoryDTO = SaveCategoryDTO.builder()
+                .idCategory(0)
+                .description("test")
+                .displayOrder(1111)
+                .id(0)
+                .idCatalog(-1)
+                .ivPath("/")
+                .listCategorySelected(Arrays.asList(category))
+                .build();
+
+
+        when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
+        when(categoryRepository.save(any())).thenReturn(new Category());
+
+        backOfficeService.saveCategory(categoryDTO, file, userPrincipal);
+
+    }
+
+    @Test
+    public void whenSaveCategoryThenThrows() {
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
+        MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "File content".getBytes());
+
+        Category category = Category.builder()
+                .name("Testc")
+                .build();
+
+        SaveCategoryDTO categoryDTO = SaveCategoryDTO.builder()
+                .idCategory(0)
+                .description("test")
+                .displayOrder(1111)
+                .id(10)
+                .idCatalog(-1)
+                .ivPath("/")
+                .listCategorySelected(Arrays.asList(category))
+                .build();
+
+        assertThrows(ShopCartException.class,()->backOfficeService.saveCategory(categoryDTO, file, userPrincipal));
+
     }
 }

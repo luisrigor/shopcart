@@ -54,6 +54,8 @@ public class OrderControllerTest {
     private EnvironmentConfig environmentConfig;
     @MockBean
     private ClientRepository clientRepository;
+    @MockBean
+    private UsrLogonSecurity usrLogonSecurity;
     private Gson gson;
     private SecurityData securityData;
 

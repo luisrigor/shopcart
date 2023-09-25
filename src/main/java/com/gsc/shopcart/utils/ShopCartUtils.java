@@ -77,6 +77,10 @@ public class ShopCartUtils {
         }
         return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
     }
+
+    public static String getPathCategories(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Categories" + File.separator;
+    }
 }
 
 

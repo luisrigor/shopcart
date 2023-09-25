@@ -43,6 +43,8 @@ public class OrderControllerTest {
     @MockBean
     private ConfigurationRepository configurationRepository;
     @MockBean
+    private UsrLogonSecurity usrLogonSecurity;
+    @MockBean
     private ConfigRepository configRepository;
     @MockBean
     private LoginKeyRepository loginKeyRepository;

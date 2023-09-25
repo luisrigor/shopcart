@@ -46,7 +46,6 @@ public class CatalogControllerTest {
     @MockBean
     private CatalogService catalogService;
 
-
     @MockBean
     private ConfigurationRepository configurationRepository;
     @MockBean

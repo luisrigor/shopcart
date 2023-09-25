@@ -54,7 +54,8 @@ class BackOfficeControllerTest {
 
     @MockBean
     private BackOfficeService backOfficeService;
-
+    @MockBean
+    private UsrLogonSecurity usrLogonSecurity;
 
     @MockBean
     private ConfigurationRepository configurationRepository;

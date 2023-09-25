@@ -3,10 +3,10 @@ package com.gsc.shopcart.controller;
 import com.google.gson.Gson;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.ListOrderDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.dto.SendInvoiceDTO;
-import com.gsc.shopcart.repository.scart.OrderDetailRepository;
-import com.gsc.shopcart.repository.scart.ProductRepository;
+import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.OrderStateService;
 import io.swagger.annotations.Api;
@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("${app.baseUrl}")
@@ -39,5 +38,17 @@ public class OrderStateController {
         orderStateService.sendInvoice(userPrincipal,sendInvoiceDTO.getOrderList());
         return ResponseEntity.status(HttpStatus.OK).body("Send Invoice Successfully Executed");
     }
+
+    @GetMapping(ApiEndpoints.LIST_ORDER_DETAIL)
+    public ResponseEntity<ListOrderDTO> listOrderDetail(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Integer idOrder,
+                                                        @RequestParam(required = false) Integer idOrderDetailStatus){
+        return ResponseEntity.status(HttpStatus.OK).body(orderStateService.listOrderDetail(userPrincipal,idOrder,idOrderDetailStatus));
+    }
+
+    @GetMapping(ApiEndpoints.CHANGE_ORDER_DETAIL_STATUS)
+    public ResponseEntity<OrderDetail> changeOrderState(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Integer idOrderDetail){
+        return ResponseEntity.status(HttpStatus.OK).body(orderStateService.changeOrderDetailStatus(idOrderDetail));
+    }
+
 
 }

@@ -1,11 +1,12 @@
 package com.gsc.shopcart.service.impl;
 
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
-import com.gsc.shopcart.config.environment.MapProfileVariables;
 import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.ListOrderDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
+import com.gsc.shopcart.exceptions.ResourceNotFoundException;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
@@ -63,7 +64,7 @@ public class OrderStateServiceImpl implements OrderStateService {
             Map<String, String> preferences = new HashMap<>();
             preferences.put("idOrderStatus", String.valueOf(getOrderStateDTO.getIdOrderStatus()));
             preferences.put("idSupplier", String.valueOf(getOrderStateDTO.getIdSupplier()));
-            preferences.put("idUser", String.valueOf(getOrderStateDTO.getIdUser()));
+            preferences.put("idUser", String.valueOf(userPrincipal.getIdUser()));
             preferences.put("orderNr", String.valueOf(getOrderStateDTO.getOrderNr()));
             preferences.put("iPec", getOrderStateDTO.getIPec());
             preferences.put("oidDealer", oidParent);
@@ -87,7 +88,7 @@ public class OrderStateServiceImpl implements OrderStateService {
 
             Map<Integer, String> suppliers = new HashMap<>();
             if (userPrincipal.getAuthorities().contains(ScConstants.PROFILE_TCAP) || userPrincipal.getAuthorities().contains(ScConstants.PROFILE_DEALER)) {
-                List<Object[]> listSupps = getSuppliers(userPrincipal.getOidNet(), getOrderStateDTO.getIdProfileTcap(),getOrderStateDTO.getIdProfileSupplier());
+                List<Object[]> listSupps = getSuppliers(userPrincipal.getOidNet(), Integer.valueOf(userPrincipal.getTcapProfile()),Integer.valueOf(userPrincipal.getSupplierProfile()));
                 suppliers = setMapData(listSupps);
             }
 
@@ -98,11 +99,11 @@ public class OrderStateServiceImpl implements OrderStateService {
                     .collect(Collectors.groupingBy(OrderDetail::getIdOrder));
 
             return OrderStateDTO.builder()
-                    .dealerList(dealerList)
-                    .hsmDealers(hsmDealers)
-                    .orderList(orderList)
-                    .orderStatusList(orderStatusList)
-                    .hsmOrderDetails(hsmOrderDetails)
+                    .vecDealers(dealerList)
+                    .hstDealers(hsmDealers)
+                    .vecOrderState(orderList)
+                    .vecOrderStatus(orderStatusList)
+                    .hmOrderDetails(hsmOrderDetails)
                     .suppliers(suppliers)
                     .users(users)
                     .idCatalog(getOrderStateDTO.getIdCatalog())
@@ -205,5 +206,34 @@ public class OrderStateServiceImpl implements OrderStateService {
         for (Order order : orders) {
             orderRepository.updateAlData(fileName, LocalDateTime.now(),changedBy,LocalDateTime.now(),order.getId());
         }
+    }
+
+    @Override
+    public ListOrderDTO listOrderDetail(UserPrincipal user, Integer idOrder, Integer idOrderDetailStatus){
+
+        try {
+            Integer finalIdOrderDetailStatus = idOrderDetailStatus!=null?idOrderDetailStatus:-1;
+            Order order = orderRepository.findById(idOrder).orElseThrow(() -> new ShopCartException("Order not found by " + idOrder));
+            List<OrderDetail> orderDetailList = orderDetailRepository.getOrderDetailByIdOrder(idOrder,finalIdOrderDetailStatus,user);
+            List<OrderStatus> orderStatusList = orderStatusRepository.findAll();
+            List<Object[]> listSups = getSuppliers(user.getOidNet(), Integer.parseInt(user.getTcapProfile()), Integer.parseInt(user.getSupplierProfile()));
+            Map<Integer, String> suppliers = setMapData(listSups);
+
+            return ListOrderDTO.builder()
+                    .order(order)
+                    .orderDetailList(orderDetailList)
+                    .orderStatusList(orderStatusList)
+                    .suppliers(suppliers)
+                    .build();
+
+        } catch (Exception e) {
+            throw new ShopCartException("Error Listing Order Details Files", e);
+        }
+    }
+
+    @Override
+    public OrderDetail changeOrderDetailStatus(Integer idOrderDetail) {
+        return orderDetailRepository.findById(idOrderDetail).orElseThrow(()->
+                new ResourceNotFoundException("Order Detail","idOrderDetail",idOrderDetail.toString()));
     }
 }

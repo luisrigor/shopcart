@@ -1,7 +1,6 @@
 package com.gsc.shopcart.service;
 
 import com.google.gson.reflect.TypeToken;
-import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.*;
@@ -12,12 +11,10 @@ import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.repository.usrlogon.CbusDealerRepository;
 import com.gsc.shopcart.repository.usrlogon.LexusDealerRepository;
 import com.gsc.shopcart.repository.usrlogon.ToyotaDealerRepository;
-import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.ReadJsonTest;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.UserPrincipal;
-import com.gsc.shopcart.service.impl.BackOfficeServiceImpl;
 import com.gsc.shopcart.service.impl.CatalogServiceImpl;
 import com.gsc.shopcart.service.impl.OrderStateServiceImpl;
 import com.rg.dealer.Dealer;

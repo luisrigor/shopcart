@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
-import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
 import com.gsc.shopcart.dto.ListOrderDTO;

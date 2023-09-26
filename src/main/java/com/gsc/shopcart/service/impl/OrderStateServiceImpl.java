@@ -114,7 +114,7 @@ public class OrderStateServiceImpl implements OrderStateService {
         }
     }
 
-    private Map<Integer, String> setMapData(List<Object[]> data) {
+    public Map<Integer, String> setMapData(List<Object[]> data) {
         HashMap<Integer, String> mapUsers = new HashMap<>();
         for (Object[] currentRow: data) {
             mapUsers.put((Integer) currentRow[0], (String) currentRow[1]);
@@ -139,7 +139,7 @@ public class OrderStateServiceImpl implements OrderStateService {
             return cbusUserRepository.getIdAndName(oidDealerParent);
     }
 
-    private List<Object[]> getSuppliers(String oidNet,Integer idProfileTcap, Integer idProfileSupplier){
+    public List<Object[]> getSuppliers(String oidNet,Integer idProfileTcap, Integer idProfileSupplier){
         if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA)) {
             return toyotaUserEntityProfileRepository.getSuppliers(idProfileTcap, idProfileSupplier);
         }

@@ -15,7 +15,8 @@ public interface ToyotaUserRepository extends JpaRepository<ToyotaUser, Integer>
     @Query(value = "SELECT ID_UTILIZADOR, NOME_UTILIZADOR FROM TOYOTA_USERS ORDER BY COLLATION_KEY_BIT(NOME_UTILIZADOR, 'UCA500R1_S1') ",nativeQuery = true)
     List<Object[]> getIdAndName();
 
-    @Query(value = "SELECT ID_UTILIZADOR, NOME_UTILIZADOR FROM TOYOTA_USERS WHERE OID_DEALER_PARENT=:oidDealerParent ORDER BY COLLATION_KEY_BIT(NOME_UTILIZADOR, 'UCA500R1_S1') ",nativeQuery = true)
+    @Query(value = "SELECT ID_UTILIZADOR, NOME_UTILIZADOR FROM TOYOTA_USERS WHERE OID_DEALER_PARENT=:oidDealerParent " +
+            "ORDER BY COLLATION_KEY_BIT(NOME_UTILIZADOR, 'UCA500R1_S1') ",nativeQuery = true)
     List<Object[]> getIdAndName(@Param("oidDealerParent") String oidDealerParent);
 
 

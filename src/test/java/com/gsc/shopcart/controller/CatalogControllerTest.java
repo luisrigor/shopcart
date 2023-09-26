@@ -4,8 +4,12 @@ import com.google.gson.Gson;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
+import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.OrderProductsDTO;
+import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.repository.scart.*;
+import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.TokenProvider;
@@ -32,13 +36,12 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import({SecurityConfig.class, TokenProvider.class})
 @ActiveProfiles(profiles = SecurityData.ACTIVE_PROFILE)
 @WebMvcTest(CatalogController.class)
-public class CatalogControllerTest {
+class CatalogControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -115,6 +118,20 @@ public class CatalogControllerTest {
                 .andExpect(jsonPath("$.vecOrderCart[0].quantity").value("4"));
 
 
+    }
+
+    @Test
+    void whenRequestGetOrderStateThenItsSuccessfully() throws Exception {
+        String accessToken = generatedToken;
+        OrderProductsDTO orderProductsDTO = OrderData.getOrderProductsDTOBuilder();
+
+        when(catalogService.getDetailOrderProducts(any(),any())).thenReturn(orderProductsDTO);
+
+        mvc.perform(get(BASE_REQUEST_MAPPING+ ApiEndpoints.ORDER_PRODUCTS)
+                        .header("accessToken", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(gson.toJson(orderProductsDTO)));
     }
 
 }

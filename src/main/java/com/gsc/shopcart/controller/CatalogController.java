@@ -3,6 +3,7 @@ package com.gsc.shopcart.controller;
 import com.google.gson.Gson;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.CartDTO;
+import com.gsc.shopcart.dto.EditOrderAjaxDTO;
 import com.gsc.shopcart.dto.OrderProductsDTO;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.usrlogon.entity.CbusDealer;
@@ -50,4 +51,12 @@ public class CatalogController {
         Gson gson = new Gson();
         return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(catalogService.getDetailOrderProducts(user,oidDealers)));
     }
+
+    @PutMapping(ApiEndpoints.EDIT_ORDER_CART_AJAX)
+    @ResponseBody
+    public ResponseEntity<EditOrderAjaxDTO> editOrderCartAjaxServlet(@AuthenticationPrincipal UserPrincipal user, @RequestParam Integer idOrderCart,
+                                                                     @RequestParam Integer quantity, @RequestParam Integer multiplier) {
+        return ResponseEntity.status(HttpStatus.OK).body(catalogService.editOrderCartAjaxServlet(idOrderCart,quantity,multiplier,user));
+    }
+
 }

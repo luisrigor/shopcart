@@ -1,11 +1,14 @@
 package com.gsc.shopcart.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
+import com.gsc.shopcart.dto.EditOrderAjaxDTO;
 import com.gsc.shopcart.dto.OrderProductsDTO;
 import com.gsc.shopcart.model.scart.entity.Category;
+import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
@@ -28,11 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import({SecurityConfig.class, TokenProvider.class})
@@ -42,6 +43,8 @@ class CatalogControllerTest {
 
     @Autowired
     private MockMvc mvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private CatalogService catalogService;
@@ -129,6 +132,20 @@ class CatalogControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(gson.toJson(orderProductsDTO)));
+    }
+
+    @Test
+    void whenRequestEditOrderCartAjaxThenItsSuccessfully() throws Exception {
+        String accessToken = generatedToken;
+        EditOrderAjaxDTO editOrderAjaxDTO = new EditOrderAjaxDTO();
+        when(catalogService.editOrderCartAjaxServlet(anyInt(),anyInt(),anyInt(),any())).thenReturn(editOrderAjaxDTO);
+        mvc.perform(put(BASE_REQUEST_MAPPING + ApiEndpoints.EDIT_ORDER_CART_AJAX)
+                        .header("accessToken", accessToken)
+                        .queryParam("idOrderCart","100")
+                        .queryParam("quantity","1")
+                        .queryParam("multiplier","2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(editOrderAjaxDTO)));
     }
 
 }

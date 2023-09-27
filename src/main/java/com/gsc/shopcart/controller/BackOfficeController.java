@@ -1,6 +1,8 @@
 package com.gsc.shopcart.controller;
 
+import com.google.gson.Gson;
 import com.gsc.shopcart.constants.ApiEndpoints;
+import com.gsc.shopcart.dto.GotoProductDTO;
 import com.gsc.shopcart.dto.PromotionsDTO;
 import com.gsc.shopcart.dto.ShopCartFilter;
 import com.gsc.shopcart.model.scart.entity.Category;
@@ -36,6 +38,19 @@ public class BackOfficeController {
                                                                  @RequestBody ShopCartFilter filter, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         PromotionsDTO products = backOfficeService.getProductsByFreeSearch(idCategory, idCatalog, filter, isCatalog, userPrincipal);
         return ResponseEntity.status(HttpStatus.OK).body(products);
+
+    }
+
+    @GetMapping(ApiEndpoints.GOTO_PRODUCT)
+    public ResponseEntity<?> gotoProduct(@RequestParam Integer idCategory, @RequestParam Integer idCatalog, @RequestParam Integer idProduct,
+                                         @RequestParam Integer idProfileTcap, @RequestParam Integer idProfileSupplier,
+                                         @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        GotoProductDTO products = backOfficeService.gotoProduct(idCategory, idCatalog, idProduct, idProfileTcap, idProfileSupplier,  userPrincipal);
+
+        Gson gson = new Gson();
+
+        return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(products));
 
     }
 }

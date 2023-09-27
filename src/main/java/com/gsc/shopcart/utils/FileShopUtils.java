@@ -13,9 +13,6 @@ import com.sc.commons.utils.DateTimerTasks;
 import com.sc.commons.utils.ServerTasks;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.*;

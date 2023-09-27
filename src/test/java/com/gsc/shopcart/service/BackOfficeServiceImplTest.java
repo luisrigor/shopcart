@@ -1,21 +1,16 @@
 package com.gsc.shopcart.service;
 
 import com.google.gson.reflect.TypeToken;
-import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
-<<<<<<< HEAD
 import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.model.scart.entity.ProductAttribute;
-import com.gsc.shopcart.model.scart.entity.ProductItem;
 import com.gsc.shopcart.repository.scart.*;
-=======
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.repository.scart.CatalogRepository;
 import com.gsc.shopcart.repository.scart.CategoryRepository;
 import com.gsc.shopcart.repository.scart.OrderCartRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import com.gsc.shopcart.sample.data.provider.ReadJsonTest;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
@@ -27,20 +22,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.MediaType;
-<<<<<<< HEAD
-=======
 import org.springframework.mock.web.MockMultipartFile;
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import org.springframework.test.context.ActiveProfiles;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-<<<<<<< HEAD
 import java.util.ArrayList;
-=======
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -48,15 +35,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-<<<<<<< HEAD
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-=======
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles(SecurityData.ACTIVE_PROFILE)
 public class BackOfficeServiceImplTest {
@@ -68,7 +47,6 @@ public class BackOfficeServiceImplTest {
     @Mock
     private OrderCartRepository orderCartRepository;
     @Mock
-<<<<<<< HEAD
     private ProductAttributeRepository productAttributeRepository;
     @Mock
     private ProductItemRepository productItemRepository;
@@ -84,9 +62,6 @@ public class BackOfficeServiceImplTest {
     private CategoryRepository categoryRepository;
     @Mock
     private ShopCartUtils shopCartUtils;
-=======
-    private CategoryRepository categoryRepository;
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 
     @InjectMocks
     private BackOfficeServiceImpl backOfficeService;
@@ -280,7 +255,6 @@ public class BackOfficeServiceImplTest {
         assertThrows(ShopCartException.class, ()-> backOfficeService.getProductsByFreeSearch(1,1,null, false, userPrincipal));
     }
 
-<<<<<<< HEAD
     @Test
     void whenGotoProductThenReturnInfo() throws Exception {
         UserPrincipal userPrincipal = securityData.getUserPrincipal();
@@ -288,7 +262,8 @@ public class BackOfficeServiceImplTest {
 
         URI uriRs1_gotoProduct = this.getClass().getResource("/data/rs_gotoProd.json").toURI();
 
-        GotoProductDTO gotoProductDTO = (GotoProductDTO) readJ.readJsonObj(uriRs1_gotoProduct.getPath(), new TypeToken<GotoProductDTO>() {}.getType());
+        GotoProductDTO gotoProductDTO = (GotoProductDTO) readJ.readJsonObj(uriRs1_gotoProduct.getPath(), new TypeToken<GotoProductDTO>() {
+        }.getType());
         gotoProductDTO.setDealers(null);
 
         when(catalogRepository.getidRootCategoryByIdCatalog(any()))
@@ -316,10 +291,10 @@ public class BackOfficeServiceImplTest {
 
         when(productRepository.getRelatedProducts(any(), anyInt()))
                 .thenReturn(Arrays.asList(RelatedProduct.builder()
-                                .idProduct(1978)
-                                .ref("123")
-                                .productName("teste")
-                                .isRelatedProduct("N")
+                        .idProduct(1978)
+                        .ref("123")
+                        .productName("teste")
+                        .isRelatedProduct("N")
                         .build()));
 
 
@@ -331,9 +306,9 @@ public class BackOfficeServiceImplTest {
         assertEquals("Teste", gotoProductR.getVecCategoriesByRoot().get(0).getPath());
         assertEquals("", gotoProductR.getVecCategoriesByRoot().get(0).getSelected());
         assertEquals("123", gotoProductR.getVecRelatedProducts().get(0).getRef());
-        assertEquals("teste",gotoProductR.getVecRelatedProducts().get(0).getProductName());
+        assertEquals("teste", gotoProductR.getVecRelatedProducts().get(0).getProductName());
         assertEquals("N", gotoProductR.getVecRelatedProducts().get(0).getIsRelatedProduct());
-=======
+    }
 
     @Test
     void whenGetCategoryThenReturnInfo() {
@@ -386,7 +361,7 @@ public class BackOfficeServiceImplTest {
     }
 
     @Test
-    public void whenSaveCategoryThenSave() {
+    void whenSaveCategoryThenSave() {
 
         UserPrincipal userPrincipal = securityData.getUserPrincipal();
         userPrincipal.setIdUser(1);
@@ -412,12 +387,9 @@ public class BackOfficeServiceImplTest {
         when(categoryRepository.save(any())).thenReturn(new Category());
 
         backOfficeService.saveCategory(categoryDTO, file, userPrincipal);
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
-
     }
 
     @Test
-<<<<<<< HEAD
     void whenGotoProductThenReturnThrows() {
         UserPrincipal userPrincipal = securityData.getUserPrincipal();
         userPrincipal.setOidDealerParent("1");
@@ -435,9 +407,10 @@ public class BackOfficeServiceImplTest {
         when(categoryRepository.getCategoriesByIdRootCategoryAndIdProductParent(any(), anyInt()))
                 .thenThrow(RuntimeException.class);
 
-        assertThrows(ShopCartException.class ,()->backOfficeService.gotoProduct(1, 0, 1, 0, 0, userPrincipal));
-=======
-    public void whenSaveCategoryThenUpdate() {
+        assertThrows(ShopCartException.class, () -> backOfficeService.gotoProduct(1, 0, 1, 0, 0, userPrincipal));
+    }
+    @Test
+    void whenSaveCategoryThenUpdate() {
 
         UserPrincipal userPrincipal = securityData.getUserPrincipal();
         userPrincipal.setIdUser(1);
@@ -467,7 +440,7 @@ public class BackOfficeServiceImplTest {
     }
 
     @Test
-    public void whenSaveCategoryThenThrows() {
+    void whenSaveCategoryThenThrows() {
 
         UserPrincipal userPrincipal = securityData.getUserPrincipal();
         userPrincipal.setIdUser(1);
@@ -489,7 +462,6 @@ public class BackOfficeServiceImplTest {
                 .build();
 
         assertThrows(ShopCartException.class,()->backOfficeService.saveCategory(categoryDTO, file, userPrincipal));
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 
     }
 }

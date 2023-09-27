@@ -278,13 +278,12 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     public void deleteProductVariant(Integer idProductVariant,Integer idCatalog, UserPrincipal userPrincipal) {
         log.info("deleteProductVariant service");
         try {
-            //ProductVariant oProductVariant = (ProductVariant) ProductVariant.getHelper().getObjectById(idProductVariant, ApplicationConfiguration.DATASOURCE_DBSHOPCART);
-            File f = new File(userPrincipal.getUploadDir() + File.separator + getPathProductVariants(idCatalog) + File.separator + "oProductVariant.getThumbnailPath()");
+            ProductVariant oProductVariant = productVariantRepository.findById(idProductVariant).orElseThrow(()->new RuntimeException("Id not found"));
+            File f = new File(userPrincipal.getUploadDir() + File.separator + getPathProductVariants(idCatalog) + File.separator + oProductVariant.getThumbnailPath());
             if (f.exists())
                 f.delete();
 
-            //ProductVariant.getHelper().deleteProductVariant(idProductVariant);
-
+            productVariantRepository.deleteById(idProductVariant);
         } catch (Exception e) {
             throw new ShopCartException("Error delete product variant", e);
         }

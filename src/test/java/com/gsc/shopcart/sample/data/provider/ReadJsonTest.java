@@ -19,4 +19,11 @@ public class ReadJsonTest {
         }
     }
 
+    public <T> T readJsonObj(String filePath, Type tClass) throws IOException {
+        Gson gson = new Gson();
+        try (FileReader reader = new FileReader(filePath)) {
+            return gson.fromJson(reader, tClass);
+        }
+    }
+
 }

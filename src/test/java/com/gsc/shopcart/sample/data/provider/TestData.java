@@ -1,9 +1,6 @@
 package com.gsc.shopcart.sample.data.provider;
 
-import com.gsc.shopcart.dto.CartDTO;
-import com.gsc.shopcart.dto.InfoProductDTO;
-import com.gsc.shopcart.dto.OrderCartProduct;
-import com.gsc.shopcart.dto.PromotionsDTO;
+import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.model.scart.entity.*;
 
 import java.util.ArrayList;

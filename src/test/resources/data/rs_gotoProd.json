@@ -1,0 +1,28 @@
+{
+  "product": {},
+  "idCategory": "0",
+  "idCatalog": "9",
+  "vecCategoriesByRoot": [
+    {
+      "idCategory": "255",
+      "path": "Catálogo EPI´s e ferramentaria / Teste",
+      "selected": "0"
+    }
+  ],
+  "vecProductItem": [],
+  "vecProductPriceRules": [],
+  "vecProductPropety": [],
+  "vecProductVariant": [],
+  "vecRelatedProducts": [
+    {
+      "idProduct": 1978,
+      "ref": "123456",
+      "productName": "teste",
+      "isRelatedProduct": "N"
+    }
+  ],
+  "suppliers": [],
+  "dealers": {},
+  "vecAditionalInfo": [],
+  "oProductAttributes": {}
+}

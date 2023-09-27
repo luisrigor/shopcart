@@ -1,5 +1,7 @@
 package com.gsc.shopcart.repository.scart.impl;
 
+import com.gsc.shopcart.dto.OrderCartProduct;
+import com.gsc.shopcart.dto.RelatedProduct;
 import com.gsc.shopcart.dto.ShopCartFilter;
 import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.ProductCustomRepository;
@@ -163,5 +165,39 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .getResultList();
 
         return result;
+    }
+
+    @Override
+    public List<RelatedProduct> getRelatedProducts(Integer idRootCategory, Integer idProduct) {
+
+         StringBuilder SQL = new StringBuilder("");
+
+
+         SQL.append("WITH TEMP (ID_CATEGORY, ID_PRODUCT, REF, PRODUCT_NAME) AS ( ");
+         SQL.append("SELECT C.ID AS ID_CATEGORY, P.ID AS ID_PRODUCT, P.REF, P.NAME AS PRODUCT_NAME ");
+         SQL.append("FROM CATEGORY C, PRODUCT P, CATEGORY_PRODUCTS CP ");
+         SQL.append("WHERE C.ID_PARENT = ?1 AND P.ID=CP.ID_PRODUCT AND C.ID=CP.ID_CATEGORY ");
+         SQL.append("UNION ALL ");
+         SQL.append("SELECT CATEGORY.ID AS ID_CATEGORY, PRODUCT.ID AS ID_PRODUCT, PRODUCT.REF, PRODUCT.NAME AS PRODUCT_NAME ");
+         SQL.append("FROM CATEGORY, TEMP, PRODUCT, CATEGORY_PRODUCTS ");
+         SQL.append("WHERE TEMP.ID_CATEGORY = CATEGORY.ID_PARENT  AND PRODUCT.ID=CATEGORY_PRODUCTS.ID_PRODUCT AND CATEGORY.ID=CATEGORY_PRODUCTS.ID_CATEGORY ");
+         SQL.append(") ");
+         SQL.append("SELECT DISTINCT T.ID_PRODUCT, T.REF, T.PRODUCT_NAME, CASE WHEN (SELECT ID_PRODUCT1 FROM RELATED_PRODUCTS WHERE ID_PRODUCT2=?2 AND ID_PRODUCT1=T.ID_PRODUCT)>0 OR (SELECT ID_PRODUCT2 FROM RELATED_PRODUCTS WHERE ID_PRODUCT1=?3 AND ID_PRODUCT2=T.ID_PRODUCT)>0 THEN 'S' ELSE 'N' END AS IS_RELATED_PRODUCT ");
+         SQL.append("FROM TEMP T ");
+         SQL.append("WHERE T.ID_PRODUCT!=?4 ");
+         SQL.append("ORDER BY T.PRODUCT_NAME, T.REF ");
+
+
+         Query query = em.createNativeQuery(SQL.toString(), "RelatedProductMapping");
+
+         List<RelatedProduct> result = query
+                 .setParameter(1, idRootCategory)
+                 .setParameter(2, idProduct)
+                 .setParameter(3, idProduct)
+                 .setParameter(4, idProduct)
+                 .getResultList();
+
+         return result;
+
     }
 }

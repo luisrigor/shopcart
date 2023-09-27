@@ -1,6 +1,7 @@
 package com.gsc.shopcart.sample.data.provider;
 
 import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.OrderProductsDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
@@ -8,6 +9,7 @@ import com.gsc.shopcart.model.scart.entity.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -126,6 +128,18 @@ public class OrderData {
                 .dtChanged(LocalDateTime.now())
                 .build();
     }
+
+    public static OrderProductsDTO getOrderProductsDTOBuilder() {
+        return OrderProductsDTO.builder()
+                .allServices(Collections.emptyMap())
+                .vecOrderCart(Collections.emptyList())
+                .hstDealers(Collections.emptyMap())
+                .suppliers(Collections.emptyMap())
+                .dealers(Collections.emptyList())
+                .addresses(Collections.emptyMap())
+                .build();
+    }
+
 
 
 }

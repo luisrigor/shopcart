@@ -1,13 +1,28 @@
 package com.gsc.shopcart.model.scart.entity;
 
 
+import com.gsc.shopcart.dto.RelatedProduct;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@SqlResultSetMapping(
+        name = "RelatedProductMapping",
+        classes = {
+                @ConstructorResult(
+                        targetClass = RelatedProduct.class,
+                        columns = {
+                                @ColumnResult(name = "ID_PRODUCT", type = Integer.class),
+                                @ColumnResult(name = "REF", type = String.class),
+                                @ColumnResult(name = "PRODUCT_NAME", type = String.class),
+                                @ColumnResult(name = "IS_RELATED_PRODUCT", type = String.class)
+                        }
+                )
+        }
 
+)
 @Getter
 @Setter
 @AllArgsConstructor

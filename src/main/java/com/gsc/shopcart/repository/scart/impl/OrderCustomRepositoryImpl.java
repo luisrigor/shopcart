@@ -10,7 +10,6 @@ import com.rg.dealer.Dealer;
 import com.sc.commons.utils.StringTasks;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -26,7 +25,7 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
     @Override
     public List<Order> getOrderByCriteria(GetOrderStateDTO getOrderStateDTO, UserPrincipal userPrincipal, StringBuilder criteria, StringBuilder criteriaDetail) {
 
-        StringBuilder sql = new StringBuilder("");
+        StringBuilder sql = new StringBuilder(StringUtils.EMPTY);
         try {
             Integer idCatalog = getOrderStateDTO.getIdCatalog()==null||getOrderStateDTO.getIdCatalog()==0?0:getOrderStateDTO.getIdCatalog();
             Integer idSupplier = getOrderStateDTO.getIdSupplier()==null||getOrderStateDTO.getIdSupplier()==0?0:getOrderStateDTO.getIdSupplier();
@@ -67,10 +66,10 @@ public class OrderCustomRepositoryImpl implements OrderCustomRepository {
 
             sql.append("SELECT * FROM ORDER WHERE ID IN ")
                 .append(" ( SELECT ID_ORDER FROM ORDER_DETAIL WHERE 1=1 ");
-            if (!criteriaDetail.equals(""))
+            if (!StringUtils.equals(criteriaDetail,StringUtils.EMPTY))
                 sql.append("AND " + criteriaDetail + " ");
             sql.append(" ) AND ID_CATALOG = ? ");
-            if (!criteria.equals(""))
+            if (!StringUtils.equals(criteria,StringUtils.EMPTY))
                 sql.append("AND " + criteria + " ");
 
             if (!oidParent.equals(""))

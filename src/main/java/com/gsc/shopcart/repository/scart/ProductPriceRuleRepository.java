@@ -12,4 +12,7 @@ public interface ProductPriceRuleRepository extends JpaRepository<ProductPriceRu
     @Query(" SELECT PPR FROM ProductPriceRule PPR WHERE PPR.idProduct = :idProduct " +
             "ORDER BY PPR.minimumQuantity ASC ")
     List<ProductPriceRule> getProductPriceRules(@Param("idProduct") Integer idProduct);
+
+
+
 }

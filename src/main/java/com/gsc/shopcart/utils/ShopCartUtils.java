@@ -6,6 +6,7 @@ import com.gsc.as400.invoke.InvokeAlInfo;
 import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
+import com.gsc.shopcart.model.scart.entity.ProductPriceRule;
 import com.rg.dealer.Dealer;
 import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.utils.DateTimerTasks;
@@ -80,6 +81,36 @@ public class ShopCartUtils {
 
     public static String getPathCategories(int idCatalog) {
         return "Catalog_" + idCatalog + File.separator + "Categories" + File.separator;
+    }
+
+    public static double getPriceFor(int totalQuantity, StringBuilder detail, List<ProductPriceRule> vecProductPriceRules) {
+
+        int leftQuantity = totalQuantity;
+        double calcCost = 0.00;
+        for (ProductPriceRule productPriceRule : vecProductPriceRules) {
+            int min = productPriceRule.getMinimumQuantity();
+            int mult = productPriceRule.getIncrementalQuantity();
+            double prcunit = productPriceRule.getUnitPrice();
+            int k;
+
+            if (totalQuantity >= min) { // regra aplic�vel � quantidade remanescente
+
+                k = leftQuantity / mult;
+                leftQuantity -= (k * mult);
+
+                double rowCost = (k * mult) * prcunit;
+
+                calcCost += rowCost;
+                if ((detail != null) && (k > 0))
+                    detail.append("(" + (k * mult) + "*" + prcunit + ")<br>");
+            }
+        }
+
+        if (leftQuantity != 0)
+            calcCost = 0.00;
+
+        return calcCost;
+
     }
 }
 

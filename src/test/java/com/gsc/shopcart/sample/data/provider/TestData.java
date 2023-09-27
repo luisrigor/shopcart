@@ -6,6 +6,7 @@ import com.gsc.shopcart.dto.OrderCartProduct;
 import com.gsc.shopcart.dto.PromotionsDTO;
 import com.gsc.shopcart.model.scart.entity.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -162,6 +163,26 @@ public class TestData {
                 .idCatalog(String.valueOf("idCatalog"))
                 .build();
     }
+
+    public static ProductProperty getProductPropertyBuilder() {
+        return ProductProperty.builder()
+                .id(1)
+                .idProduct(2)
+                .label("LabelValue")
+                .optionValue("OptionValue")
+                .maxLenght(10)
+                .dataType("DataTypeValue")
+                .help("HelpValue")
+                .status('A') // Puedes cambiar el valor según corresponda
+                .createdBy("CreatedByValue")
+                .dtCreated(LocalDateTime.now())
+                .changedBy("ChangedByValue")
+                .dtChanged(LocalDateTime.now())
+                .mandatory('Y') // Puedes cambiar el valor según corresponda
+                .rank(3)
+                .build();
+    }
+
 
 
 

@@ -4,22 +4,23 @@ import com.google.gson.reflect.TypeToken;
 import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.*;
-import com.gsc.shopcart.repository.scart.CatalogRepository;
-import com.gsc.shopcart.repository.scart.CategoryRepository;
-import com.gsc.shopcart.repository.scart.OrderCartRepository;
-import com.gsc.shopcart.repository.scart.ProductRepository;
+import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.repository.usrlogon.CbusDealerRepository;
 import com.gsc.shopcart.repository.usrlogon.LexusDealerRepository;
 import com.gsc.shopcart.repository.usrlogon.ToyotaDealerRepository;
+import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.ReadJsonTest;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.impl.CatalogServiceImpl;
 import com.gsc.shopcart.service.impl.OrderStateServiceImpl;
+import com.gsc.shopcart.utils.FileShopUtils;
+import com.gsc.shopcart.utils.ShopCartUtils;
 import com.rg.dealer.Dealer;
 import com.rg.dealer.DealerHelper;
 import com.sc.commons.exceptions.SCErrorException;
+import com.sc.commons.financial.FinancialTasks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -34,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @ActiveProfiles(SecurityData.ACTIVE_PROFILE)
@@ -55,6 +56,12 @@ class CatalogServiceImplTest {
     private CbusDealerRepository cbusDealerRepository;
     @Mock
     private OrderStateServiceImpl orderStateService;
+    @Mock
+    private ProductPriceRuleRepository priceRuleRepository;
+    @Mock
+    private ProductPropertyRepository productPropertyRepository;
+    @Mock
+    private OrderCartProductPropertyRepository orderCartProductPropertyRepository;
     @Mock
     private DealerHelper dealerHelper;
     @InjectMocks
@@ -299,6 +306,56 @@ class CatalogServiceImplTest {
         when(orderCartRepository.findByIdUserAndIdCatalog(anyInt(),anyInt())).thenThrow(ShopCartException.class);
         assertThrows(ShopCartException.class, ()->catalogService.getDetailOrderProducts(user, Collections.singletonList("anyOidDealer")));
     }
+
+    @Test
+    void whenEditOrderCartAjaxServletThenSuccessfully() {
+
+        UserPrincipal user = securityData.getUserToyotaProfile();
+        OrderCart orderCart = OrderData.getOrderCartBuilder();
+        Product product = TestData.getInfoProductData().getProduct();
+        List<ProductPriceRule> productPriceRules = TestData.getInfoProductData().getProductPriceRules();
+        ProductProperty productProperty = TestData.getProductPropertyBuilder();
+        OrderCartProduct orderCartProduct = OrderData.OrderCartProductBuilder();
+        user.setIdCatalog("1");
+        user.setIdUser(1);
+        double totalprice = 1.00;
+        try (MockedStatic<ShopCartUtils> shopCartUtils = Mockito.mockStatic(ShopCartUtils.class);
+             MockedStatic<FinancialTasks> financialTasks = Mockito.mockStatic(FinancialTasks.class)) {
+            when(orderCartRepository.findById(anyInt())).thenReturn(Optional.ofNullable(orderCart));
+            when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
+            when(priceRuleRepository.getProductPriceRules(anyInt())).thenReturn(productPriceRules);
+            shopCartUtils.when(() -> ShopCartUtils.getPriceFor(anyInt(), any(), anyList()))
+                    .thenReturn(totalprice);
+            when(orderCartRepository.save(any())).thenReturn(orderCart);
+            when(productPropertyRepository.findProductPropertiesByIdProductAndStatusLike(anyInt(),anyChar()))
+                    .thenReturn(Collections.singletonList(productProperty));
+            when(productPropertyRepository.getDistinctProductProperty(anyInt(),anyInt(),anyChar()))
+                    .thenReturn(Collections.singletonList(productProperty));;
+            when(orderCartProductPropertyRepository.getIdsOrderCartProductProperty(anyInt(),anyInt()))
+                    .thenReturn(Arrays.asList(1,2,3));
+            doNothing().when(orderCartProductPropertyRepository).deleteById(anyInt());
+            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(),anyInt()))
+                    .thenReturn(Collections.singletonList(orderCartProduct));
+            financialTasks.when(()->FinancialTasks.getVATatScale(anyString(),anyString())).thenReturn(1.00);
+            shopCartUtils.when(() -> ShopCartUtils.isProductInPromotion(any(),any()))
+                    .thenReturn(true);
+
+            EditOrderAjaxDTO editOrderAjaxDTO = catalogService
+                    .editOrderCartAjaxServlet(1,1,1,user);
+            verify(orderCartRepository).save(any());
+            assertEquals(1,editOrderAjaxDTO.getQtdToOrder());
+        }
+    }
+
+    @Test
+    void whenEditOrderCartAjaxServletThenThrowAnException() {
+        UserPrincipal user = securityData.getUserToyotaProfile();
+        when(orderCartRepository.findById(anyInt())).thenThrow(ShopCartException.class);
+        assertThrows(ShopCartException.class, ()->
+                catalogService.editOrderCartAjaxServlet(1,1,1,user));
+
+    }
+
 
 }
 

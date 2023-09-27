@@ -2,16 +2,14 @@ package com.gsc.shopcart.service.impl;
 
 import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.dto.CartDTO;
+import com.gsc.shopcart.dto.EditOrderAjaxDTO;
 import com.gsc.shopcart.dto.OrderCartProduct;
 import com.gsc.shopcart.dto.OrderProductsDTO;
+import com.gsc.shopcart.exceptions.ResourceNotFoundException;
 import com.gsc.shopcart.exceptions.ShopCartException;
-import com.gsc.shopcart.model.scart.entity.Category;
-import com.gsc.shopcart.model.scart.entity.OrderCart;
-import com.gsc.shopcart.model.scart.entity.Product;
-import com.gsc.shopcart.repository.scart.CategoryRepository;
-import com.gsc.shopcart.repository.scart.CatalogRepository;
-import com.gsc.shopcart.repository.scart.OrderCartRepository;
-import com.gsc.shopcart.repository.scart.ProductRepository;
+import com.gsc.shopcart.model.scart.entity.*;
+import com.gsc.shopcart.repository.scart.ProductPropertyRepository;
+import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.repository.usrlogon.CbusDealerRepository;
 import com.gsc.shopcart.repository.usrlogon.LexusDealerRepository;
 import com.gsc.shopcart.repository.usrlogon.ToyotaDealerRepository;
@@ -24,8 +22,11 @@ import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.financial.FinancialTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 @Log4j
@@ -42,6 +43,9 @@ public class CatalogServiceImpl implements CatalogService {
     private final LexusDealerRepository lexusDealerRepository;
     private final CbusDealerRepository cbusDealerRepository;
     private final OrderStateServiceImpl orderStateService;
+    private final ProductPriceRuleRepository priceRuleRepository;
+    private final ProductPropertyRepository productPropertyRepository;
+    private final OrderCartProductPropertyRepository orderCartProductPropertyRepository;
 
     @Override
     public CartDTO getCart(Integer idCategory, Integer idCatalog, List<Category> listCategorySelected, UserPrincipal userPrincipal) {
@@ -69,7 +73,7 @@ public class CatalogServiceImpl implements CatalogService {
 
             boolean isToAdd = true;
             for (Category cat : listCategorySelected) {
-                if (category != null && cat.getId() == category.getId())
+                if (category != null && Objects.equals(cat.getId(), category.getId()))
                     isToAdd = false;
             }
 
@@ -213,4 +217,83 @@ public class CatalogServiceImpl implements CatalogService {
         }
     }
 
+    @Override
+    public EditOrderAjaxDTO editOrderCartAjaxServlet(Integer idOrderCart, Integer quantity, Integer multiplier, UserPrincipal user) {
+
+        try {
+            quantity = (quantity <= 0) ? 1 : quantity;
+            multiplier = (multiplier <= 0) ? 1 : multiplier;
+            NumberFormat nf = new DecimalFormat("#,##0.00");
+            double totalPrice;
+            int qtdToOrder = quantity;
+            OrderCart ordercart = orderCartRepository.findById(idOrderCart)
+                    .orElseThrow(()-> new ResourceNotFoundException("Order Cart","idOrderCart",idOrderCart.toString()));
+            Product product =  productRepository.findById(ordercart.getIdProduct())
+                    .orElseThrow(()-> new ResourceNotFoundException("Product","idProduct",ordercart.getIdProduct().toString()));
+
+            if (product.getPriceRules() == 1) {
+                StringBuilder detail = new StringBuilder(StringUtils.EMPTY);
+                List<ProductPriceRule> productPriceRules = priceRuleRepository.getProductPriceRules(product.getId());
+                totalPrice = ShopCartUtils.getPriceFor(quantity * multiplier, detail, productPriceRules);
+
+                if (totalPrice > 0) {
+                    ordercart.setUnitPriceRule(totalPrice);//change to double from integer
+                    ordercart.setPrice(totalPrice);
+                    ordercart.setObservations(detail.toString());
+                } else
+                    qtdToOrder = -1;
+
+            } else if (product.getUnitPriceConsult() == 1) {
+                // product have no price defined
+                ordercart.setObservations("(s/consulta)");
+            } else {
+                double unitPrice = product.getUnitPrice();
+                if (ShopCartUtils.isProductInPromotion(product.getPromoStart(), product.getPromoEnd()))
+                    unitPrice = product.getPromoPrice();
+                ordercart.setObservations(nf.format(unitPrice) + " &euro;");
+            }
+
+            if (qtdToOrder != -1) {
+                ordercart.setQuantity(quantity);
+                ordercart.setChangedBy(user.getLogin() + "||" + user.getUsername()); /**employeeId*/
+                //ordercart.save(); // QUERY
+                orderCartRepository.save(ordercart); /**QUERY*/
+            }
+
+            setOrderCartProductPropertyRepository(idOrderCart,product,quantity);
+            List<OrderCartProduct> vecOrderCartF = orderCartRepository.getOrderCartByIdUserAndIdCatalog(user.getIdUser(), Integer.valueOf(user.getIdCatalog()));
+            List<OrderCart> vecOrderCart = formatFields(vecOrderCartF);
+
+            return EditOrderAjaxDTO.builder().vecOrderCart(vecOrderCart).qtdToOrder(qtdToOrder).build();
+
+        } catch (Exception e) {
+            throw new ShopCartException("Error edit ajax products", e);
+        }
+    }
+
+    private void setOrderCartProductPropertyRepository(Integer idOrderCart, Product product, Integer quantity){
+        if (!productPropertyRepository.findProductPropertiesByIdProductAndStatusLike(product.getId(), 'S').isEmpty()) {
+            //Verificar propriedades do produto
+            List<ProductProperty> vecDistinctProductProperty = productPropertyRepository.getDistinctProductProperty(idOrderCart, product.getId(), '%');
+            int distinctQtdPropertiesInProduct = vecDistinctProductProperty.size();
+            log.info("distinctQtdPropertiesInProduct: " + distinctQtdPropertiesInProduct);
+            int validProductProperty = distinctQtdPropertiesInProduct * quantity;
+            log.info("validProductProperty: " + validProductProperty);
+
+            List<Integer> vecIdsOrderCartProductProperty = orderCartProductPropertyRepository.getIdsOrderCartProductProperty(idOrderCart, product.getId());
+            log.info("vecIdsOrderCartProductProperty.size(): " + vecIdsOrderCartProductProperty.size());
+            if (validProductProperty<vecIdsOrderCartProductProperty.size()) {
+                int propertiesToRemove = vecIdsOrderCartProductProperty.size()-validProductProperty;
+                log.info("propertiesToRemove: " + propertiesToRemove);
+                int cont= 1;
+
+                for (Integer idOrderCartProduct:vecIdsOrderCartProductProperty){
+                    if (cont <=propertiesToRemove) {
+                        orderCartProductPropertyRepository.deleteById(idOrderCartProduct);
+                    }
+                    cont++;
+                }
+            }
+        }
+    }
 }

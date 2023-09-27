@@ -1,6 +1,8 @@
 package com.gsc.shopcart.controller;
 
+import com.google.gson.Gson;
 import com.gsc.shopcart.constants.ApiEndpoints;
+import com.gsc.shopcart.dto.GotoProductDTO;
 import com.gsc.shopcart.dto.CartDTO;
 import com.gsc.shopcart.dto.PromotionsDTO;
 import com.gsc.shopcart.dto.SaveCategoryDTO;
@@ -15,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
 
@@ -44,6 +45,18 @@ public class BackOfficeController {
 
     }
 
+    @GetMapping(ApiEndpoints.GOTO_PRODUCT)
+    public ResponseEntity<?> gotoProduct(@RequestParam Integer idCategory, @RequestParam Integer idCatalog, @RequestParam Integer idProduct,
+                                         @RequestParam Integer idProfileTcap, @RequestParam Integer idProfileSupplier,
+                                         @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        GotoProductDTO products = backOfficeService.gotoProduct(idCategory, idCatalog, idProduct, idProfileTcap, idProfileSupplier,  userPrincipal);
+
+        Gson gson = new Gson();
+
+        return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(products));
+
+    }
     @PostMapping(ApiEndpoints.GET_CATEGORY)
     public ResponseEntity<CartDTO> getCategory(@RequestParam Integer idCategory, @RequestParam Integer idCatalog,
                                                      @RequestBody List<Category> listCategorySelected, @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -55,8 +68,6 @@ public class BackOfficeController {
     @PostMapping(ApiEndpoints.SAVE_CATEGORY)
     public ResponseEntity<String> saveCategory(@RequestPart("data") SaveCategoryDTO categoryDTO, @RequestPart("file") MultipartFile fileAttachItem,
                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
-
-
         backOfficeService.saveCategory(categoryDTO, fileAttachItem, userPrincipal);
         return ResponseEntity.status(HttpStatus.OK).body("saved");
 
@@ -84,7 +95,4 @@ public class BackOfficeController {
         return ResponseEntity.status(HttpStatus.OK).body("delete product item");
 
     }
-
-
-
 }

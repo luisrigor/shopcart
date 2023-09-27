@@ -1,6 +1,7 @@
 package com.gsc.shopcart.model.scart.entity;
 
 
+import com.gsc.shopcart.dto.ProductPropertyOrder;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,8 +13,34 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table
-@Entity(name = "PRODUCT_PROPERTY")
+@Entity
+@SqlResultSetMapping(
+        name = "ProductPropertyOrderMapping",
+        classes = {
+                @ConstructorResult(
+                        targetClass = ProductPropertyOrder.class,
+                        columns = {
+                                @ColumnResult(name = "ID", type = Integer.class),
+                                @ColumnResult(name = "ID_PRODUCT", type = Integer.class),
+                                @ColumnResult(name = "LABEL", type = String.class),
+                                @ColumnResult(name = "OPTION_VALUE", type = String.class),
+                                @ColumnResult(name = "MAX_LENGHT", type = Integer.class),
+                                @ColumnResult(name = "DATA_TYPE", type = String.class),
+                                @ColumnResult(name = "HELP", type = String.class),
+                                @ColumnResult(name = "STATUS", type = Character.class),
+                                @ColumnResult(name = "CREATED_BY", type = String.class),
+                                @ColumnResult(name = "DT_CREATED", type = LocalDateTime.class),
+                                @ColumnResult(name = "CHANGED_BY", type = String.class),
+                                @ColumnResult(name = "DT_CHANGED", type = LocalDateTime.class),
+                                @ColumnResult(name = "MANDATORY", type = Character.class),
+                                @ColumnResult(name = "RANK", type = Integer.class),
+                                @ColumnResult(name = "HAS_PROPERTIES_IN_ORDER_CART", type = Integer.class),
+                                @ColumnResult(name = "HAS_PROPERTIES_IN_ORDER_DETAIL", type = Integer.class)
+                        }
+                )
+        }
+)
+@Table(name = "PRODUCT_PROPERTY")
 public class ProductProperty {
 
     @Id

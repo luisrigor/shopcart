@@ -42,11 +42,11 @@
         <artifactId>spring-boot-starter-jetty</artifactId>
         <scope>provided</scope>
     </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
-        </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.12.0</version>
+    </dependency>
     <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
@@ -77,11 +77,11 @@
             <artifactId>mockito-inline</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>GSC</groupId>
-            <artifactId>SCCarDB</artifactId>
-            <version>20230209</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>GSC</groupId>-->
+<!--            <artifactId>SCCarDB</artifactId>-->
+<!--            <version>20230209</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>GSC</groupId>
             <artifactId>SCWSCARDB</artifactId>
@@ -92,26 +92,26 @@
             <artifactId>SCA2P</artifactId>
             <version>20230210-STAGING</version>
         </dependency>
-        <dependency>
-            <groupId>GSC</groupId>
-            <artifactId>SCAS400Client</artifactId>
-            <version>20220330</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>GSC</groupId>-->
+<!--            <artifactId>SCAS400Client</artifactId>-->
+<!--            <version>20220330</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.ibm.db2</groupId>
             <artifactId>jcc</artifactId>
             <version>11.5.6.0</version>
         </dependency>
-        <dependency>
-            <groupId>GSC</groupId>
-            <artifactId>SCAS400Client</artifactId>
-            <version>20220811</version>
-        </dependency>
-        <dependency>
-            <groupId>GSCNotOfficialMaven</groupId>
-            <artifactId>jt400</artifactId>
-            <version>7.2.0.5</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>GSC</groupId>-->
+<!--            <artifactId>SCAS400Client</artifactId>-->
+<!--            <version>20220811</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>GSCNotOfficialMaven</groupId>-->
+<!--            <artifactId>jt400</artifactId>-->
+<!--            <version>7.2.0.5</version>-->
+<!--        </dependency>-->
         <dependency>
         <groupId>GSC</groupId>
         <artifactId>SCMicrosoft</artifactId>

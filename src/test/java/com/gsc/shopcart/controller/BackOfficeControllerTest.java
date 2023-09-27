@@ -1,10 +1,16 @@
 package com.gsc.shopcart.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
+<<<<<<< HEAD
+import com.gsc.shopcart.dto.GotoProductDTO;
+import com.gsc.shopcart.dto.OrderCartProduct;
+=======
 import com.gsc.shopcart.dto.SaveCategoryDTO;
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import com.gsc.shopcart.dto.ShopCartFilter;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.repository.scart.ClientRepository;
@@ -12,6 +18,7 @@ import com.gsc.shopcart.repository.scart.ConfigurationRepository;
 import com.gsc.shopcart.repository.scart.LoginKeyRepository;
 import com.gsc.shopcart.repository.scart.ServiceLoginRepository;
 import com.gsc.shopcart.repository.scart.*;
+import com.gsc.shopcart.sample.data.provider.ReadJsonTest;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.TokenProvider;
@@ -28,7 +35,12 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+<<<<<<< HEAD
+
+import java.net.URI;
+=======
 import java.util.Arrays;
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import java.util.List;
 import java.util.Optional;
 import static org.mockito.ArgumentMatchers.*;
@@ -47,9 +59,15 @@ class BackOfficeControllerTest {
 
     @MockBean
     private BackOfficeService backOfficeService;
+<<<<<<< HEAD
+
+    @MockBean
+    private UsrLogonSecurity usrLogonSecurity;
+=======
     @MockBean
     private UsrLogonSecurity usrLogonSecurity;
 
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
     @MockBean
     private ConfigurationRepository configurationRepository;
     @MockBean
@@ -67,11 +85,14 @@ class BackOfficeControllerTest {
 
     private String BASE_REQUEST_MAPPING = "/cart";
     private static String generatedToken;
+    private ReadJsonTest readJ;
     @BeforeEach
     void setUp() {
         gson = new Gson();
         securityData = new SecurityData();
         when(loginKeyRepository.findById(anyLong())).thenReturn(Optional.of(securityData.getLoginKey()));
+        readJ = new ReadJsonTest();
+
     }
 
     @BeforeAll
@@ -126,6 +147,34 @@ class BackOfficeControllerTest {
                 .andExpect(jsonPath("$.vecProducts[0].description").value("A"))
                 .andExpect(jsonPath("$.vecProducts[0].unitPrice").value("1.0"))
                 .andExpect(jsonPath("$.vecProducts[0].unitPriceConsult").value("1"));
+
+    }
+
+    @Test
+    void whenGotoProductThenReturnInfo() throws Exception {
+        String accessToken = generatedToken;
+
+        URI uriRs1_gotoProduct = this.getClass().getResource("/data/rs_gotoProd.json").toURI();
+
+        GotoProductDTO gotoProductDTO = (GotoProductDTO) readJ.readJsonObj(uriRs1_gotoProduct.getPath(), new TypeToken<GotoProductDTO>() {}.getType());
+        gotoProductDTO.setDealers(null);
+
+        when(backOfficeService.gotoProduct(any(), any(), any(), any(), any(), any()))
+                .thenReturn(gotoProductDTO);
+
+
+        mvc.perform(get(BASE_REQUEST_MAPPING+ApiEndpoints.GOTO_PRODUCT+"?idCatalog=1&idCategory=0&idProduct=0&idProfileSupplier=0&idProfileTcap=0")
+                        .header("accessToken", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.idCatalog").value("9"))
+                .andExpect(jsonPath("$.idCategory").value("0"))
+                .andExpect(jsonPath("$.vecCategoriesByRoot[0].idCategory").value("255"))
+                .andExpect(jsonPath("$.vecCategoriesByRoot[0].selected").value("0"))
+                .andExpect(jsonPath("$.vecRelatedProducts[0].idProduct").value("1978"))
+                .andExpect(jsonPath("$.vecRelatedProducts[0].ref").value("123456"))
+                .andExpect(jsonPath("$.vecRelatedProducts[0].productName").value("teste"))
+                .andExpect(jsonPath("$.vecRelatedProducts[0].isRelatedProduct").value("N"));
 
     }
 

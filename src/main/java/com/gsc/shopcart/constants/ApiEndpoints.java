@@ -14,7 +14,10 @@ public interface ApiEndpoints {
     String EDIT_ORDER_CART_AJAX = "/edit-ordercart-ajax";
     String GET_PRODUCTS_BY_FREE_SEARCH = "/products-by-free-search";
     String SHOW_INFO_PRODUCT = "/show-info-product";
+    String GOTO_PRODUCT = "/goto-product";
     String GET_CATEGORY = "/get-category";
     String SAVE_CATEGORY = "/save-category";
-
+    String DELETE_PRODUCT_VARIANT = "/delete-variant";
+    String DELETE_CATEGORY = "/delete-category";
+    String DELETE_PRODUCT_ITEM = "/delete-product-Item";
 }

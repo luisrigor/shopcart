@@ -1,5 +1,8 @@
 package com.gsc.shopcart.utils;
 
+import com.gsc.shopcart.repository.usrlogon.CbusEntityProfileRepository;
+import com.gsc.shopcart.repository.usrlogon.LexusEntityProfileRepository;
+import com.gsc.shopcart.repository.usrlogon.ToyotaUserEntityProfileRepository;
 import com.gsc.as400.al.AlMovement;
 import com.gsc.as400.al.AlObservations;
 import com.gsc.as400.invoke.InvokeAlInfo;
@@ -9,20 +12,27 @@ import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.model.scart.entity.ProductPriceRule;
 import com.rg.dealer.Dealer;
 import com.sc.commons.exceptions.SCErrorException;
-import com.sc.commons.utils.DateTimerTasks;
-import com.sc.commons.utils.ServerTasks;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.lang3.StringUtils;
-
+import org.springframework.stereotype.Component;
+//import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.sql.Date;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.*;
 
-
+@Component
 @Log4j
 public class ShopCartUtils {
+
+    private final ToyotaUserEntityProfileRepository toyotaUserEntityProfileRepository;
+    private final CbusEntityProfileRepository cbusEntityProfileRepository;
+    private final LexusEntityProfileRepository lexusEntityProfileRepository;
+
+    public ShopCartUtils(ToyotaUserEntityProfileRepository toyotaUserEntityProfileRepository, CbusEntityProfileRepository cbusEntityProfileRepository, LexusEntityProfileRepository lexusEntityProfileRepository) {
+        this.toyotaUserEntityProfileRepository = toyotaUserEntityProfileRepository;
+        this.cbusEntityProfileRepository = cbusEntityProfileRepository;
+        this.lexusEntityProfileRepository = lexusEntityProfileRepository;
+    }
 
     public static boolean isProductInPromotion(LocalDate dtPromoStartLc, LocalDate dtPromoEndLc) {
         Date dtPromoStart = null;
@@ -79,8 +89,56 @@ public class ShopCartUtils {
         return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
     }
 
+    public Hashtable<String, Dealer> getHstDealers(String oidNet) throws SCErrorException {
+        if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA))
+            return getHstDealersToyota();
+        else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
+            return getHstDealersLexus();
+        else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_CBUS))
+            return getHstDealersCbus();
+        return new Hashtable<String, Dealer>();
+    }
+
+    private static Hashtable<String, Dealer> getHstDealersToyota() throws SCErrorException {
+        Hashtable<String, Dealer> HST_DEALERS_TOYOTA = new Hashtable<String, Dealer>();
+        HST_DEALERS_TOYOTA = Dealer.getToyotaHelper().getAllActiveMainDealers();
+        HST_DEALERS_TOYOTA.put(Dealer.OID_NMSC, Dealer.getHelper().getByObjectId(Dealer.OID_NET_TOYOTA, Dealer.OID_NMSC));
+        return HST_DEALERS_TOYOTA;
+    }
+
+    private static Hashtable<String, Dealer> getHstDealersLexus() throws SCErrorException {
+        Hashtable<String, Dealer> HST_DEALERS_LEXUS = new Hashtable<String, Dealer>();
+        HST_DEALERS_LEXUS = Dealer.getLexusHelper().getAllActiveMainDealers();
+        HST_DEALERS_LEXUS.put(Dealer.OID_NMSC, Dealer.getHelper().getByObjectId(Dealer.OID_NET_LEXUS, Dealer.OID_NMSC));
+        return HST_DEALERS_LEXUS;
+    }
+
+    private static Hashtable<String, Dealer> getHstDealersCbus() throws SCErrorException {
+        Hashtable<String, Dealer> HST_DEALERS_CBUS = new Hashtable<String, Dealer>();
+        HST_DEALERS_CBUS = Dealer.getCBusHelper().getAllActiveMainDealers();
+        HST_DEALERS_CBUS.put(Dealer.OID_NMSC, Dealer.getHelper().getByObjectId(Dealer.OID_NET_CBUS, Dealer.OID_NMSC));
+        return HST_DEALERS_CBUS;
+    }
+
+    public List<Object[]> getSuppliers(Integer idProfileTcap, Integer idProfileSupplier, String oidNet) {
+        if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA)) {
+            return toyotaUserEntityProfileRepository.getSuppliers(idProfileTcap, idProfileSupplier);
+        } else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
+            return lexusEntityProfileRepository.getSuppliers(idProfileTcap, idProfileSupplier);
+        else
+            return cbusEntityProfileRepository.getSuppliers(idProfileTcap, idProfileSupplier);
+    }
+
     public static String getPathCategories(int idCatalog) {
         return "Catalog_" + idCatalog + File.separator + "Categories" + File.separator;
+    }
+
+    public static String getPathProductVariants(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Variants" + File.separator;
+    }
+
+    public static String getPathProductItems(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Items" + File.separator;
     }
 
     public static double getPriceFor(int totalQuantity, StringBuilder detail, List<ProductPriceRule> vecProductPriceRules) {

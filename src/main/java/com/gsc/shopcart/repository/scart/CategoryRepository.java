@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface  CategoryRepository extends JpaRepository<Category, Integer> {
+public interface  CategoryRepository extends JpaRepository<Category, Integer>, CategoryCustomRepository {
 
     @Query("SELECT  C FROM Category  C WHERE C.idParent = :idParent AND C.id <> 0 AND C.status = 'ACTIVO' " +
             "ORDER BY C.displayOrder, C.name")

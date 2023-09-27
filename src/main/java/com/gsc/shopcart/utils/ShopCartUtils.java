@@ -1,25 +1,15 @@
 package com.gsc.shopcart.utils;
 
-import com.gsc.as400.al.AlMovement;
-import com.gsc.as400.al.AlObservations;
-import com.gsc.as400.invoke.InvokeAlInfo;
-import com.gsc.shopcart.constants.ApiConstants;
-import com.gsc.shopcart.exceptions.ShopCartException;
-import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.repository.usrlogon.CbusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.LexusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.ToyotaUserEntityProfileRepository;
 import com.rg.dealer.Dealer;
 import com.sc.commons.exceptions.SCErrorException;
-import com.sc.commons.utils.DateTimerTasks;
-import com.sc.commons.utils.ServerTasks;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 //import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.sql.Date;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -123,14 +113,25 @@ public class ShopCartUtils {
         return HST_DEALERS_CBUS;
     }
 
-    public List<Object[]> getSuppliers(Integer idProfileTcap, Integer idProfileSupplier, String oidNet){
+    public List<Object[]> getSuppliers(Integer idProfileTcap, Integer idProfileSupplier, String oidNet) {
         if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA)) {
             return toyotaUserEntityProfileRepository.getSuppliers(idProfileTcap, idProfileSupplier);
-        }
-        else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
-            return lexusEntityProfileRepository.getSuppliers(idProfileTcap,idProfileSupplier);
+        } else if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
+            return lexusEntityProfileRepository.getSuppliers(idProfileTcap, idProfileSupplier);
         else
-            return cbusEntityProfileRepository.getSuppliers(idProfileTcap,idProfileSupplier);
+            return cbusEntityProfileRepository.getSuppliers(idProfileTcap, idProfileSupplier);
+    }
+
+    public static String getPathCategories(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Categories" + File.separator;
+    }
+
+    public static String getPathProductVariants(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Variants" + File.separator;
+    }
+
+    public static String getPathProductItems(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Items" + File.separator;
     }
 }
 

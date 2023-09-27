@@ -3,8 +3,8 @@ package com.gsc.shopcart.service.impl;
 import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Category;
-import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.model.scart.entity.Product;
+<<<<<<< HEAD
 import com.gsc.shopcart.repository.scart.CatalogRepository;
 import com.gsc.shopcart.repository.scart.OrderCartRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
@@ -17,12 +17,28 @@ import com.gsc.shopcart.utils.ShopCartUtils;
 import com.rg.dealer.Dealer;
 import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.utils.PortletTasks;
+=======
+import com.gsc.shopcart.model.scart.entity.ProductItem;
+import com.gsc.shopcart.repository.scart.*;
+import com.gsc.shopcart.security.UserPrincipal;
+import com.gsc.shopcart.service.BackOfficeService;
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+<<<<<<< HEAD
 import java.util.*;
+=======
+import java.io.File;
+import java.sql.Timestamp;
+import java.util.*;
+
+import static com.gsc.shopcart.utils.ShopCartUtils.*;
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 
 
 @RequiredArgsConstructor
@@ -33,6 +49,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     private final CatalogRepository catalogRepository;
     private final ProductRepository productRepository;
     private final OrderCartRepository orderCartRepository;
+<<<<<<< HEAD
     private final ProductItemRepository productItemRepository;
     private final ProductAttributeRepository productAttributeRepository;
     private final CategoryRepository categoryRepository;
@@ -45,6 +62,10 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     private final CatalogAdditionalInfoRepository catalogAdditionalInfoRepository;
     private final ShopCartUtils shopCartUtils;
 
+=======
+    private final CategoryRepository categoryRepository;
+    private final ProductItemRepository productItemRepository;
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 
     @Override
     public PromotionsDTO getPromotions(Integer idCatalog, Integer idUser, Boolean isCatalog) {
@@ -101,6 +122,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     }
 
     @Override
+<<<<<<< HEAD
     public GotoProductDTO gotoProduct(Integer idCategory, Integer idCatalog, Integer idProduct, Integer idProfileTcap,
                                      Integer idProfileSupplier, UserPrincipal userPrincipal) {
 
@@ -154,6 +176,164 @@ public class BackOfficeServiceImpl implements BackOfficeService {
 
         } catch (Exception e) {
             throw new ShopCartException("Error in gotoProduct ", e);
+=======
+    public CartDTO getCategory(Integer idCategory, Integer idCatalog, List<Category> listCategorySelected, UserPrincipal userPrincipal) {
+        List<Category> vecCategories;
+        List<Product> vecProducts;
+        String view = "BACKOFFICE";
+
+        try {
+
+            Category category;
+            Integer idRootCategory = catalogRepository.getidRootCategoryByIdCatalog(idCatalog);
+            boolean isId = (idCategory == 0 || idCategory.equals(idRootCategory));
+            Integer idCategoryQuery = isId ? idRootCategory:  idCategory;
+
+            vecCategories = categoryRepository.getCategoriesByIdParentBkOff(idCategoryQuery);
+            vecProducts = productRepository.getProductsByIdCategory(idCategoryQuery, view, userPrincipal.getOidDealerParent());
+            category = categoryRepository.findById(idCategoryQuery).orElse(null);
+
+            boolean isToAdd = true;
+            for (Category cat: listCategorySelected) {
+                if (category != null && cat.getId() == category.getId()) {
+                    isToAdd = false;
+                    break;
+                }
+            }
+
+            if (isToAdd && category != null)
+                listCategorySelected.add(category);
+
+            return CartDTO.builder()
+                    .idCategory(idCategoryQuery)
+                    .listCategorySelected(listCategorySelected)
+                    .vecCategories(vecCategories)
+                    .vecProducts(vecProducts)
+                    .view(view)
+                    .build();
+
+        } catch (Exception e) {
+            throw new ShopCartException("Error fetching category ", e);
+        }
+    }
+
+    @Override
+    public void saveCategory(SaveCategoryDTO categoryDTO, MultipartFile fileAttachItem, UserPrincipal userPrincipal) {
+
+        Integer id = categoryDTO.getId();
+        Integer idCategory = categoryDTO.getIdCategory();
+        Integer idCatalog = categoryDTO.getIdCatalog();
+        String name = categoryDTO.getName();
+        String description = categoryDTO.getDescription();
+        String status = categoryDTO.getStatus();
+        String ivPath = categoryDTO.getIvPath();
+        Integer displayOrder = categoryDTO.getDisplayOrder();
+        List<Category> listCategorySelected = categoryDTO.getListCategorySelected();
+
+
+        String dirName = ivPath + "conf";
+        String uploadDir = userPrincipal.getUploadDir();
+
+        if (!(new File(dirName)).exists())
+            (new File(dirName)).mkdirs();
+
+        Category category = null;
+
+        try {
+            String path = "";
+
+            for (Category cat : listCategorySelected) {
+                path += cat.getName() + " / ";
+            }
+
+            if (id == 0) {
+                category = new Category();
+                category.setIdParent(idCategory);
+                category.setDtCreated(new Timestamp((new java.util.Date()).getTime()).toLocalDateTime());
+                category.setCreatedBy(userPrincipal.getLogin() + "||" + userPrincipal.getIdUser());
+            } else {
+                category = categoryRepository.findById(id).orElseThrow(()->new RuntimeException("Id not found"));
+                category.setDtChanged(new Timestamp((new java.util.Date()).getTime()).toLocalDateTime());
+                category.setChangedBy(userPrincipal.getLogin() + "||" + userPrincipal.getIdUser());
+            }
+
+            category.setName(name);
+            category.setDescription(description);
+            category.setPath(path + name);
+            category.setStatus(status);
+            category.setDisplayOrder(displayOrder);
+
+            category = categoryRepository.save(category);
+
+            File fileAttach;
+            File fl = new File(uploadDir + File.separator + getPathCategories(idCatalog));
+            if (!fl.exists()) {
+                log.warn("Pasta " + fl.getAbsolutePath() + " inexistente. Criar com suceso:" + fl.mkdirs());
+            }
+
+
+            String fieldInputName = fileAttachItem.getOriginalFilename();
+            if (fileAttachItem != null) {
+                if (!StringUtils.isEmpty(category.getThumbnailPath())) {
+                    File f = new File(uploadDir + File.separator + getPathCategories(idCatalog) + File.separator + category.getThumbnailPath());
+                    if (f.exists())
+                        f.delete();
+                }
+                String extension = "." + getFileExtension(fileAttachItem.getOriginalFilename());
+                String categoryName = StringTasks.ReplaceSpecialChar(fileAttachItem.getOriginalFilename());
+                categoryName = StringTasks.ReplaceStr(categoryName, " ", "-");
+                categoryName = categoryName + "-" + category.getId() + extension;
+                fileAttach = new File(uploadDir + File.separator + getPathCategories(idCatalog) + File.separator + categoryName);
+                fileAttachItem.transferTo(fileAttach);
+                category.setThumbnailPath(categoryName);
+                category.setChangedBy(userPrincipal.getLogin() + "||" + userPrincipal.getIdUser());
+                category.setDtChanged(new Timestamp((new java.util.Date()).getTime()).toLocalDateTime());
+                categoryRepository.save(category);
+            }
+        } catch (Exception e) {
+            throw new ShopCartException("Error saving category ", e);
+        }
+    }
+
+    @Override
+    public void deleteProductVariant(Integer idProductVariant,Integer idCatalog, UserPrincipal userPrincipal) {
+        log.info("deleteProductVariant service");
+        try {
+            //ProductVariant oProductVariant = (ProductVariant) ProductVariant.getHelper().getObjectById(idProductVariant, ApplicationConfiguration.DATASOURCE_DBSHOPCART);
+            File f = new File(userPrincipal.getUploadDir() + File.separator + getPathProductVariants(idCatalog) + File.separator + "oProductVariant.getThumbnailPath()");
+            if (f.exists())
+                f.delete();
+
+            //ProductVariant.getHelper().deleteProductVariant(idProductVariant);
+
+        } catch (Exception e) {
+            throw new ShopCartException("Error delete product variant", e);
+        }
+    }
+
+    @Override
+    public void deleteCategory(Integer idCategory) {
+        log.info("deleteCategory service");
+        try {
+            categoryRepository.deleteById(idCategory);
+        } catch (Exception e) {
+            throw new ShopCartException("Error delete category", e);
+        }
+    }
+
+    @Override
+    public void deleteProductItem(Integer idProductItem, UserPrincipal userPrincipal) {
+        log.info("deleteProductItem service");
+        try {
+            ProductItem productitem = productItemRepository.findById(idProductItem).orElseThrow(()->new RuntimeException("Id not found"));
+            File f = new File(userPrincipal.getUploadDir() + File.separator + getPathProductItems(Integer.parseInt(userPrincipal.getIdCatalog())) + File.separator + productitem.getFilename());
+            if (f.exists())
+                f.delete();
+
+            productItemRepository.deleteById(idProductItem);
+        } catch (Exception e) {
+            throw new ShopCartException("Error delete productItem", e);
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
         }
     }
 
@@ -168,5 +348,17 @@ public class BackOfficeServiceImpl implements BackOfficeService {
         return filter;
     }
 
+<<<<<<< HEAD
+=======
+    public String getFileExtension(String originalFileName) {
+        if (org.springframework.util.StringUtils.hasText(originalFileName)) {
+            int dotIndex = originalFileName.lastIndexOf('.');
+            if (dotIndex >= 0) {
+                return originalFileName.substring(dotIndex + 1).toLowerCase();
+            }
+        }
+        return null;
+    }
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 
 }

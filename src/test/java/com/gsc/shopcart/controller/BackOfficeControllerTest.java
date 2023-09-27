@@ -5,9 +5,14 @@ import com.google.gson.reflect.TypeToken;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
+<<<<<<< HEAD
 import com.gsc.shopcart.dto.GotoProductDTO;
 import com.gsc.shopcart.dto.OrderCartProduct;
+=======
+import com.gsc.shopcart.dto.SaveCategoryDTO;
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import com.gsc.shopcart.dto.ShopCartFilter;
+import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.repository.scart.ClientRepository;
 import com.gsc.shopcart.repository.scart.ConfigurationRepository;
 import com.gsc.shopcart.repository.scart.LoginKeyRepository;
@@ -27,18 +32,20 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+<<<<<<< HEAD
 
 import java.net.URI;
+=======
+import java.util.Arrays;
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import java.util.List;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,9 +59,15 @@ class BackOfficeControllerTest {
 
     @MockBean
     private BackOfficeService backOfficeService;
+<<<<<<< HEAD
 
     @MockBean
     private UsrLogonSecurity usrLogonSecurity;
+=======
+    @MockBean
+    private UsrLogonSecurity usrLogonSecurity;
+
+>>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
     @MockBean
     private ConfigurationRepository configurationRepository;
     @MockBean
@@ -166,7 +179,70 @@ class BackOfficeControllerTest {
     }
 
 
+    @Test
+    void whenGetCategoryThenReturnInfo() throws Exception {
+
+        List<Category> listCategorySelected = TestData.getCartData().getListCategorySelected();
 
 
+
+        String accessToken = generatedToken;
+
+        when(backOfficeService.getCategory(any(), any(), any(), any()))
+                .thenReturn(TestData.getCartData());
+
+
+
+
+        mvc.perform(post(BASE_REQUEST_MAPPING+ ApiEndpoints.GET_CATEGORY+"?idCategory=1&idCatalog=1")
+                        .header("accessToken", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(gson.toJson(listCategorySelected)))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.idCategory").value("1"))
+                .andExpect(jsonPath("$.listCategorySelected[0].id").value("1"))
+                .andExpect(jsonPath("$.listCategorySelected[0].idParent").value("1"))
+                .andExpect(jsonPath("$.listCategorySelected[0].name").value("n"))
+                .andExpect(jsonPath("$.listCategorySelected[0].description").value(""))
+                .andExpect(jsonPath("$.listCategorySelected[0].status").value("s"))
+                .andExpect(jsonPath("$.vecCategories[0].id").value("8"))
+                .andExpect(jsonPath("$.vecCategories[0].idParent").value("4"))
+                .andExpect(jsonPath("$.vecCategories[0].name").value("B"))
+                .andExpect(jsonPath("$.vecCategories[0].description").value(""))
+                .andExpect(jsonPath("$.vecCategories[0].path").value("P"));
+
+
+    }
+
+    @Test
+    public void whenSaveCategoryThenReturnOk() throws Exception {
+
+        Category category = Category.builder()
+                .name("Testc")
+                .build();
+
+        SaveCategoryDTO categoryDTO = SaveCategoryDTO.builder()
+                .idCategory(0)
+                .description("test")
+                .displayOrder(1111)
+                .id(200)
+                .idCatalog(-1)
+                .ivPath("/")
+                .listCategorySelected(Arrays.asList(category))
+                .build();
+        MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "File content".getBytes());
+        MockMultipartFile data = new MockMultipartFile("data", "", "application/json", gson.toJson(categoryDTO).getBytes());
+        String accessToken = generatedToken;
+
+
+        doNothing().when(backOfficeService).saveCategory(any(), any(), any());
+
+        mvc.perform(multipart(BASE_REQUEST_MAPPING +ApiEndpoints.SAVE_CATEGORY)
+                        .file(file)
+                        .file(data)
+                        .header("accessToken", accessToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk());
+    }
 
 }

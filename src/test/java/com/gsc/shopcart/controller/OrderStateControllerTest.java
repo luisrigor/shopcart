@@ -1,17 +1,21 @@
 package com.gsc.shopcart.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
-import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.ListOrderDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.dto.SendInvoiceDTO;
+import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.security.TokenProvider;
+import com.gsc.shopcart.security.UserPrincipal;
+import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.OrderStateService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,10 +27,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
-
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -43,8 +46,12 @@ class OrderStateControllerTest {
 
     @Autowired
     private MockMvc mvc;
+    @Autowired
+    private ObjectMapper objectMapper;
     @MockBean
     private OrderStateService orderStateService;
+    @MockBean
+    private UsrLogonSecurity usrLogonSecurity;
     @MockBean
     private ConfigurationRepository configurationRepository;
     @MockBean
@@ -103,6 +110,36 @@ class OrderStateControllerTest {
                         .content(gson.toJson(sendInvoiceDTO)))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Send Invoice Successfully Executed"));
+    }
+
+    @Test
+    void whenSListOrderDetailThenItsSuccessfully() throws Exception {
+        UserPrincipal user = securityData.getUserToyotaProfile();
+        String accessToken = generatedToken;
+        ListOrderDTO listOrderDTO = ListOrderDTO.builder()
+                .order(OrderData.getOrderBuilder())
+                .orderDetailList(Collections.singletonList(OrderData.getOrderDetailBuilder()))
+                .orderStatusList(Collections.singletonList(OrderData.getOrderStatusBuilder()))
+                .build();
+        when(orderStateService.listOrderDetail(any(),anyInt(),anyInt())).thenReturn(listOrderDTO);
+        mvc.perform(get(BASE_REQUEST_MAPPING+ ApiEndpoints.LIST_ORDER_DETAIL)
+                        .header("accessToken", accessToken)
+                        .queryParam("idOrder","1")
+                        .queryParam("idOrderDetailStatus","2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(listOrderDTO)));
+    }
+
+    @Test
+    void whenChangeOrderDetailSuccessfully() throws Exception {
+        String accessToken = generatedToken;
+        OrderDetail orderDetail = OrderData.getOrderDetailBuilder();
+        when(orderStateService.changeOrderDetailStatus(anyInt())).thenReturn(orderDetail);
+        mvc.perform(get(BASE_REQUEST_MAPPING+ ApiEndpoints.CHANGE_ORDER_DETAIL_STATUS)
+                        .header("accessToken", accessToken)
+                        .queryParam("idOrderDetail","1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(orderDetail)));
     }
 
 }

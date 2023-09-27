@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ProductPropertyRepository extends JpaRepository<ProductProperty,Integer> {
+public interface ProductPropertyRepository extends JpaRepository<ProductProperty,Integer>, ProductPropertyCustomRepository  {
 
     @Query("SELECT pp FROM ProductProperty pp " +
             "WHERE pp.idProduct = :idProduct AND pp.status LIKE :status ORDER BY pp.rank")

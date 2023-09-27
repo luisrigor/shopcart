@@ -5,12 +5,8 @@ import com.google.gson.reflect.TypeToken;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
-<<<<<<< HEAD
 import com.gsc.shopcart.dto.GotoProductDTO;
-import com.gsc.shopcart.dto.OrderCartProduct;
-=======
 import com.gsc.shopcart.dto.SaveCategoryDTO;
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import com.gsc.shopcart.dto.ShopCartFilter;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.repository.scart.ClientRepository;
@@ -35,12 +31,8 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-<<<<<<< HEAD
-
 import java.net.URI;
-=======
 import java.util.Arrays;
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import java.util.List;
 import java.util.Optional;
 import static org.mockito.ArgumentMatchers.*;
@@ -59,15 +51,10 @@ class BackOfficeControllerTest {
 
     @MockBean
     private BackOfficeService backOfficeService;
-<<<<<<< HEAD
 
     @MockBean
     private UsrLogonSecurity usrLogonSecurity;
-=======
-    @MockBean
-    private UsrLogonSecurity usrLogonSecurity;
 
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
     @MockBean
     private ConfigurationRepository configurationRepository;
     @MockBean

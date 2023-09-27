@@ -4,7 +4,6 @@ import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.Product;
-<<<<<<< HEAD
 import com.gsc.shopcart.repository.scart.CatalogRepository;
 import com.gsc.shopcart.repository.scart.OrderCartRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
@@ -14,31 +13,17 @@ import com.gsc.shopcart.repository.usrlogon.*;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.BackOfficeService;
 import com.gsc.shopcart.utils.ShopCartUtils;
-import com.rg.dealer.Dealer;
-import com.sc.commons.exceptions.SCErrorException;
-import com.sc.commons.utils.PortletTasks;
-=======
 import com.gsc.shopcart.model.scart.entity.ProductItem;
-import com.gsc.shopcart.repository.scart.*;
-import com.gsc.shopcart.security.UserPrincipal;
-import com.gsc.shopcart.service.BackOfficeService;
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-<<<<<<< HEAD
 import java.util.*;
-=======
 import java.io.File;
 import java.sql.Timestamp;
-import java.util.*;
-
 import static com.gsc.shopcart.utils.ShopCartUtils.*;
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
 
 
 @RequiredArgsConstructor
@@ -49,23 +34,16 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     private final CatalogRepository catalogRepository;
     private final ProductRepository productRepository;
     private final OrderCartRepository orderCartRepository;
-<<<<<<< HEAD
     private final ProductItemRepository productItemRepository;
     private final ProductAttributeRepository productAttributeRepository;
     private final CategoryRepository categoryRepository;
     private final ProductPriceRuleRepository productPriceRuleRepository;
     private final ProductPropertyRepository productPropertyRepository;
-    private final ToyotaUserRepository toyotaUserRepository;
-    private final CbusUserRepository cbusUserRepository;
-    private final LexusUserRepository lexusUserRepository;
     private final ProductVariantRepository productVariantRepository;
     private final CatalogAdditionalInfoRepository catalogAdditionalInfoRepository;
     private final ShopCartUtils shopCartUtils;
 
-=======
-    private final CategoryRepository categoryRepository;
-    private final ProductItemRepository productItemRepository;
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
+
 
     @Override
     public PromotionsDTO getPromotions(Integer idCatalog, Integer idUser, Boolean isCatalog) {
@@ -122,7 +100,6 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     }
 
     @Override
-<<<<<<< HEAD
     public GotoProductDTO gotoProduct(Integer idCategory, Integer idCatalog, Integer idProduct, Integer idProfileTcap,
                                      Integer idProfileSupplier, UserPrincipal userPrincipal) {
 
@@ -142,7 +119,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             Integer idRootCategory = Optional.ofNullable(catalogRepository.getidRootCategoryByIdCatalog(idCatalog)).orElse(0);
 
             if (idProduct > 0) {
-                product =  productRepository.findById(idProduct).orElse(new Product());
+                product = productRepository.findById(idProduct).orElse(new Product());
                 oProductAttributes = productAttributeRepository.getProductAttributes(idProduct);
             }
 
@@ -176,7 +153,9 @@ public class BackOfficeServiceImpl implements BackOfficeService {
 
         } catch (Exception e) {
             throw new ShopCartException("Error in gotoProduct ", e);
-=======
+        }
+    }
+
     public CartDTO getCategory(Integer idCategory, Integer idCatalog, List<Category> listCategorySelected, UserPrincipal userPrincipal) {
         List<Category> vecCategories;
         List<Product> vecProducts;
@@ -333,7 +312,6 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             productItemRepository.deleteById(idProductItem);
         } catch (Exception e) {
             throw new ShopCartException("Error delete productItem", e);
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
         }
     }
 
@@ -348,8 +326,6 @@ public class BackOfficeServiceImpl implements BackOfficeService {
         return filter;
     }
 
-<<<<<<< HEAD
-=======
     public String getFileExtension(String originalFileName) {
         if (org.springframework.util.StringUtils.hasText(originalFileName)) {
             int dotIndex = originalFileName.lastIndexOf('.');
@@ -359,6 +335,4 @@ public class BackOfficeServiceImpl implements BackOfficeService {
         }
         return null;
     }
->>>>>>> 0e2d2c2970c80620abd7cfae28cc259181a24675
-
 }

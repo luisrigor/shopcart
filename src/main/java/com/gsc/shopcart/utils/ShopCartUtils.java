@@ -81,6 +81,14 @@ public class ShopCartUtils {
     public static String getPathCategories(int idCatalog) {
         return "Catalog_" + idCatalog + File.separator + "Categories" + File.separator;
     }
+
+    public static String getPathProductVariants(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Variants" + File.separator;
+    }
+
+    public static String getPathProductItems(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Items" + File.separator;
+    }
 }
 
 

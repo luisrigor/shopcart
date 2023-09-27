@@ -62,4 +62,29 @@ public class BackOfficeController {
 
     }
 
+    @DeleteMapping(ApiEndpoints.DELETE_PRODUCT_VARIANT)
+    public ResponseEntity<String> deleteProductVariant(@RequestParam Integer idProductVariant, @RequestParam Integer idCatalog,
+                                               @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        backOfficeService.deleteProductVariant(idProductVariant, idCatalog, userPrincipal);
+        return ResponseEntity.status(HttpStatus.OK).body("delete variant");
+
+    }
+
+    @DeleteMapping(ApiEndpoints.DELETE_CATEGORY)
+    public ResponseEntity<String> deleteCategory(@RequestParam Integer idCategory) {
+        backOfficeService.deleteCategory(idCategory);
+        return ResponseEntity.status(HttpStatus.OK).body("delete category");
+
+    }
+
+    @DeleteMapping(ApiEndpoints.DELETE_PRODUCT_ITEM)
+    public ResponseEntity<String> deleteProductItem(@RequestParam Integer idProductItem,
+                                                    @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        backOfficeService.deleteProductItem(idProductItem,userPrincipal);
+        return ResponseEntity.status(HttpStatus.OK).body("delete product item");
+
+    }
+
+
+
 }

@@ -15,4 +15,7 @@ public interface BackOfficeService {
     PromotionsDTO getProductsByFreeSearch(Integer idCategory, Integer idCatalog, ShopCartFilter filter, Boolean isCatalog, UserPrincipal userPrincipal);
     CartDTO getCategory(Integer idCategory, Integer idCatalog, List<Category> listCategorySelected, UserPrincipal userPrincipal);
     void saveCategory(SaveCategoryDTO categoryDTO, MultipartFile fileAttachItem, UserPrincipal userPrincipal);
+    void deleteProductVariant(Integer idProductVariant,Integer idCatalog, UserPrincipal userPrincipal);
+    void deleteCategory(Integer idCategory);
+    void deleteProductItem(Integer idProductItem,UserPrincipal userPrincipal);
 }

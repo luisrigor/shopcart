@@ -4,10 +4,8 @@ import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.Product;
-import com.gsc.shopcart.repository.scart.CatalogRepository;
-import com.gsc.shopcart.repository.scart.CategoryRepository;
-import com.gsc.shopcart.repository.scart.OrderCartRepository;
-import com.gsc.shopcart.repository.scart.ProductRepository;
+import com.gsc.shopcart.model.scart.entity.ProductItem;
+import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.BackOfficeService;
 import com.sc.commons.utils.StringTasks;
@@ -21,7 +19,7 @@ import java.io.File;
 import java.sql.Timestamp;
 import java.util.*;
 
-import static com.gsc.shopcart.utils.ShopCartUtils.getPathCategories;
+import static com.gsc.shopcart.utils.ShopCartUtils.*;
 
 
 @RequiredArgsConstructor
@@ -33,7 +31,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     private final ProductRepository productRepository;
     private final OrderCartRepository orderCartRepository;
     private final CategoryRepository categoryRepository;
-
+    private final ProductItemRepository productItemRepository;
 
     @Override
     public PromotionsDTO getPromotions(Integer idCatalog, Integer idUser, Boolean isCatalog) {
@@ -205,6 +203,47 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             }
         } catch (Exception e) {
             throw new ShopCartException("Error saving category ", e);
+        }
+    }
+
+    @Override
+    public void deleteProductVariant(Integer idProductVariant,Integer idCatalog, UserPrincipal userPrincipal) {
+        log.info("deleteProductVariant service");
+        try {
+            //ProductVariant oProductVariant = (ProductVariant) ProductVariant.getHelper().getObjectById(idProductVariant, ApplicationConfiguration.DATASOURCE_DBSHOPCART);
+            File f = new File(userPrincipal.getUploadDir() + File.separator + getPathProductVariants(idCatalog) + File.separator + "oProductVariant.getThumbnailPath()");
+            if (f.exists())
+                f.delete();
+
+            //ProductVariant.getHelper().deleteProductVariant(idProductVariant);
+
+        } catch (Exception e) {
+            throw new ShopCartException("Error delete product variant", e);
+        }
+    }
+
+    @Override
+    public void deleteCategory(Integer idCategory) {
+        log.info("deleteCategory service");
+        try {
+            categoryRepository.deleteById(idCategory);
+        } catch (Exception e) {
+            throw new ShopCartException("Error delete category", e);
+        }
+    }
+
+    @Override
+    public void deleteProductItem(Integer idProductItem, UserPrincipal userPrincipal) {
+        log.info("deleteProductItem service");
+        try {
+            ProductItem productitem = productItemRepository.findById(idProductItem).orElseThrow(()->new RuntimeException("Id not found"));
+            File f = new File(userPrincipal.getUploadDir() + File.separator + getPathProductItems(Integer.parseInt(userPrincipal.getIdCatalog())) + File.separator + productitem.getFilename());
+            if (f.exists())
+                f.delete();
+
+            productItemRepository.deleteById(idProductItem);
+        } catch (Exception e) {
+            throw new ShopCartException("Error delete productItem", e);
         }
     }
 

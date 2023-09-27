@@ -1,10 +1,6 @@
 package com.gsc.shopcart.service;
 
-import com.gsc.shopcart.dto.GotoProductDTO;
-import com.gsc.shopcart.dto.CartDTO;
-import com.gsc.shopcart.dto.PromotionsDTO;
-import com.gsc.shopcart.dto.SaveCategoryDTO;
-import com.gsc.shopcart.dto.ShopCartFilter;
+import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.security.UserPrincipal;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,4 +15,5 @@ public interface BackOfficeService {
     void deleteProductVariant(Integer idProductVariant,Integer idCatalog, UserPrincipal userPrincipal);
     void deleteCategory(Integer idCategory);
     void deleteProductItem(Integer idProductItem,UserPrincipal userPrincipal);
+    void createCategoryProduct(CategoryDTO categoryDTO, UserPrincipal userPrincipal);
 }

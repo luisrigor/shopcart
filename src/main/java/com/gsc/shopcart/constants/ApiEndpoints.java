@@ -20,4 +20,5 @@ public interface ApiEndpoints {
     String DELETE_PRODUCT_VARIANT = "/delete-variant";
     String DELETE_CATEGORY = "/delete-category";
     String DELETE_PRODUCT_ITEM = "/delete-product-Item";
+    String CREATE_CATEGORY_PRODUCT = "/create-category-product";
 }

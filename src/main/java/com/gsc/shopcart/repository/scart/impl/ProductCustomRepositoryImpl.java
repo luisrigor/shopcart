@@ -1,17 +1,19 @@
 package com.gsc.shopcart.repository.scart.impl;
 
-import com.gsc.shopcart.dto.OrderCartProduct;
 import com.gsc.shopcart.dto.RelatedProduct;
 import com.gsc.shopcart.dto.ShopCartFilter;
+import com.gsc.shopcart.exceptions.SQLCustomException;
 import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.ProductCustomRepository;
 import com.sc.commons.utils.DataBaseTasks;
 import com.sc.commons.utils.StringTasks;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.JDBCException;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
@@ -200,4 +202,38 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
          return result;
 
     }
+
+    @Override
+    public String[] getMinProductPriceRulesByIdProduct(int idProduct, int quantity) {
+
+        StringBuilder sql = new StringBuilder(StringUtils.EMPTY);
+
+
+        sql.append("SELECT VALUE(MIN(MINIMUM_QUANTITY), 9999) AS MINIMUM_QUANTITY, UNIT_PRICE ");
+        sql.append("FROM PRODUCT_PRICE_RULES ");
+        sql.append("WHERE ID_PRODUCT = :idProduct ");
+        if(quantity!=-1)
+            sql.append("AND MINIMUM_QUANTITY<= ").append(quantity).append(" ");
+        sql.append("GROUP BY UNIT_PRICE ");
+        sql.append("ORDER BY MINIMUM_QUANTITY ");
+
+        TypedQuery<Object[]> query = em.createQuery(sql.toString(), Object[].class);
+        query.setParameter("idProduct", idProduct);
+        String[] strArr;
+        try {
+            Object[] result = query.getSingleResult();
+            strArr = new String[]{String.valueOf(result[0]), String.valueOf(result[1])};
+            return strArr;
+        } catch (NoResultException e) {
+            strArr = new String[]{String.valueOf(9999), String.valueOf(0.0)};
+            return strArr;
+        } catch (JDBCException ex) {
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("idProduct", idProduct);
+            throw new SQLCustomException(String.valueOf(sql), parameters, ex);
+        }
+
+    }
+
+
 }

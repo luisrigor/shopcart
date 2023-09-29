@@ -126,6 +126,20 @@ class CatalogControllerTest {
     }
 
     @Test
+    void whenRequestEditOrderCartAjaxThenItsSuccessfully() throws Exception {
+        String accessToken = generatedToken;
+        EditOrderAjaxDTO editOrderAjaxDTO = new EditOrderAjaxDTO();
+        when(catalogService.editOrderCartAjaxServlet(anyInt(),anyInt(),anyInt(),any())).thenReturn(editOrderAjaxDTO);
+        mvc.perform(put(BASE_REQUEST_MAPPING + ApiEndpoints.EDIT_ORDER_CART_AJAX)
+                        .header("accessToken", accessToken)
+                        .queryParam("idOrderCart","100")
+                        .queryParam("quantity","1")
+                        .queryParam("multiplier","2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(editOrderAjaxDTO)));
+    }
+
+    @Test
     void whenRequestGetOrderStateThenItsSuccessfully() throws Exception {
         String accessToken = generatedToken;
         OrderProductsDTO orderProductsDTO = OrderData.getOrderProductsDTOBuilder();

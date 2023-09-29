@@ -356,6 +356,206 @@ class CatalogServiceImplTest {
                 catalogService.editOrderCartAjaxServlet(1, 1, 1, user));
     }
 
+    @Test
+    void whenMoveProductToCartThenSuccessfully() {
+
+        UserPrincipal user = securityData.getUserToyotaProfile();
+        OrderCart orderCart = OrderData.getOrderCartBuilder();
+        Product product = TestData.getInfoProductData().getProduct();
+        OrderCartProduct orderCartProduct = OrderData.OrderCartProductBuilder();
+
+        user.setIdCatalog("1");
+        user.setIdUser(1);
+
+        try (MockedStatic<ShopCartUtils> shopCartUtils = Mockito.mockStatic(ShopCartUtils.class);
+             MockedStatic<FinancialTasks> financialTasks = Mockito.mockStatic(FinancialTasks.class)) {
+
+            when(orderCartRepository.getOrderCart(anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(Optional.ofNullable(orderCart));
+            when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
+            when(priceRuleRepository.getMinProductPriceRulesByIdProduct(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+            when(orderCartRepository.save(any())).thenReturn(orderCart);
+            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt()))
+                    .thenReturn(Collections.singletonList(orderCartProduct));
+
+            financialTasks.when(() -> FinancialTasks.getVATatScale(anyString(), anyString())).thenReturn(1.00);
+            shopCartUtils.when(() -> ShopCartUtils.isProductInPromotion(any(), any()))
+                    .thenReturn(true);
+
+            List<OrderCart> vecOrderCartF = catalogService
+                    .moveProductToCart(1, 1, "any", user);
+            assertEquals(1, vecOrderCartF.size());
+        }
+    }
+
+    @Test
+    void whenMoveProductToCartAndOrderCartIsNullThenSuccessfully() {
+
+        UserPrincipal user = securityData.getUserToyotaProfile();
+        OrderCart orderCart = OrderData.getOrderCartBuilder();
+        Product product = TestData.getInfoProductData().getProduct();
+        OrderCartProduct orderCartProduct = OrderData.OrderCartProductBuilder();
+
+        user.setIdCatalog("1");
+        user.setIdUser(1);
+
+        try (MockedStatic<ShopCartUtils> shopCartUtils = Mockito.mockStatic(ShopCartUtils.class);
+             MockedStatic<FinancialTasks> financialTasks = Mockito.mockStatic(FinancialTasks.class)) {
+
+            when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
+            when(priceRuleRepository.getMinProductPriceRulesByIdProduct(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+            when(orderCartRepository.save(any())).thenReturn(orderCart);
+            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt()))
+                    .thenReturn(Collections.singletonList(orderCartProduct));
+
+            financialTasks.when(() -> FinancialTasks.getVATatScale(anyString(), anyString())).thenReturn(1.00);
+            shopCartUtils.when(() -> ShopCartUtils.isProductInPromotion(any(), any()))
+                    .thenReturn(true);
+
+            List<OrderCart> vecOrderCartF = catalogService
+                    .moveProductToCart(1, 1, "any", user);
+            assertEquals(1, vecOrderCartF.size());
+        }
+    }
+
+    @Test
+    void whenMoveProductToCartUnitPriceConsultCaseThenSuccessfully() {
+        UserPrincipal user = securityData.getUserToyotaProfile();
+        OrderCart orderCart = OrderData.getOrderCartBuilder();
+        Product product = TestData.getInfoProductData().getProduct();
+        product.setPriceRules(2);
+        product.setUnitPriceConsult(1);
+
+        OrderCartProduct orderCartProduct = OrderData.OrderCartProductBuilder();
+        user.setIdCatalog("1");
+        user.setIdUser(1);
+
+        try (MockedStatic<ShopCartUtils> shopCartUtils = Mockito.mockStatic(ShopCartUtils.class);
+             MockedStatic<FinancialTasks> financialTasks = Mockito.mockStatic(FinancialTasks.class)) {
+
+            when(orderCartRepository.getOrderCart(anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(Optional.ofNullable(orderCart));
+            when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
+            when(priceRuleRepository.getMinProductPriceRulesByIdProduct(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+            when(orderCartRepository.save(any())).thenReturn(orderCart);
+            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt()))
+                    .thenReturn(Collections.singletonList(orderCartProduct));
+
+            financialTasks.when(() -> FinancialTasks.getVATatScale(anyString(), anyString())).thenReturn(1.00);
+            shopCartUtils.when(() -> ShopCartUtils.isProductInPromotion(any(), any()))
+                    .thenReturn(true);
+
+            List<OrderCart> vecOrderCartF = catalogService
+                    .moveProductToCart(1, 1, "any", user);
+            assertEquals(1, vecOrderCartF.size());
+        }
+    }
+
+    @Test
+    void whenMoveProductToCartProductPromotionCaseThenSuccessfully() {
+        UserPrincipal user = securityData.getUserToyotaProfile();
+        OrderCart orderCart = OrderData.getOrderCartBuilder();
+        Product product = TestData.getInfoProductData().getProduct();
+        product.setPriceRules(2);
+        product.setUnitPriceConsult(2);
+        product.setPromoPrice(1.00);
+
+        OrderCartProduct orderCartProduct = OrderData.OrderCartProductBuilder();
+        user.setIdCatalog("1");
+        user.setIdUser(1);
+
+        try (MockedStatic<ShopCartUtils> shopCartUtils = Mockito.mockStatic(ShopCartUtils.class);
+             MockedStatic<FinancialTasks> financialTasks = Mockito.mockStatic(FinancialTasks.class)) {
+
+            when(orderCartRepository.getOrderCart(anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(Optional.ofNullable(orderCart));
+            when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
+            when(priceRuleRepository.getMinProductPriceRulesByIdProduct(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+            when(orderCartRepository.save(any())).thenReturn(orderCart);
+            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt()))
+                    .thenReturn(Collections.singletonList(orderCartProduct));
+
+            financialTasks.when(() -> FinancialTasks.getVATatScale(anyString(), anyString())).thenReturn(1.00);
+            shopCartUtils.when(() -> ShopCartUtils.isProductInPromotion(any(), any()))
+                    .thenReturn(true);
+
+            List<OrderCart> vecOrderCartF = catalogService
+                    .moveProductToCart(1, 1, "any", user);
+            assertEquals(1, vecOrderCartF.size());
+        }
+    }
+
+    @Test
+    void whenMoveProductToCartWhenOrderCartsIsNullAndUnitPriceConsultCaseThenSuccessfully() {
+        UserPrincipal user = securityData.getUserToyotaProfile();
+        OrderCart orderCart = OrderData.getOrderCartBuilder();
+        Product product = TestData.getInfoProductData().getProduct();
+        product.setPriceRules(2);
+        product.setUnitPriceConsult(1);
+
+        OrderCartProduct orderCartProduct = OrderData.OrderCartProductBuilder();
+        user.setIdCatalog("1");
+        user.setIdUser(1);
+
+        try (MockedStatic<ShopCartUtils> shopCartUtils = Mockito.mockStatic(ShopCartUtils.class);
+             MockedStatic<FinancialTasks> financialTasks = Mockito.mockStatic(FinancialTasks.class)) {
+
+            when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
+            when(priceRuleRepository.getMinProductPriceRulesByIdProduct(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+            when(orderCartRepository.save(any())).thenReturn(orderCart);
+            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt()))
+                    .thenReturn(Collections.singletonList(orderCartProduct));
+
+            financialTasks.when(() -> FinancialTasks.getVATatScale(anyString(), anyString())).thenReturn(1.00);
+            shopCartUtils.when(() -> ShopCartUtils.isProductInPromotion(any(), any()))
+                    .thenReturn(true);
+
+            List<OrderCart> vecOrderCartF = catalogService
+                    .moveProductToCart(1, 1, "any", user);
+            assertEquals(1, vecOrderCartF.size());
+        }
+    }
+
+    @Test
+    void whenMoveProductToCartWhenOrderCartsIsNullAndProductPromotionCaseThenSuccessfully() {
+        UserPrincipal user = securityData.getUserToyotaProfile();
+        OrderCart orderCart = OrderData.getOrderCartBuilder();
+        Product product = TestData.getInfoProductData().getProduct();
+        product.setPriceRules(2);
+        product.setUnitPriceConsult(2);
+        product.setPromoPrice(1.00);
+
+        OrderCartProduct orderCartProduct = OrderData.OrderCartProductBuilder();
+        user.setIdCatalog("1");
+        user.setIdUser(1);
+
+        try (MockedStatic<ShopCartUtils> shopCartUtils = Mockito.mockStatic(ShopCartUtils.class);
+             MockedStatic<FinancialTasks> financialTasks = Mockito.mockStatic(FinancialTasks.class)) {
+
+            when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
+            when(priceRuleRepository.getMinProductPriceRulesByIdProduct(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+            when(orderCartRepository.save(any())).thenReturn(orderCart);
+            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt()))
+                    .thenReturn(Collections.singletonList(orderCartProduct));
+
+            financialTasks.when(() -> FinancialTasks.getVATatScale(anyString(), anyString())).thenReturn(1.00);
+            shopCartUtils.when(() -> ShopCartUtils.isProductInPromotion(any(), any()))
+                    .thenReturn(true);
+
+            List<OrderCart> vecOrderCartF = catalogService
+                    .moveProductToCart(1, 1, "any", user);
+            assertEquals(1, vecOrderCartF.size());
+        }
+    }
+
+    @Test
+    void whenMoveProductToCartThenThrowShopCartException() {
+        UserPrincipal user = securityData.getUserToyotaProfile();
+
+        when(orderCartRepository.getOrderCart(anyInt(), anyInt(), anyInt(), anyInt())).thenThrow(ShopCartException.class);
+
+        assertThrows(ShopCartException.class, () ->
+                catalogService.moveProductToCart(1, 1, "any", user));
+    }
+
+
 }
 
 

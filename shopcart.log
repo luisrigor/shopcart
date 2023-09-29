@@ -27789,3 +27789,7 @@ java.lang.NullPointerException
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
 	at java.lang.Thread.run(Thread.java:750)
+29 sep 2023 12:57:24,170 INFO : [CatalogServiceImpl.setOrderCartProductPropertyRepository(286)] - distinctQtdPropertiesInProduct: 1
+29 sep 2023 12:57:24,175 INFO : [CatalogServiceImpl.setOrderCartProductPropertyRepository(288)] - validProductProperty: 1
+29 sep 2023 12:57:24,176 INFO : [CatalogServiceImpl.setOrderCartProductPropertyRepository(290)] - vecIdsOrderCartProductProperty.size(): 3
+29 sep 2023 12:57:24,176 INFO : [CatalogServiceImpl.setOrderCartProductPropertyRepository(293)] - propertiesToRemove: 2

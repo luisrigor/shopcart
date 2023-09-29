@@ -9,7 +9,6 @@ import com.gsc.shopcart.repository.scart.OrderCartRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.model.scart.entity.*;
 import com.gsc.shopcart.repository.scart.*;
-import com.gsc.shopcart.repository.usrlogon.*;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.BackOfficeService;
 import com.gsc.shopcart.utils.ShopCartUtils;
@@ -41,6 +40,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     private final ProductPropertyRepository productPropertyRepository;
     private final ProductVariantRepository productVariantRepository;
     private final CatalogAdditionalInfoRepository catalogAdditionalInfoRepository;
+    private final CategoryProductRepository categoryProductRepository;
     private final ShopCartUtils shopCartUtils;
 
 
@@ -311,6 +311,20 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             productItemRepository.deleteById(idProductItem);
         } catch (Exception e) {
             throw new ShopCartException("Error delete productItem", e);
+        }
+    }
+
+    @Override
+    public void createCategoryProduct(CategoryDTO categoryDTO, UserPrincipal userPrincipal) {
+        log.info("createCategoryProduct service");
+        try {
+            List<String> idsCategory = categoryDTO.getIdsCategory();
+            categoryProductRepository.deleteCategoryProductByIdProduct(categoryDTO.getIdProduct());
+            for(String idCategory : idsCategory){
+                //Category.getHelper().createCategoryProduct(idsCategory), categoryDTO.getIdProduct(), userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
+            }
+        } catch (Exception e) {
+            throw new ShopCartException("Error create category", e);
         }
     }
 

@@ -1,6 +1,5 @@
 package com.gsc.shopcart.dto;
 
-
 import lombok.*;
 import java.util.List;
 
@@ -9,7 +8,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SendInvoiceDTO {
-
-    private List<Integer> orderList;
+public class CategoryDTO {
+    private Integer idProduct;
+    private List<String> idsCategory;
 }

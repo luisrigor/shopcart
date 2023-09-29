@@ -2,11 +2,7 @@ package com.gsc.shopcart.controller;
 
 import com.google.gson.Gson;
 import com.gsc.shopcart.constants.ApiEndpoints;
-import com.gsc.shopcart.dto.GotoProductDTO;
-import com.gsc.shopcart.dto.CartDTO;
-import com.gsc.shopcart.dto.PromotionsDTO;
-import com.gsc.shopcart.dto.SaveCategoryDTO;
-import com.gsc.shopcart.dto.ShopCartFilter;
+import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.BackOfficeService;
@@ -93,6 +89,14 @@ public class BackOfficeController {
                                                     @AuthenticationPrincipal UserPrincipal userPrincipal) {
         backOfficeService.deleteProductItem(idProductItem,userPrincipal);
         return ResponseEntity.status(HttpStatus.OK).body("delete product item");
+
+    }
+
+    @PostMapping(ApiEndpoints.CREATE_CATEGORY_PRODUCT)
+    public ResponseEntity<String> createCategoryProduct(@RequestBody CategoryDTO categoryDTO,
+                                                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        backOfficeService.createCategoryProduct(categoryDTO,userPrincipal);
+        return ResponseEntity.status(HttpStatus.OK).body("create category product");
 
     }
 }

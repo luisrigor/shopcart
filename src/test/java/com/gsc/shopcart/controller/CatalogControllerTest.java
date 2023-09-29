@@ -8,12 +8,14 @@ import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.EditOrderAjaxDTO;
 import com.gsc.shopcart.dto.OrderProductsDTO;
 import com.gsc.shopcart.model.scart.entity.Category;
+import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.OrderData;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.TokenProvider;
+import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.CatalogService;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,9 +25,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +76,7 @@ class CatalogControllerTest {
 
     private String BASE_REQUEST_MAPPING = "/cart";
     private static String generatedToken;
+
     @BeforeEach
     void setUp() {
         gson = new Gson();
@@ -87,16 +96,13 @@ class CatalogControllerTest {
         List<Category> listCategorySelected = TestData.getCartData().getListCategorySelected();
 
 
-
         String accessToken = generatedToken;
 
         when(catalogService.getCart(any(), any(), any(), any()))
                 .thenReturn(TestData.getCartData());
 
 
-
-
-        mvc.perform(post(BASE_REQUEST_MAPPING+ ApiEndpoints.GET_CART+"?idCategory=1&idCatalog=1")
+        mvc.perform(post(BASE_REQUEST_MAPPING + ApiEndpoints.GET_CART + "?idCategory=1&idCatalog=1")
                         .header("accessToken", accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(gson.toJson(listCategorySelected)))
@@ -117,7 +123,6 @@ class CatalogControllerTest {
                 .andExpect(jsonPath("$.vecOrderCart[0].idCatalog").value("3"))
                 .andExpect(jsonPath("$.vecOrderCart[0].quantity").value("4"));
 
-
     }
 
     @Test
@@ -125,9 +130,9 @@ class CatalogControllerTest {
         String accessToken = generatedToken;
         OrderProductsDTO orderProductsDTO = OrderData.getOrderProductsDTOBuilder();
 
-        when(catalogService.getDetailOrderProducts(any(),any())).thenReturn(orderProductsDTO);
+        when(catalogService.getDetailOrderProducts(any(), any())).thenReturn(orderProductsDTO);
 
-        mvc.perform(get(BASE_REQUEST_MAPPING+ ApiEndpoints.ORDER_PRODUCTS)
+        mvc.perform(get(BASE_REQUEST_MAPPING + ApiEndpoints.ORDER_PRODUCTS)
                         .header("accessToken", accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -135,17 +140,17 @@ class CatalogControllerTest {
     }
 
     @Test
-    void whenRequestEditOrderCartAjaxThenItsSuccessfully() throws Exception {
+    void whenMoveProductCartThenItsSuccessfully() throws Exception {
         String accessToken = generatedToken;
-        EditOrderAjaxDTO editOrderAjaxDTO = new EditOrderAjaxDTO();
-        when(catalogService.editOrderCartAjaxServlet(anyInt(),anyInt(),anyInt(),any())).thenReturn(editOrderAjaxDTO);
-        mvc.perform(put(BASE_REQUEST_MAPPING + ApiEndpoints.EDIT_ORDER_CART_AJAX)
+        List<OrderCart> orderCarts = new ArrayList<>();
+        when(catalogService.moveProductToCart(anyInt(), anyInt(), anyString(), any())).thenReturn(orderCarts);
+        mvc.perform(post(BASE_REQUEST_MAPPING + ApiEndpoints.MOVE_PRODUCT_CART)
                         .header("accessToken", accessToken)
-                        .queryParam("idOrderCart","100")
-                        .queryParam("quantity","1")
-                        .queryParam("multiplier","2"))
+                        .queryParam("idProduct", "100")
+                        .queryParam("idProductVariant", "3")
+                        .queryParam("typeSelectProduct", "type"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(editOrderAjaxDTO)));
+                .andExpect(content().string(objectMapper.writeValueAsString(orderCarts)));
     }
 
 }

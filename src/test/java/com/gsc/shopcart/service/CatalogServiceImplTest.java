@@ -87,12 +87,12 @@ class CatalogServiceImplTest {
 
         URI uriRs1_orderCart = this.getClass().getResource("/data/rs_orderCart.json").toURI();
 
-        List<OrderCartProduct> orderCartProducts = readJ.readJson(uriRs1_orderCart.getPath(), new TypeToken<List<OrderCartProduct>>() {}.getType());
+        List<OrderCartProduct> orderCartProducts = readJ.readJson(uriRs1_orderCart.getPath(), new TypeToken<List<OrderCartProduct>>() {
+        }.getType());
 
         Category category = Category.builder()
                 .id(1)
                 .build();
-
 
 
         when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
@@ -135,12 +135,12 @@ class CatalogServiceImplTest {
 
         URI uriRs1_orderCart = this.getClass().getResource("/data/rs_orderCart.json").toURI();
 
-        List<OrderCartProduct> orderCartProducts = readJ.readJson(uriRs1_orderCart.getPath(), new TypeToken<List<OrderCartProduct>>() {}.getType());
+        List<OrderCartProduct> orderCartProducts = readJ.readJson(uriRs1_orderCart.getPath(), new TypeToken<List<OrderCartProduct>>() {
+        }.getType());
 
         Category category = Category.builder()
                 .id(2)
                 .build();
-
 
 
         when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
@@ -189,7 +189,7 @@ class CatalogServiceImplTest {
                 .thenThrow(RuntimeException.class);
 
 
-        assertThrows(ShopCartException.class, ()-> catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal));
+        assertThrows(ShopCartException.class, () -> catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal));
     }
 
     @Test
@@ -199,21 +199,21 @@ class CatalogServiceImplTest {
         List<OrderCart> vecOrderCart = new ArrayList<>();
         Dealer dealerForMap = new Dealer();
         Hashtable<String, Dealer> hstDealers = new Hashtable<>();
-        hstDealers.put("key",dealerForMap);
+        hstDealers.put("key", dealerForMap);
         Dealer dealer = new Dealer();
         dealer.setOid_Parent("anyString");
-        Vector<Dealer> dealerList =  new Vector<>();
+        Vector<Dealer> dealerList = new Vector<>();
         List<Object[]> supplierList = new ArrayList<>();
         List<Object[]> customDealers = new ArrayList<>();
         Map<Integer, String> suppliers = new HashMap<>();
-        customDealers.add(new Object[] { "OID_DEALER", "DESIG_ENTIDADE", "END_ENTIDADE" });
+        customDealers.add(new Object[]{"OID_DEALER", "DESIG_ENTIDADE", "END_ENTIDADE"});
         Hashtable<String, Dealer> hsmDealers = new Hashtable<>();
 
 
         try (MockedStatic<Dealer> utilities = Mockito.mockStatic(Dealer.class)) {
 
             utilities.when(Dealer::getHelper).thenReturn(dealerHelper);
-            when(orderCartRepository.findByIdUserAndIdCatalog(anyInt(),anyInt())).thenReturn(vecOrderCart);
+            when(orderCartRepository.findByIdUserAndIdCatalog(anyInt(), anyInt())).thenReturn(vecOrderCart);
             when(dealerHelper.getActiveDealersForParent(user.getOidNet(), null)).thenReturn(hstDealers);
             when(toyotaDealerRepository.getUserDealerWithAccess(anyInt())).thenReturn(customDealers);
             when(orderStateService.getSuppliers(anyString(), anyInt(), anyInt())).thenReturn(supplierList);
@@ -223,8 +223,8 @@ class CatalogServiceImplTest {
 
             OrderProductsDTO orderProductsDTO = catalogService.getDetailOrderProducts(user, Collections.singletonList("anyOidDealer"));
 
-            assertEquals(vecOrderCart,orderProductsDTO.getVecOrderCart());
-            assertEquals(suppliers,orderProductsDTO.getSuppliers());
+            assertEquals(vecOrderCart, orderProductsDTO.getVecOrderCart());
+            assertEquals(suppliers, orderProductsDTO.getSuppliers());
         }
     }
 
@@ -235,20 +235,20 @@ class CatalogServiceImplTest {
         List<OrderCart> vecOrderCart = new ArrayList<>();
         Dealer dealerForMap = new Dealer();
         Hashtable<String, Dealer> hstDealers = new Hashtable<>();
-        hstDealers.put("key",dealerForMap);
+        hstDealers.put("key", dealerForMap);
         Dealer dealer = new Dealer();
         dealer.setOid_Parent("anyString");
-        Vector<Dealer> dealerList =  new Vector<>();
+        Vector<Dealer> dealerList = new Vector<>();
         List<Object[]> supplierList = new ArrayList<>();
         List<Object[]> customDealers = new ArrayList<>();
         Map<Integer, String> suppliers = new HashMap<>();
-        customDealers.add(new Object[] { "OID_DEALER", "DESIG_ENTIDADE", "END_ENTIDADE" });
+        customDealers.add(new Object[]{"OID_DEALER", "DESIG_ENTIDADE", "END_ENTIDADE"});
         Hashtable<String, Dealer> hsmDealers = new Hashtable<>();
 
         try (MockedStatic<Dealer> utilities = Mockito.mockStatic(Dealer.class)) {
 
             utilities.when(Dealer::getHelper).thenReturn(dealerHelper);
-            when(orderCartRepository.findByIdUserAndIdCatalog(anyInt(),anyInt())).thenReturn(vecOrderCart);
+            when(orderCartRepository.findByIdUserAndIdCatalog(anyInt(), anyInt())).thenReturn(vecOrderCart);
             when(dealerHelper.getActiveDealersForParent(user.getOidNet(), null)).thenReturn(hstDealers);
             when(lexusDealerRepository.getUserDealerWithAccess(anyInt())).thenReturn(customDealers);
             when(orderStateService.getSuppliers(anyString(), anyInt(), anyInt())).thenReturn(supplierList);
@@ -258,8 +258,8 @@ class CatalogServiceImplTest {
 
             OrderProductsDTO orderProductsDTO = catalogService.getDetailOrderProducts(user, Collections.singletonList("anyOidDealer"));
 
-            assertEquals(vecOrderCart,orderProductsDTO.getVecOrderCart());
-            assertEquals(suppliers,orderProductsDTO.getSuppliers());
+            assertEquals(vecOrderCart, orderProductsDTO.getVecOrderCart());
+            assertEquals(suppliers, orderProductsDTO.getSuppliers());
         }
 
     }
@@ -303,8 +303,8 @@ class CatalogServiceImplTest {
     @Test
     void whenGetDetailOrderProductsThenThrowShopCartException() throws SCErrorException {
         UserPrincipal user = securityData.getUserToyotaProfile();
-        when(orderCartRepository.findByIdUserAndIdCatalog(anyInt(),anyInt())).thenThrow(ShopCartException.class);
-        assertThrows(ShopCartException.class, ()->catalogService.getDetailOrderProducts(user, Collections.singletonList("anyOidDealer")));
+        when(orderCartRepository.findByIdUserAndIdCatalog(anyInt(), anyInt())).thenThrow(ShopCartException.class);
+        assertThrows(ShopCartException.class, () -> catalogService.getDetailOrderProducts(user, Collections.singletonList("anyOidDealer")));
     }
 
     @Test
@@ -327,23 +327,24 @@ class CatalogServiceImplTest {
             shopCartUtils.when(() -> ShopCartUtils.getPriceFor(anyInt(), any(), anyList()))
                     .thenReturn(totalprice);
             when(orderCartRepository.save(any())).thenReturn(orderCart);
-            when(productPropertyRepository.findProductPropertiesByIdProductAndStatusLike(anyInt(),anyChar()))
+            when(productPropertyRepository.findProductPropertiesByIdProductAndStatusLike(anyInt(), anyChar()))
                     .thenReturn(Collections.singletonList(productProperty));
-            when(productPropertyRepository.getDistinctProductProperty(anyInt(),anyInt(),anyChar()))
-                    .thenReturn(Collections.singletonList(productProperty));;
-            when(orderCartProductPropertyRepository.getIdsOrderCartProductProperty(anyInt(),anyInt()))
-                    .thenReturn(Arrays.asList(1,2,3));
+            when(productPropertyRepository.getDistinctProductProperty(anyInt(), anyInt(), anyChar()))
+                    .thenReturn(Collections.singletonList(productProperty));
+            ;
+            when(orderCartProductPropertyRepository.getIdsOrderCartProductProperty(anyInt(), anyInt()))
+                    .thenReturn(Arrays.asList(1, 2, 3));
             doNothing().when(orderCartProductPropertyRepository).deleteById(anyInt());
-            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(),anyInt()))
+            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt()))
                     .thenReturn(Collections.singletonList(orderCartProduct));
-            financialTasks.when(()->FinancialTasks.getVATatScale(anyString(),anyString())).thenReturn(1.00);
-            shopCartUtils.when(() -> ShopCartUtils.isProductInPromotion(any(),any()))
+            financialTasks.when(() -> FinancialTasks.getVATatScale(anyString(), anyString())).thenReturn(1.00);
+            shopCartUtils.when(() -> ShopCartUtils.isProductInPromotion(any(), any()))
                     .thenReturn(true);
 
             EditOrderAjaxDTO editOrderAjaxDTO = catalogService
-                    .editOrderCartAjaxServlet(1,1,1,user);
+                    .editOrderCartAjaxServlet(1, 1, 1, user);
             verify(orderCartRepository).save(any());
-            assertEquals(1,editOrderAjaxDTO.getQtdToOrder());
+            assertEquals(1, editOrderAjaxDTO.getQtdToOrder());
         }
     }
 
@@ -351,11 +352,9 @@ class CatalogServiceImplTest {
     void whenEditOrderCartAjaxServletThenThrowAnException() {
         UserPrincipal user = securityData.getUserToyotaProfile();
         when(orderCartRepository.findById(anyInt())).thenThrow(ShopCartException.class);
-        assertThrows(ShopCartException.class, ()->
-                catalogService.editOrderCartAjaxServlet(1,1,1,user));
-
+        assertThrows(ShopCartException.class, () ->
+                catalogService.editOrderCartAjaxServlet(1, 1, 1, user));
     }
-
 
 }
 

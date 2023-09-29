@@ -12,5 +12,4 @@ public interface ProductCustomRepository {
     List<Product> getProductsByFreeSearch(int idRootCategory, String view, String userOidDealer, ShopCartFilter filter);
     List<RelatedProduct> getRelatedProducts(Integer idRootCategory, Integer idProduct);
 
-    String[] getMinProductPriceRulesByIdProduct(int idProduct, int quantity);
 }

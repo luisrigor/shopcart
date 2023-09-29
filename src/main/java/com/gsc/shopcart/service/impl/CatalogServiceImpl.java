@@ -379,8 +379,6 @@ public class CatalogServiceImpl implements CatalogService {
         orderCartRepository.save(ordercart);
     }
 
-
-
     private OrderCart createOrderCart(UserPrincipal user, int idProduct, int idProductVariant, int quantity, String obs, double price, double unitPriceRule) {
         return orderCartRepository.save(OrderCart.builder()
                 .idUser(user.getIdUser())

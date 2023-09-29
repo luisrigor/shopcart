@@ -12,6 +12,7 @@ public interface ApiEndpoints {
 
     String ORDER_PRODUCTS = "/order-products";
     String EDIT_ORDER_CART_AJAX = "/edit-ordercart-ajax";
+    String MOVE_PRODUCT_CART = "/move-product-cart";
     String GET_PRODUCTS_BY_FREE_SEARCH = "/products-by-free-search";
     String SHOW_INFO_PRODUCT = "/show-info-product";
     String GOTO_PRODUCT = "/goto-product";

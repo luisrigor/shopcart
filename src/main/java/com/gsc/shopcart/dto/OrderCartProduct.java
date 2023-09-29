@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Builder
 public class OrderCartProduct {
 

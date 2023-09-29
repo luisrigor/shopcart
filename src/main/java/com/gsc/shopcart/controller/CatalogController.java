@@ -6,6 +6,7 @@ import com.gsc.shopcart.dto.CartDTO;
 import com.gsc.shopcart.dto.EditOrderAjaxDTO;
 import com.gsc.shopcart.dto.OrderProductsDTO;
 import com.gsc.shopcart.model.scart.entity.Category;
+import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.model.usrlogon.entity.CbusDealer;
 import com.gsc.shopcart.model.usrlogon.entity.LexusDealer;
 import com.gsc.shopcart.model.usrlogon.entity.ToyotaDealer;
@@ -57,6 +58,15 @@ public class CatalogController {
     public ResponseEntity<EditOrderAjaxDTO> editOrderCartAjaxServlet(@AuthenticationPrincipal UserPrincipal user, @RequestParam Integer idOrderCart,
                                                                      @RequestParam Integer quantity, @RequestParam Integer multiplier) {
         return ResponseEntity.status(HttpStatus.OK).body(catalogService.editOrderCartAjaxServlet(idOrderCart,quantity,multiplier,user));
+    }
+
+    @PostMapping(ApiEndpoints.MOVE_PRODUCT_CART)
+    @ResponseBody
+    public ResponseEntity<List<OrderCart>> moveProductCart(@AuthenticationPrincipal UserPrincipal user,
+                                                           @RequestParam Integer idProduct,
+                                                           @RequestParam(required = false) Integer idProductVariant,
+                                                           @RequestParam(required = false)  String typeSelectProduct) {
+        return ResponseEntity.status(HttpStatus.OK).body(catalogService.moveProductToCart(idProduct,idProductVariant,typeSelectProduct,user));
     }
 
 }

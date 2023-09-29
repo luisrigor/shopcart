@@ -1,5 +1,7 @@
 package com.gsc.shopcart.utils;
 
+import com.gsc.shopcart.dto.OrderDataDTO;
+import com.gsc.shopcart.model.scart.DealerData;
 import com.gsc.shopcart.repository.usrlogon.CbusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.LexusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.ToyotaUserEntityProfileRepository;
@@ -10,9 +12,13 @@ import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.model.scart.entity.ProductPriceRule;
+import com.gsc.shopcart.security.UserPrincipal;
 import com.rg.dealer.Dealer;
+import com.rg.objects.DealerCode;
 import com.sc.commons.exceptions.SCErrorException;
+import com.sc.commons.utils.StringTasks;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 //import org.apache.commons.lang3.StringUtils;
 import java.io.File;
@@ -168,7 +174,34 @@ public class ShopCartUtils {
             calcCost = 0.00;
 
         return calcCost;
+    }
 
+    private Map<String, DealerData> getDealerData(UserPrincipal user, OrderDataDTO orderDataDTO) throws SCErrorException {
+        String[] oidDealers = orderDataDTO.getOidDealer().toArray(new String[0]);
+        String orderObs = StringTasks.cleanString(orderDataDTO.getOrderObs(), StringUtils.EMPTY);
+        Integer multiplicator = (orderDataDTO.getMultiplicator()==null||orderDataDTO.getMultiplicator()<=0)?1:orderDataDTO.getMultiplicator();
+
+        Map<String, DealerData> result = new HashMap<>();
+
+        boolean sendToAS400 = orderDataDTO.getSendToAS400().equals("S");
+        for (int i = 0; i < oidDealers.length; i++) {
+            // APENAS NECESS�RIO QUANDO ENVIA ORDER PARA AS400
+            if (sendToAS400) {
+                Dealer oDealerOrder = Dealer.getHelper().getByObjectId(user.getOidNet(), oidDealers[i]);
+                Dealer oDealerParentOrder = Dealer.getHelper().getByObjectId(oDealerOrder.getOIdNet(), oDealerOrder.getOid_Parent());
+
+                List<DealerCode> vecDealerCodes1 = oDealerParentOrder.getCodes(Dealer.OID_TOYOTA_CODE_SHIPT_TO_INVOICE);
+                List<DealerCode> vecDealerCodes2 = oDealerOrder.getCodes(Dealer.OID_TOYOTA_CODE_SHIPT_TO_INVOICE);
+                if (vecDealerCodes1 == null || vecDealerCodes1.isEmpty() || vecDealerCodes2 == null || vecDealerCodes2.isEmpty()) {
+                    return null;
+                } else {
+                    result.put(oidDealers[i], new DealerData(oidDealers[i], orderObs, multiplicator, vecDealerCodes1.get(0).getValue(), vecDealerCodes2.get(0).getValue()));
+                }
+            } else {
+                result.put(oidDealers[i],DealerData.builder().oidDealer(oidDealers[i]).orderObs(orderObs).multiplicator(multiplicator).build());
+            }
+        }
+        return result;
     }
 }
 

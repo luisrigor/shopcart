@@ -2,10 +2,7 @@ package com.gsc.shopcart.service.impl;
 
 import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.ScConstants;
-import com.gsc.shopcart.dto.CartDTO;
-import com.gsc.shopcart.dto.EditOrderAjaxDTO;
-import com.gsc.shopcart.dto.OrderCartProduct;
-import com.gsc.shopcart.dto.OrderProductsDTO;
+import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ResourceNotFoundException;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.*;
@@ -24,6 +21,7 @@ import com.sc.commons.financial.FinancialTasks;
 import jdk.internal.org.objectweb.asm.tree.TryCatchBlockNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.apache.catalina.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -391,6 +389,76 @@ public class CatalogServiceImpl implements CatalogService {
                 .unitPriceRule(unitPriceRule)
                 .dtCreated(LocalDateTime.now())
                 .createdBy(user.getLogin() + "||" + user.getNifUtilizador()).build());
+    }
+
+
+    private String validateOrder(OrderDataDTO orderData, Map<String, DealerData> dealerMap, int idApplication) throws SCErrorException {
+
+
+
+        String result="";
+        double totalOrder = 0.0;
+        String bill_to="";
+        int multiplicator=0;
+        Map<String, Vector<OrderDetail>> mapListProductsByOrderAndBillTo = new HashMap<String,Vector<OrderDetail>>();
+        try {
+            int orderNumber = Order.getHelper().getMaxOrderNumber(orderData.idCatalog);
+            for(int i=0; i < orderData.idsProduct.length; i++){
+                bill_to=Product.getHelper().getBillToByIdProduct(Integer.parseInt(orderData.idsProduct[i]));
+                if(bill_to==null){//no caso de n�o existir centro de custo definido na BD
+                    if(idApplication==10008){
+                        bill_to="0288";// centro de custos da lexus
+                    }else{
+                        bill_to="0238";//no caso da toyota
+                    }
+                }
+                if(bill_to!=null && !bill_to.equals("")){
+                    OrderDetail oDetail = new OrderDetail();
+                    oDetail.setUnitPrice(Double.parseDouble(orderData.unitPriceProduct[i]));
+                    oDetail.setValueIva(Double.parseDouble(orderData.valueIvaProduct[i]));
+                    if(!(mapListProductsByOrderAndBillTo.containsKey(orderNumber+bill_to))){
+
+                        mapListProductsByOrderAndBillTo.put(orderNumber+bill_to, new Vector<OrderDetail>());
+                        mapListProductsByOrderAndBillTo.get(orderNumber+bill_to).add(oDetail);
+                    }else{
+                        mapListProductsByOrderAndBillTo.get(orderNumber+bill_to).add(oDetail);
+                    }
+                }
+            }
+
+            if (dealerMap != null) {
+
+                for (DealerData dealer : dealerMap.values()) {
+                    multiplicator=dealer.multiplicator;
+                    break;//basta obter o multiplicator do primeiro dealer pois � igual para todos os dealers
+                }
+
+                //iterar o mapa construido anteriormente com os centros de custo
+                Iterator<Map.Entry<String,  Vector<OrderDetail>>> iterator = mapListProductsByOrderAndBillTo.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Entry<String, Vector<OrderDetail>> entry = iterator.next();
+                    Vector<OrderDetail> vecOrderD = mapListProductsByOrderAndBillTo.get(entry.getKey());
+                    totalOrder=0.0;
+                    for(OrderDetail OorderDetail: vecOrderD){//percorre produtos por centro de custo
+                        totalOrder+= (OorderDetail.getUnitPrice() + OorderDetail.getValueIva()) * multiplicator;
+                    }
+                    if(totalOrder < 1){
+                        result ="total menor que 1 "; break;
+                    }
+                }
+            }else{
+                result="falta informa��o sobre shipTO";
+            }
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            throw new NumberFormatException();
+        } catch (SCErrorException e) {
+            e.printStackTrace();
+            throw new SCErrorException("Erro ao obter o centro de custo");
+        }
+
+        return result;
     }
 
 }

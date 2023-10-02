@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Getter
@@ -114,4 +115,7 @@ public class Product {
 
     @Column(name = "TYPE")
     private String type;
+
+    @Transient
+    private List<ProductDealer> vecProductDealer;
 }

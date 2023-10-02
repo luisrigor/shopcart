@@ -1,10 +1,7 @@
 package com.gsc.shopcart.controller;
 
 import com.gsc.shopcart.constants.ApiEndpoints;
-import com.gsc.shopcart.dto.CartDTO;
-import com.gsc.shopcart.dto.PromotionsDTO;
-import com.gsc.shopcart.dto.SaveCategoryDTO;
-import com.gsc.shopcart.dto.ShopCartFilter;
+import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.BackOfficeService;
@@ -59,6 +56,27 @@ public class BackOfficeController {
 
         backOfficeService.saveCategory(categoryDTO, fileAttachItem, userPrincipal);
         return ResponseEntity.status(HttpStatus.OK).body("saved");
+
+    }
+
+    @PostMapping(ApiEndpoints.CREATE_PRODUCT)
+    public ResponseEntity<String> createProduct(@RequestPart("data") CreateProductDTO productDTO,
+                                                @RequestPart("files")  MultipartFile[] files,
+                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+
+        String msg = backOfficeService.createProduct(productDTO, userPrincipal, files);
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
+
+    }
+
+    @PostMapping(ApiEndpoints.CREATE_PRODUCT+"T")
+    public ResponseEntity<String> createProductT(@RequestBody CreateProductDTO productDTO,
+                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+
+        String msg = backOfficeService.createProduct(productDTO, userPrincipal, null);
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
 
     }
 

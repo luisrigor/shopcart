@@ -46,7 +46,7 @@ log4j:
 #Ficheiro de configuracao da SC
 sc:
   config:
-    file: "C:/Users/Luis Parra/OneDrive - Rigor/Documentos/REPOSITORIOS/Proyectos GITHUB/shopcart/src/main/resources/sc_config.properties"
+    file: "/home/ronald/Documents/rigor/repos/S2/shopcart/src/main/resources/sc_config.properties"
 
 #customom properties ex local url
 app:

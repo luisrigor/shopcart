@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table
-@Entity(name = "PRODUCT_PROPERTY")
+@Entity
+@Table(name = "PRODUCT_PROPERTY")
 public class ProductProperty {
 
     @Id

@@ -4,9 +4,11 @@ import com.google.gson.Gson;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
+import com.gsc.shopcart.dto.CreateProductDTO;
 import com.gsc.shopcart.dto.SaveCategoryDTO;
 import com.gsc.shopcart.dto.ShopCartFilter;
 import com.gsc.shopcart.model.scart.entity.Category;
+import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.ClientRepository;
 import com.gsc.shopcart.repository.scart.ConfigurationRepository;
 import com.gsc.shopcart.repository.scart.LoginKeyRepository;
@@ -15,6 +17,7 @@ import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.TokenProvider;
+import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.BackOfficeService;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,9 +31,13 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -194,6 +201,32 @@ class BackOfficeControllerTest {
                         .header("accessToken", accessToken)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void whenCreateProductThenSave() throws Exception {
+
+        CreateProductDTO createProductDTO = CreateProductDTO.builder()
+                .idProduct(0)
+                .ivPath("/test")
+                .idCatalog(1)
+                .build();
+
+        MockMultipartFile file1 = new MockMultipartFile("files", "filename.txt", "text/plain", "File content".getBytes());
+
+        MockMultipartFile data = new MockMultipartFile("data", "", "application/json", gson.toJson(createProductDTO).getBytes());
+        String accessToken = generatedToken;
+
+
+        doNothing().when(backOfficeService).saveCategory(any(), any(), any());
+
+        mvc.perform(multipart(BASE_REQUEST_MAPPING +ApiEndpoints.CREATE_PRODUCT)
+                        .file(file1)
+                        .file(data)
+                        .header("accessToken", accessToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk());
+
     }
 
 }

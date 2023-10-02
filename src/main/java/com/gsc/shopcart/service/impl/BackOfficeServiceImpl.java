@@ -4,12 +4,15 @@ import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.Product;
-import com.gsc.shopcart.repository.scart.CatalogRepository;
-import com.gsc.shopcart.repository.scart.CategoryRepository;
-import com.gsc.shopcart.repository.scart.OrderCartRepository;
-import com.gsc.shopcart.repository.scart.ProductRepository;
+import com.gsc.shopcart.model.scart.entity.ProductDealer;
+import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.BackOfficeService;
+import com.gsc.shopcart.service.impl.product.CreateProduct;
+import com.gsc.shopcart.utils.ShopCartUtils;
+import com.sc.commons.exceptions.SCErrorException;
+import com.sc.commons.utils.PortletMultipartWrapper;
+import com.sc.commons.utils.PortletTasks;
 import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -18,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.*;
 
 import static com.gsc.shopcart.utils.ShopCartUtils.getPathCategories;
@@ -33,6 +38,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     private final ProductRepository productRepository;
     private final OrderCartRepository orderCartRepository;
     private final CategoryRepository categoryRepository;
+    private final CreateProduct createProduct;
 
 
     @Override
@@ -192,7 +198,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
                     if (f.exists())
                         f.delete();
                 }
-                String extension = "." + getFileExtension(fileAttachItem.getOriginalFilename());
+                String extension = "." + ShopCartUtils.getFileExtension(fileAttachItem.getOriginalFilename());
                 String categoryName = StringTasks.ReplaceSpecialChar(fileAttachItem.getOriginalFilename());
                 categoryName = StringTasks.ReplaceStr(categoryName, " ", "-");
                 categoryName = categoryName + "-" + category.getId() + extension;
@@ -208,6 +214,42 @@ public class BackOfficeServiceImpl implements BackOfficeService {
         }
     }
 
+
+    /**
+     * @param files [0] thumbnail_path [1] promo_thumbnail
+     */
+    @Override
+    public String createProduct(CreateProductDTO productDTO, UserPrincipal userPrincipal, MultipartFile[] files) {
+
+        String user = userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador();
+        String dirName = productDTO.getIvPath() + "conf";
+        String uploadDir = userPrincipal.getUploadDir();
+        Integer idCatalog = productDTO.getIdCatalog();
+        String msg = "Produto alterado com sucesso...";
+
+        if (!(new File(dirName)).exists())
+            (new File(dirName)).mkdirs();
+
+        try {
+            if (productDTO.getIdProduct() == 0)
+                msg = "Produto criado com sucesso...";
+
+            Product product = createProduct.saveProduct(productDTO, user);
+
+            createProduct.createProductPriceRules(product.getId(), productDTO.getProdPriceRule(), user);
+
+            createProduct.createProductAttributes(idCatalog, product.getId(), user, productDTO.getFieldValues(), productDTO.getFieldSingleValue());
+
+            createProduct.createProductProperty(productDTO.getProdProperty(), product.getId(), user);
+
+            createProduct.saveProductAndFile(idCatalog, uploadDir, files, user, product);
+
+        } catch (Exception e) {
+            throw new ShopCartException("Error creating product ", e);
+        }
+        return msg;
+    }
+
     public static ShopCartFilter getFilterFreeSearchProduct(ShopCartFilter filter) {
         if (filter == null) {
             filter = new ShopCartFilter();
@@ -217,16 +259,6 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             filter.setState(Optional.ofNullable(filter.getState()).orElse("T"));
         }
         return filter;
-    }
-
-    public String getFileExtension(String originalFileName) {
-        if (org.springframework.util.StringUtils.hasText(originalFileName)) {
-            int dotIndex = originalFileName.lastIndexOf('.');
-            if (dotIndex >= 0) {
-                return originalFileName.substring(dotIndex + 1).toLowerCase();
-            }
-        }
-        return null;
     }
 
 }

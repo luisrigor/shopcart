@@ -30,21 +30,22 @@ public class UsrLogonSecurity {
 
     public void setUserLogin(UserPrincipal userPrincipal) {
         if (userPrincipal.getOidNet().equalsIgnoreCase(Dealer.OID_NET_LEXUS)) {
-            LexusUser lexusUser = lexusUserRepository.getUserinfo("tcap1@tpo".toUpperCase());
-            setUserProperties(userPrincipal, lexusUser.getIdUtilizador(), lexusUser.getIdEntidade(), lexusUser.getOidDealer(), lexusUser.getOidDealerParent());
+            LexusUser userinfo = lexusUserRepository.getUserinfo("tcap1@tpo".toUpperCase());
+            setUserProperties(userPrincipal, userinfo.getIdUtilizador(), userinfo.getIdEntidade(), userinfo.getOidDealer(), userinfo.getOidDealerParent(), userinfo.getNifUtilizador());
         } else if (userPrincipal.getOidNet().equalsIgnoreCase(Dealer.OID_NET_TOYOTA)) {
-            ToyotaUser toyotaUser = toyotaUserRepository.getUserinfo("tcap1@tpo".toUpperCase());
-            setUserProperties(userPrincipal, toyotaUser.getIdUtilizador(), toyotaUser.getIdEntidade(), toyotaUser.getOidDealer(), toyotaUser.getOidDealerParent());
+            ToyotaUser userinfo = toyotaUserRepository.getUserinfo("tcap1@tpo".toUpperCase());
+            setUserProperties(userPrincipal, userinfo.getIdUtilizador(), userinfo.getIdEntidade(), userinfo.getOidDealer(), userinfo.getOidDealerParent(), userinfo.getNifUtilizador());
         } else {
-            CbusUser cbusUser = cbusUserRepository.getUserinfo("tcap1@tpo".toUpperCase());
-            setUserProperties(userPrincipal, cbusUser.getIdUtilizador(), cbusUser.getIdEntidade(), cbusUser.getOidDealer(), cbusUser.getOidDealerParent());
+            CbusUser userinfo = cbusUserRepository.getUserinfo("tcap1@tpo".toUpperCase());
+            setUserProperties(userPrincipal, userinfo.getIdUtilizador(), userinfo.getIdEntidade(), userinfo.getOidDealer(), userinfo.getOidDealerParent(), userinfo.getNifUtilizador());
         }
     }
-    private static void setUserProperties(UserPrincipal userPrincipal, Integer idUser, Integer idEntidade, String oidDealer, String oidDealerParent) {
+    private static void setUserProperties(UserPrincipal userPrincipal, Integer idUser, Integer idEntidade, String oidDealer, String oidDealerParent, String nifUtilizador) {
         userPrincipal.setIdUser(idUser);
         userPrincipal.setIdEntity(idEntidade);
         userPrincipal.setOidDealer(oidDealer);
         userPrincipal.setOidDealerParent(oidDealerParent);
+        userPrincipal.setNifUtilizador(nifUtilizador);
     }
 
     public void getAuthorities(UserPrincipal userPrincipal) {

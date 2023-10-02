@@ -67,6 +67,26 @@ public class UserPrincipal {
       this.supplierProfile = supplierProfile;
    }
 
+   public UserPrincipal(String username, Set<AppProfile> roles, Long clientId, String oidNet, String oidDealer,
+                        String oidDealerParent, String idCatalog, String uploadDir, String virtualPath, String application,
+                        String tcapProfile, String dealerProfile, String supplierProfile, String login, String nifUtilizador) {
+      this.username = username;
+      this.roles = roles;
+      this.clientId = clientId;
+      this.oidNet = oidNet;
+      this.oidDealer = oidDealer;
+      this.oidDealerParent = oidDealerParent;
+      this.idCatalog = idCatalog;
+      this.uploadDir = uploadDir;
+      this.virtualPath = virtualPath;
+      this.application = application;
+      this.tcapProfile = tcapProfile;
+      this.dealerProfile = dealerProfile;
+      this.supplierProfile = supplierProfile;
+      this.login = login;
+      this.nifUtilizador = nifUtilizador;
+   }
+
    public void setOidNet(String oidNet) {
       this.oidNet = oidNet;
    }
@@ -121,5 +141,13 @@ public class UserPrincipal {
 
    public void setAuthorities(List<String> authorities) {
       this.authorities = authorities;
+   }
+
+   public void setLogin(String login) {
+      this.login = login;
+   }
+
+   public void setNifUtilizador(String nifUtilizador) {
+      this.nifUtilizador = nifUtilizador;
    }
 }

@@ -79,6 +79,7 @@ public class JwtAuthenticationManager implements AuthenticationManager {
         UserPrincipal authUser = new UserPrincipal(userId, roles, Long.parseLong(tokenParts[0]));
         authUser.setOidDealerParent(user.getDealerParent().getObjectId());
         authUser.setOidDealer(user.getDealer().getObjectId());
+        authUser.setLogin(authenticationExtra.getUser().getLogin());
         return JwtAuthenticationToken.authenticated(authUser, Collections.emptyList());
     }
 

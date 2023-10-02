@@ -7,6 +7,7 @@ import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.model.scart.entity.ProductAttribute;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.model.scart.entity.Category;
+import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.CatalogRepository;
 import com.gsc.shopcart.repository.scart.CategoryRepository;
 import com.gsc.shopcart.repository.scart.OrderCartRepository;
@@ -16,6 +17,7 @@ import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.impl.BackOfficeServiceImpl;
+import com.gsc.shopcart.service.impl.product.CreateProduct;
 import com.gsc.shopcart.utils.ShopCartUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,6 +63,8 @@ public class BackOfficeServiceImplTest {
     @Mock
     private CategoryRepository categoryRepository;
     @Mock
+    private CreateProduct createProduct;
+
     private ShopCartUtils shopCartUtils;
 
     @InjectMocks
@@ -462,6 +466,63 @@ public class BackOfficeServiceImplTest {
                 .build();
 
         assertThrows(ShopCartException.class,()->backOfficeService.saveCategory(categoryDTO, file, userPrincipal));
+
+    }
+
+    @Test
+    void whenCreateProductThenSave() throws IOException {
+
+        CreateProductDTO createProductDTO = CreateProductDTO.builder()
+                .idProduct(0)
+                .ivPath("/test")
+                .idCatalog(1)
+                .build();
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
+        MockMultipartFile file1 = new MockMultipartFile("file", "filename.txt", "text/plain", "File content".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("file2", "filename2.txt", "text/plain", "File content".getBytes());
+
+        MockMultipartFile files[] = {file1, file2};
+
+        when(createProduct.saveProduct(any(), any())).thenReturn(new Product());
+
+        doNothing().when(createProduct).createProductPriceRules(any(), any(), any());
+
+        doNothing().when(createProduct).createProductAttributes(any(), any(), any(), any(), any());
+
+        doNothing().when(createProduct).createProductProperty(any(), any(), any());
+
+        doNothing().when(createProduct).saveProductAndFile(any(), any(), any(), any(), any());
+
+        String product = backOfficeService.createProduct(createProductDTO, userPrincipal, files);
+
+        assertEquals("Produto criado com sucesso...", product);
+
+    }
+
+    @Test
+    void whenCreateProductThenThrows() throws IOException {
+
+        CreateProductDTO createProductDTO = CreateProductDTO.builder()
+                .idProduct(0)
+                .ivPath("/test")
+                .idCatalog(1)
+                .build();
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
+        MockMultipartFile file1 = new MockMultipartFile("file", "filename.txt", "text/plain", "File content".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("file2", "filename2.txt", "text/plain", "File content".getBytes());
+
+        MockMultipartFile files[] = {file1, file2};
+
+        when(createProduct.saveProduct(any(), any())).thenThrow(RuntimeException.class);
+
+        assertThrows(ShopCartException.class ,()-> backOfficeService.createProduct(createProductDTO, userPrincipal, files));
+
 
     }
 }

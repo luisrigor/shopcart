@@ -5,6 +5,7 @@ import com.gsc.shopcart.model.scart.entity.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -161,6 +162,33 @@ public class TestData {
                 .build();
     }
 
+    public static CreateProductDTO createSampleProductDTO() {
+        CreateProductDTO productDTO = new CreateProductDTO();
+        productDTO.setIdProduct(0);
+        productDTO.setIdCategory(1);
+
+        List<String> dealers = new ArrayList<>();
+
+        dealers.add("SC01");
+        dealers.add("SC02");
+
+        List<String> minimun_qtd = Arrays.asList("300","300","300");
+        List<String> incremental_qtd =  Arrays.asList("10","10","10");
+        List<String> unit_price_qtd = Arrays.asList("5","5","5");
+
+        CreateProdPriceRule prodPriceRule =  CreateProdPriceRule.builder()
+                .minimun_qtd(minimun_qtd)
+                .incremental_qtd(incremental_qtd)
+                .unit_price_qtd(unit_price_qtd)
+                .build();
+
+        productDTO.setDealers(dealers);
+        productDTO.setProdPriceRule(prodPriceRule);
+
+        return productDTO;
+    }
+
+
     public static ProductProperty getProductPropertyBuilder() {
         return ProductProperty.builder()
                 .id(1)
@@ -179,8 +207,5 @@ public class TestData {
                 .rank(3)
                 .build();
     }
-
-
-
 
 }

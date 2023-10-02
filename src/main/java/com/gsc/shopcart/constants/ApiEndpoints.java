@@ -9,7 +9,6 @@ public interface ApiEndpoints {
     String LIST_ORDER_DETAIL = "/list-order-detal";
     String CHANGE_ORDER_DETAIL_STATUS = "/change-order-detail";
     String GET_CART = "/cart";
-
     String ORDER_PRODUCTS = "/order-products";
     String EDIT_ORDER_CART_AJAX = "/edit-ordercart-ajax";
     String MOVE_PRODUCT_CART = "/move-product-cart";
@@ -18,6 +17,7 @@ public interface ApiEndpoints {
     String GOTO_PRODUCT = "/goto-product";
     String GET_CATEGORY = "/get-category";
     String SAVE_CATEGORY = "/save-category";
+    String CREATE_PRODUCT = "/create-product";
     String DELETE_PRODUCT_VARIANT = "/delete-variant";
     String DELETE_CATEGORY = "/delete-category";
     String DELETE_PRODUCT_ITEM = "/delete-product-Item";

@@ -3,6 +3,9 @@ package com.gsc.shopcart.utils;
 import com.gsc.shopcart.repository.usrlogon.CbusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.LexusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.ToyotaUserEntityProfileRepository;
+import com.rg.dealer.Dealer;
+import lombok.extern.log4j.Log4j;
+import org.springframework.stereotype.Component;
 import com.gsc.as400.al.AlMovement;
 import com.gsc.as400.al.AlObservations;
 import com.gsc.as400.invoke.InvokeAlInfo;
@@ -19,6 +22,7 @@ import java.io.File;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
+
 
 @Component
 @Log4j
@@ -131,6 +135,24 @@ public class ShopCartUtils {
 
     public static String getPathCategories(int idCatalog) {
         return "Catalog_" + idCatalog + File.separator + "Categories" + File.separator;
+    }
+
+    public static String getPathProductImages(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Images" + File.separator;
+    }
+
+    public static String getPathProductPromotions(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Promotions" + File.separator;
+    }
+
+    public static String getFileExtension(String originalFileName) {
+        if (org.springframework.util.StringUtils.hasText(originalFileName)) {
+            int dotIndex = originalFileName.lastIndexOf('.');
+            if (dotIndex >= 0) {
+                return originalFileName.substring(dotIndex + 1).toLowerCase();
+            }
+        }
+        return null;
     }
 
     public static String getPathProductVariants(int idCatalog) {

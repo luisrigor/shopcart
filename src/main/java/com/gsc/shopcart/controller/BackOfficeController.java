@@ -69,6 +69,28 @@ public class BackOfficeController {
 
     }
 
+    @PostMapping(ApiEndpoints.CREATE_PRODUCT)
+    public ResponseEntity<String> createProduct(@RequestPart("data") CreateProductDTO productDTO,
+                                                @RequestPart("files")  MultipartFile[] files,
+                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+
+        String msg = backOfficeService.createProduct(productDTO, userPrincipal, files);
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
+
+    }
+
+    @PostMapping(ApiEndpoints.CREATE_PRODUCT+"T")
+    public ResponseEntity<String> createProductT(@RequestBody CreateProductDTO productDTO,
+                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+
+        String msg = backOfficeService.createProduct(productDTO, userPrincipal, null);
+        return ResponseEntity.status(HttpStatus.OK).body(msg);
+
+    }
+
+
     @DeleteMapping(ApiEndpoints.DELETE_PRODUCT_VARIANT)
     public ResponseEntity<String> deleteProductVariant(@RequestParam Integer idProductVariant, @RequestParam Integer idCatalog,
                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {

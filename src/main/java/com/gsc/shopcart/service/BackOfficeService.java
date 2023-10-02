@@ -12,6 +12,7 @@ public interface BackOfficeService {
     GotoProductDTO gotoProduct(Integer idCategory, Integer idCatalog, Integer idProduct, Integer idProfileTcap, Integer idProfileSupplier, UserPrincipal userPrincipal);
     CartDTO getCategory(Integer idCategory, Integer idCatalog, List<Category> listCategorySelected, UserPrincipal userPrincipal);
     void saveCategory(SaveCategoryDTO categoryDTO, MultipartFile fileAttachItem, UserPrincipal userPrincipal);
+    String createProduct(CreateProductDTO productDTO, UserPrincipal userPrincipal, MultipartFile[] files);
     void deleteProductVariant(Integer idProductVariant,Integer idCatalog, UserPrincipal userPrincipal);
     void deleteCategory(Integer idCategory);
     void deleteProductItem(Integer idProductItem,UserPrincipal userPrincipal);

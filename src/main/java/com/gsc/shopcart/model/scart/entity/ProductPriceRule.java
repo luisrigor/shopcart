@@ -2,6 +2,7 @@ package com.gsc.shopcart.model.scart.entity;
 
 
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,7 +18,12 @@ public class ProductPriceRule {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "max_plus_id")
+    @GenericGenerator(
+            name = "max_plus_id",
+            strategy = "com.gsc.shopcart.model.scart.entity.LastIdGenerator",
+            parameters = @org.hibernate.annotations.Parameter(name = "entityClassName", value = "PRODUCT_PRICE_RULES")
+    )
     @Column(name = "ID")
     private Integer id;
 

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "PRODUCT_ATTRIBUTES", schema = "DB2INST1")
+@Table(name = "PRODUCT_ATTRIBUTES")
 public class ProductAttribute {
 
 
@@ -59,4 +59,23 @@ public class ProductAttribute {
 
     @Column(name = "DT_CHANGED")
     private LocalDateTime dtChanged;
+
+    public static void setFields(ProductAttribute oProductAttributes, String field, String fieldValue) {
+        if (field.equalsIgnoreCase("FIELD1"))
+            oProductAttributes.setField1(fieldValue);
+        else if (field.equalsIgnoreCase("FIELD2"))
+            oProductAttributes.setField2(fieldValue);
+        else if (field.equalsIgnoreCase("FIELD3"))
+            oProductAttributes.setField3(fieldValue);
+        else if (field.equalsIgnoreCase("FIELD4"))
+            oProductAttributes.setField4(fieldValue);
+        else if (field.equalsIgnoreCase("FIELD5"))
+            oProductAttributes.setField5(fieldValue);
+        else if (field.equalsIgnoreCase("FIELD6"))
+            oProductAttributes.setField6(fieldValue);
+        else if (field.equalsIgnoreCase("FIELD7"))
+            oProductAttributes.setField7(fieldValue);
+        else if (field.equalsIgnoreCase("FIELD8"))
+            oProductAttributes.setField8(fieldValue);
+    }
 }

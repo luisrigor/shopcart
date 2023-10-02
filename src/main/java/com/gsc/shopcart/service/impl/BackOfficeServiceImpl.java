@@ -4,23 +4,15 @@ import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.Product;
-import com.gsc.shopcart.model.scart.entity.ProductDealer;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.BackOfficeService;
 import com.gsc.shopcart.service.impl.product.CreateProduct;
 import com.gsc.shopcart.utils.ShopCartUtils;
-import com.sc.commons.exceptions.SCErrorException;
-import com.sc.commons.utils.PortletMultipartWrapper;
-import com.sc.commons.utils.PortletTasks;
 import com.gsc.shopcart.repository.scart.CatalogRepository;
 import com.gsc.shopcart.repository.scart.OrderCartRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.model.scart.entity.*;
-import com.gsc.shopcart.repository.scart.*;
-import com.gsc.shopcart.security.UserPrincipal;
-import com.gsc.shopcart.service.BackOfficeService;
-import com.gsc.shopcart.utils.ShopCartUtils;
 import com.gsc.shopcart.model.scart.entity.ProductItem;
 import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.util.*;
 import static com.gsc.shopcart.utils.ShopCartUtils.getPathCategories;
 import static com.gsc.shopcart.utils.ShopCartUtils.*;
 
@@ -369,7 +358,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             List<String> idsCategory = categoryDTO.getIdsCategory();
             categoryProductRepository.deleteCategoryProductByIdProduct(categoryDTO.getIdProduct());
             for(String idCategory : idsCategory){
-                //Category.getHelper().createCategoryProduct(idsCategory), categoryDTO.getIdProduct(), userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
+                categoryRepository.createCategoryProduct(Integer.parseInt(idCategory), categoryDTO.getIdProduct(),  userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
             }
         } catch (Exception e) {
             throw new ShopCartException("Error create category", e);

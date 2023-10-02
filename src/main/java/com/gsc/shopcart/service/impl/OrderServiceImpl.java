@@ -9,8 +9,6 @@ import com.gsc.shopcart.repository.scart.ProductItemRepository;
 import com.gsc.shopcart.repository.scart.ProductPriceRuleRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.service.OrderService;
-import com.sc.commons.exceptions.SCErrorException;
-import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;

@@ -8,7 +8,6 @@ import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.security.UserPrincipal;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CatalogService {
 

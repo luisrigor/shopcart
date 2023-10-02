@@ -13,20 +13,29 @@ import com.gsc.shopcart.utils.ShopCartUtils;
 import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.utils.PortletMultipartWrapper;
 import com.sc.commons.utils.PortletTasks;
+import com.gsc.shopcart.repository.scart.CatalogRepository;
+import com.gsc.shopcart.repository.scart.OrderCartRepository;
+import com.gsc.shopcart.repository.scart.ProductRepository;
+import com.gsc.shopcart.model.scart.entity.*;
+import com.gsc.shopcart.repository.scart.*;
+import com.gsc.shopcart.security.UserPrincipal;
+import com.gsc.shopcart.service.BackOfficeService;
+import com.gsc.shopcart.utils.ShopCartUtils;
+import com.gsc.shopcart.model.scart.entity.ProductItem;
 import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.util.*;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.*;
-
 import static com.gsc.shopcart.utils.ShopCartUtils.getPathCategories;
+import static com.gsc.shopcart.utils.ShopCartUtils.*;
 
 
 @RequiredArgsConstructor
@@ -37,9 +46,16 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     private final CatalogRepository catalogRepository;
     private final ProductRepository productRepository;
     private final OrderCartRepository orderCartRepository;
+    private final ProductItemRepository productItemRepository;
+    private final ProductAttributeRepository productAttributeRepository;
     private final CategoryRepository categoryRepository;
     private final CreateProduct createProduct;
-
+    private final ProductPriceRuleRepository productPriceRuleRepository;
+    private final ProductPropertyRepository productPropertyRepository;
+    private final ProductVariantRepository productVariantRepository;
+    private final CatalogAdditionalInfoRepository catalogAdditionalInfoRepository;
+    private final CategoryProductRepository categoryProductRepository;
+    private final ShopCartUtils shopCartUtils;
 
     @Override
     public PromotionsDTO getPromotions(Integer idCatalog, Integer idUser, Boolean isCatalog) {
@@ -96,6 +112,62 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     }
 
     @Override
+    public GotoProductDTO gotoProduct(Integer idCategory, Integer idCatalog, Integer idProduct, Integer idProfileTcap,
+                                     Integer idProfileSupplier, UserPrincipal userPrincipal) {
+
+        Product product = new Product();
+        List<VecCategoriesDTO> vecCategoriesByRoot = new ArrayList<>();
+        List<ProductItem> vecProductItem = new ArrayList<>();
+        List<ProductPriceRule> vecProductPriceRules = new ArrayList<>();
+        List<ProductPropertyOrder> vecProductPropety = new ArrayList<>();
+        List<ProductVariant> vecProductVariant = new ArrayList<>();
+        List<RelatedProduct> vecRelatedProducts = new ArrayList<>();
+        List<Object[]> suppliers = new ArrayList<>();
+        Hashtable dealers = new Hashtable();
+        List<CatalogAdditionalInfo> vecAditionalInfo = new ArrayList<>();
+        ProductAttribute oProductAttributes = new ProductAttribute();
+
+        try {
+            Integer idRootCategory = Optional.ofNullable(catalogRepository.getidRootCategoryByIdCatalog(idCatalog)).orElse(0);
+
+            if (idProduct > 0) {
+                product = productRepository.findById(idProduct).orElse(new Product());
+                oProductAttributes = productAttributeRepository.getProductAttributes(idProduct);
+            }
+
+            vecCategoriesByRoot = categoryRepository.getCategoriesByIdRootCategoryAndIdProductParent(idRootCategory, idProduct);
+
+            vecProductItem = productItemRepository.getProductItemByIdProduct(idProduct);
+            suppliers = shopCartUtils.getSuppliers(idProfileTcap, idProfileSupplier, userPrincipal.getOidNet());
+            vecProductPriceRules = productPriceRuleRepository.getProductPriceRules(idProduct);
+
+            vecProductPropety = productPropertyRepository.getProductPropertyByIdProduct(idProduct, "%");
+            vecProductVariant = productVariantRepository.getProductVariant(idProduct);
+            vecRelatedProducts = productRepository.getRelatedProducts(idRootCategory, idProduct);
+            vecAditionalInfo = catalogAdditionalInfoRepository.getAdditionalInfo(idCatalog);
+            dealers = shopCartUtils.getHstDealers(userPrincipal.getOidNet());
+
+            return GotoProductDTO.builder()
+                    .product(product)
+                    .idCategory(String.valueOf(idCategory))
+                    .idCatalog(String.valueOf(idCatalog))
+                    .vecCategoriesByRoot(vecCategoriesByRoot)
+                    .vecProductItem(vecProductItem)
+                    .suppliers(suppliers)
+                    .dealers(dealers)
+                    .vecProductPriceRules(vecProductPriceRules)
+                    .vecProductPropety(vecProductPropety)
+                    .vecProductVariant(vecProductVariant)
+                    .vecRelatedProducts(vecRelatedProducts)
+                    .vecAditionalInfo(vecAditionalInfo)
+                    .oProductAttributes(oProductAttributes)
+                    .build();
+
+        } catch (Exception e) {
+            throw new ShopCartException("Error in gotoProduct ", e);
+        }
+    }
+
     public CartDTO getCategory(Integer idCategory, Integer idCatalog, List<Category> listCategorySelected, UserPrincipal userPrincipal) {
         List<Category> vecCategories;
         List<Product> vecProducts;
@@ -215,6 +287,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     }
 
 
+
     /**
      * @param files [0] thumbnail_path [1] promo_thumbnail
      */
@@ -249,6 +322,59 @@ public class BackOfficeServiceImpl implements BackOfficeService {
         }
         return msg;
     }
+    @Override
+    public void deleteProductVariant(Integer idProductVariant,Integer idCatalog, UserPrincipal userPrincipal) {
+        log.info("deleteProductVariant service");
+        try {
+            ProductVariant oProductVariant = productVariantRepository.findById(idProductVariant).orElseThrow(()->new RuntimeException("Id not found"));
+            File f = new File(userPrincipal.getUploadDir() + File.separator + getPathProductVariants(idCatalog) + File.separator + oProductVariant.getThumbnailPath());
+            if (f.exists())
+                f.delete();
+
+            productVariantRepository.deleteById(idProductVariant);
+        } catch (Exception e) {
+            throw new ShopCartException("Error delete product variant", e);
+        }
+    }
+
+    @Override
+    public void deleteCategory(Integer idCategory) {
+        log.info("deleteCategory service");
+        try {
+            categoryRepository.deleteById(idCategory);
+        } catch (Exception e) {
+            throw new ShopCartException("Error delete category", e);
+        }
+    }
+
+    @Override
+    public void deleteProductItem(Integer idProductItem, UserPrincipal userPrincipal) {
+        log.info("deleteProductItem service");
+        try {
+            ProductItem productitem = productItemRepository.findById(idProductItem).orElseThrow(()->new RuntimeException("Id not found"));
+            File f = new File(userPrincipal.getUploadDir() + File.separator + getPathProductItems(Integer.parseInt(userPrincipal.getIdCatalog())) + File.separator + productitem.getFilename());
+            if (f.exists())
+                f.delete();
+
+            productItemRepository.deleteById(idProductItem);
+        } catch (Exception e) {
+            throw new ShopCartException("Error delete productItem", e);
+        }
+    }
+
+    @Override
+    public void createCategoryProduct(CategoryDTO categoryDTO, UserPrincipal userPrincipal) {
+        log.info("createCategoryProduct service");
+        try {
+            List<String> idsCategory = categoryDTO.getIdsCategory();
+            categoryProductRepository.deleteCategoryProductByIdProduct(categoryDTO.getIdProduct());
+            for(String idCategory : idsCategory){
+                //Category.getHelper().createCategoryProduct(idsCategory), categoryDTO.getIdProduct(), userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
+            }
+        } catch (Exception e) {
+            throw new ShopCartException("Error create category", e);
+        }
+    }
 
     public static ShopCartFilter getFilterFreeSearchProduct(ShopCartFilter filter) {
         if (filter == null) {
@@ -261,4 +387,13 @@ public class BackOfficeServiceImpl implements BackOfficeService {
         return filter;
     }
 
+    public String getFileExtension(String originalFileName) {
+        if (org.springframework.util.StringUtils.hasText(originalFileName)) {
+            int dotIndex = originalFileName.lastIndexOf('.');
+            if (dotIndex >= 0) {
+                return originalFileName.substring(dotIndex + 1).toLowerCase();
+            }
+        }
+        return null;
+    }
 }

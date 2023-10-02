@@ -20,4 +20,11 @@ public interface ProductPriceRuleRepository extends JpaRepository<ProductPriceRu
 
     @Query("SELECT MAX(p.id) FROM ProductPriceRule p")
     Integer findMaxId();
+
+    @Query(value = "SELECT VALUE(MIN(MINIMUM_QUANTITY), 9999) AS MINIMUM_QUANTITY, UNIT_PRICE " +
+            "FROM PRODUCT_PRICE_RULES WHERE ID_PRODUCT = :idProduct " +
+            "AND (MINIMUM_QUANTITY <= :quantity OR :quantity < 0) " +
+            "GROUP BY UNIT_PRICE ORDER BY MINIMUM_QUANTITY LIMIT 1",nativeQuery = true)
+    List<String[]> getMinProductPriceRulesByIdProduct(@Param("idProduct") int idProduct, @Param("quantity") int quantity);
+
 }

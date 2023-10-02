@@ -2,6 +2,9 @@ package com.gsc.shopcart.exceptions;
 
 import com.gsc.shopcart.constants.ApiErrorConstants;
 import lombok.extern.log4j.Log4j;
+import org.hibernate.HibernateException;
+import org.hibernate.JDBCException;
+import org.hibernate.exception.SQLGrammarException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -15,6 +18,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.persistence.PersistenceException;
+import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.util.List;
 
 @Log4j
@@ -90,5 +96,23 @@ public class CustomRestExceptionHandler {
     public ApiError handleNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         log.error(ex.getMessage(), ex);
         return new ApiError(ApiErrorConstants.NOT_FOUND, HttpStatus.NOT_FOUND, ex.getMessage(), request.getDescription(false), ex.getCause().getMessage());
+    }
+
+    @ExceptionHandler(JDBCException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public ApiError handleJDBCExceptionException(JDBCException ex, WebRequest request) {
+        log.error(ex.getMessage(), ex);
+        return new ApiError(ApiErrorConstants.ERROR_PROCESSING_REQUEST, HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(),
+                request.getDescription(false), ex.getCause().getMessage());
+    }
+
+    @ExceptionHandler(SQLCustomException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public ApiError handleJDBCExceptionException(SQLCustomException ex, WebRequest request) {
+        log.error(ex.getMessage(), ex);
+        return new ApiError(ApiErrorConstants.ERROR_PROCESSING_REQUEST, HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(),
+                request.getDescription(false), ex.getException().getMessage());
     }
 }

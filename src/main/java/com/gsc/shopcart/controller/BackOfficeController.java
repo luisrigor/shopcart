@@ -1,5 +1,6 @@
 package com.gsc.shopcart.controller;
 
+import com.google.gson.Gson;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.model.scart.entity.Category;
@@ -12,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
 
@@ -41,6 +41,18 @@ public class BackOfficeController {
 
     }
 
+    @GetMapping(ApiEndpoints.GOTO_PRODUCT)
+    public ResponseEntity<?> gotoProduct(@RequestParam Integer idCategory, @RequestParam Integer idCatalog, @RequestParam Integer idProduct,
+                                         @RequestParam Integer idProfileTcap, @RequestParam Integer idProfileSupplier,
+                                         @AuthenticationPrincipal UserPrincipal userPrincipal) {
+
+        GotoProductDTO products = backOfficeService.gotoProduct(idCategory, idCatalog, idProduct, idProfileTcap, idProfileSupplier,  userPrincipal);
+
+        Gson gson = new Gson();
+
+        return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(products));
+
+    }
     @PostMapping(ApiEndpoints.GET_CATEGORY)
     public ResponseEntity<CartDTO> getCategory(@RequestParam Integer idCategory, @RequestParam Integer idCatalog,
                                                      @RequestBody List<Category> listCategorySelected, @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -52,8 +64,6 @@ public class BackOfficeController {
     @PostMapping(ApiEndpoints.SAVE_CATEGORY)
     public ResponseEntity<String> saveCategory(@RequestPart("data") SaveCategoryDTO categoryDTO, @RequestPart("file") MultipartFile fileAttachItem,
                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
-
-
         backOfficeService.saveCategory(categoryDTO, fileAttachItem, userPrincipal);
         return ResponseEntity.status(HttpStatus.OK).body("saved");
 
@@ -80,4 +90,35 @@ public class BackOfficeController {
 
     }
 
+
+    @DeleteMapping(ApiEndpoints.DELETE_PRODUCT_VARIANT)
+    public ResponseEntity<String> deleteProductVariant(@RequestParam Integer idProductVariant, @RequestParam Integer idCatalog,
+                                               @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        backOfficeService.deleteProductVariant(idProductVariant, idCatalog, userPrincipal);
+        return ResponseEntity.status(HttpStatus.OK).body("delete variant");
+
+    }
+
+    @DeleteMapping(ApiEndpoints.DELETE_CATEGORY)
+    public ResponseEntity<String> deleteCategory(@RequestParam Integer idCategory) {
+        backOfficeService.deleteCategory(idCategory);
+        return ResponseEntity.status(HttpStatus.OK).body("delete category");
+
+    }
+
+    @DeleteMapping(ApiEndpoints.DELETE_PRODUCT_ITEM)
+    public ResponseEntity<String> deleteProductItem(@RequestParam Integer idProductItem,
+                                                    @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        backOfficeService.deleteProductItem(idProductItem,userPrincipal);
+        return ResponseEntity.status(HttpStatus.OK).body("delete product item");
+
+    }
+
+    @PostMapping(ApiEndpoints.CREATE_CATEGORY_PRODUCT)
+    public ResponseEntity<String> createCategoryProduct(@RequestBody CategoryDTO categoryDTO,
+                                                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        backOfficeService.createCategoryProduct(categoryDTO,userPrincipal);
+        return ResponseEntity.status(HttpStatus.OK).body("create category product");
+
+    }
 }

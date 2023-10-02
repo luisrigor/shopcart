@@ -1,9 +1,12 @@
 package com.gsc.shopcart.model.scart.entity;
 
 
+import com.gsc.shopcart.dto.OrderCartProduct;
+import com.gsc.shopcart.dto.VecCategoriesDTO;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -11,6 +14,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@SqlResultSetMapping(
+        name = "VecCategoriesMapping",
+        classes = {
+                @ConstructorResult(
+                        targetClass = VecCategoriesDTO.class,
+                        columns = {
+                                @ColumnResult(name = "ID_CATEGORY", type = String.class),
+                                @ColumnResult(name = "PATH", type = String.class),
+                                @ColumnResult(name = "SELECTED", type = String.class)
+                        }
+                )
+        }
+)
 @Entity
 @Table(name = "CATEGORY")
 public class Category {

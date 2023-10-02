@@ -1,6 +1,7 @@
 package com.gsc.shopcart.sample.data.provider;
 
 
+import com.gsc.shopcart.constants.ApiConstants;
 import com.gsc.shopcart.constants.AppProfile;
 import com.gsc.shopcart.model.scart.entity.LoginKey;
 import com.gsc.shopcart.security.UserPrincipal;
@@ -85,8 +86,20 @@ public class SecurityData {
         Set<AppProfile> roles = new HashSet<>();
         roles.add(AppProfile.TOYOTA_LEXUS_PRF_TCAP);
         UserPrincipal userPrincipal = new UserPrincipal("137||tcap1@tpo||tiago.fernandes@parceiro.rigorcg.pt",
-                roles,59L);
+                roles, (long) ApiConstants.TOYOTA_APP);
         userPrincipal.setOidNet(Dealer.OID_NET_TOYOTA);
+        userPrincipal.setTcapProfile("116");
+        userPrincipal.setSupplierProfile("117");
+        userPrincipal.setDealerProfile("134");
+        return userPrincipal;
+    }
+
+    public UserPrincipal getUserLexusProfile() {
+        Set<AppProfile> roles = new HashSet<>();
+        roles.add(AppProfile.TOYOTA_LEXUS_PRF_TCAP);
+        UserPrincipal userPrincipal = new UserPrincipal("137||tcap1@tpo||tiago.fernandes@parceiro.rigorcg.pt",
+                roles, (long) ApiConstants.LEXUS_APP);
+        userPrincipal.setOidNet(Dealer.OID_NET_LEXUS);
         userPrincipal.setTcapProfile("116");
         userPrincipal.setSupplierProfile("117");
         userPrincipal.setDealerProfile("134");

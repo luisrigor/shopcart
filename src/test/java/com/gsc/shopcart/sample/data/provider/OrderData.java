@@ -1,13 +1,18 @@
 package com.gsc.shopcart.sample.data.provider;
 
 import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.OrderCartProduct;
+import com.gsc.shopcart.dto.OrderProductsDTO;
 import com.gsc.shopcart.dto.OrderStateDTO;
 import com.gsc.shopcart.model.scart.entity.Order;
+import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.model.scart.entity.OrderStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -124,6 +129,62 @@ public class OrderData {
                 .dtCreated(LocalDateTime.now())
                 .changedBy("ChangedByValue")
                 .dtChanged(LocalDateTime.now())
+                .build();
+    }
+
+    public static OrderProductsDTO getOrderProductsDTOBuilder() {
+        return OrderProductsDTO.builder()
+                .allServices(Collections.emptyMap())
+                .vecOrderCart(Collections.emptyList())
+                .hstDealers(Collections.emptyMap())
+                .suppliers(Collections.emptyMap())
+                .dealers(Collections.emptyList())
+                .addresses(Collections.emptyMap())
+                .build();
+    }
+
+    public static OrderCart getOrderCartBuilder() {
+        return OrderCart.builder()
+                .idUser(1)
+                .idCatalog(2)
+                .idProduct(3)
+                .quantity(4)
+                .observations("ObservationsValue")
+                .unitPriceRule(10.0)
+                .createdBy("CreatedByValue")
+                .dtCreated(LocalDateTime.now())
+                .changedBy("ChangedByValue")
+                .dtChanged(LocalDateTime.now())
+                .price(50.0)
+                .idProductVariant(5)
+                .build();
+    }
+
+    public static OrderCartProduct OrderCartProductBuilder() {
+        return OrderCartProduct.builder()
+                .id(1)
+                .idUser(2)
+                .idCatalog(3)
+                .idProduct(4)
+                .quantity(5)
+                .observations("ObservationsValue")
+                .unitPriceRule(10) // Cambia el tipo según corresponda
+                .createdBy("CreatedByValue")
+                .dtCreated(LocalDateTime.now())
+                .changedBy("ChangedByValue")
+                .dtChanged(LocalDateTime.now())
+                .price(50.0)
+                .idProductVariant(6)
+                .name("ProductName")
+                .thumbnailPath("ThumbnailPathValue")
+                .unitPrice(15.0)
+                .ivaType("IVAValue")
+                .total(75.0)
+                .priceRules(2)
+                .promoStart(LocalDate.now())
+                .promoEnd(LocalDate.now().plusDays(7))
+                .promoPrice(60.0)
+                .numOfProductProperties(3L)
                 .build();
     }
 

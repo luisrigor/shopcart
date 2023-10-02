@@ -10,7 +10,20 @@ import java.util.List;
 
 public interface ProductPropertyRepository extends JpaRepository<ProductProperty, Integer>, ProductPropertyCustomRepository {
 
+    @Query("SELECT pp FROM ProductProperty pp " +
+            "WHERE pp.idProduct = :idProduct AND pp.status LIKE :status ORDER BY pp.rank")
+    List<ProductProperty> findProductPropertiesByIdProductAndStatusLike(@Param("idProduct") Integer idProduct, @Param("status") Character status);
 
+    @Query("SELECT DISTINCT pp FROM ProductProperty pp " +
+            "LEFT JOIN OrderCartProductProperty ocpp ON ocpp.idProductProperty = pp.id " +
+            "WHERE ocpp.idOrderCart = :idOrderCart AND pp.idProduct = :idProduct AND pp.status = 'S' " +
+            "AND pp.mandatory LIKE :mandatory " +
+            "ORDER BY pp.rank")
+    List<ProductProperty> getDistinctProductProperty(
+            @Param("idOrderCart") Integer idOrderCart,
+            @Param("idProduct") Integer idProduct,
+            @Param("mandatory") Character mandatory);
+            
     @Query(" DELETE FROM ProductProperty PP WHERE PP.id NOT IN (:idsProductProperties) AND PP.idProduct = :idProduct ")
     @Modifying
     void deleteProductProperties(@Param("idsProductProperties") List<Integer> idsProductProperties, @Param("idProduct") Integer idProduct);

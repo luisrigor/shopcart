@@ -1,6 +1,7 @@
 package com.gsc.shopcart.model.scart.entity;
 
 import com.gsc.shopcart.dto.OrderCartProduct;
+import com.gsc.shopcart.dto.RelatedProduct;
 import lombok.*;
 
 import javax.persistence.*;
@@ -66,7 +67,7 @@ public class OrderCart {
     @Column(name = "OBSERVATIONS")
     private String observations;
     @Column(name = "UNIT_PRICE_RULE")
-    private Integer unitPriceRule;
+    private Double unitPriceRule;
     @Column(name = "CREATED_BY")
     private String createdBy;
     @Column(name = "DT_CREATED")
@@ -85,4 +86,6 @@ public class OrderCart {
     protected Double totalIva;
     @Transient
     protected Integer numOfProductProperties;
+    @Transient
+    private Product product;
 }

@@ -9,6 +9,7 @@ import com.sc.commons.utils.DataBaseTasks;
 import com.sc.commons.utils.StringTasks;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.JDBCException;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.HashMap;
@@ -201,6 +202,25 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 
          return result;
 
+    }
+
+    @Override
+    @Transactional
+    public void mergeRelatedProducts(int idProduct1, int idProduct2, String changedBy) {
+        StringBuilder SQL = new StringBuilder();
+
+
+        SQL.append("MERGE INTO RELATED_PRODUCTS AS RP ");
+        SQL.append("USING (VALUES (" + idProduct1 + ","+ idProduct2 + ")) AS AUX (ID_PRODUCT1,ID_PRODUCT2) ");
+        SQL.append("ON RP.ID_PRODUCT1 = AUX.ID_PRODUCT2 ");
+        SQL.append("WHEN MATCHED THEN ");
+        SQL.append("UPDATE SET CHANGED_BY=?, DT_CHANGED=CURRENT TIMESTAMP ");
+        SQL.append("WHEN NOT MATCHED THEN ");
+        SQL.append("INSERT (ID_PRODUCT1,ID_PRODUCT2,CHANGED_BY) VALUES ");
+        SQL.append(" (" + idProduct1 + ", " + idProduct2 + ", '" + changedBy + "') ");
+
+        em.createNativeQuery(SQL.toString())
+                .executeUpdate();
     }
 
 

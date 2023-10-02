@@ -17,4 +17,5 @@ public interface BackOfficeService {
     void deleteCategory(Integer idCategory);
     void deleteProductItem(Integer idProductItem,UserPrincipal userPrincipal);
     void createCategoryProduct(CategoryDTO categoryDTO, UserPrincipal userPrincipal);
+    void CreateRelatedProducts(CategoryDTO categoryDTO, UserPrincipal userPrincipal);
 }

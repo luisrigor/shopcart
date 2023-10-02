@@ -44,6 +44,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     private final ProductVariantRepository productVariantRepository;
     private final CatalogAdditionalInfoRepository catalogAdditionalInfoRepository;
     private final CategoryProductRepository categoryProductRepository;
+    private final RelatedProductRepository relatedProductRepository;
     private final ShopCartUtils shopCartUtils;
 
     @Override
@@ -355,13 +356,29 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     public void createCategoryProduct(CategoryDTO categoryDTO, UserPrincipal userPrincipal) {
         log.info("createCategoryProduct service");
         try {
-            List<String> idsCategory = categoryDTO.getIdsCategory();
+            List<String> idsCategory = categoryDTO.getIds();
             categoryProductRepository.deleteCategoryProductByIdProduct(categoryDTO.getIdProduct());
             for(String idCategory : idsCategory){
                 categoryRepository.createCategoryProduct(Integer.parseInt(idCategory), categoryDTO.getIdProduct(),  userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
             }
         } catch (Exception e) {
             throw new ShopCartException("Error create category", e);
+        }
+    }
+
+    @Override
+    public void CreateRelatedProducts(CategoryDTO categoryDTO, UserPrincipal userPrincipal) {
+        log.info("CreateRelatedProducts service");
+        try {
+            relatedProductRepository.deleteRelatedProductsByIdProduct1(categoryDTO.getIdProduct());
+            List<String> idsRelatedProducts = categoryDTO.getIds();
+            if (idsRelatedProducts != null && !idsRelatedProducts.isEmpty()) {
+                for(String idProduct2 : idsRelatedProducts){
+                    productRepository.mergeRelatedProducts(categoryDTO.getIdProduct(),Integer.parseInt(idProduct2),userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
+                }
+            }
+        } catch (Exception e) {
+            throw new ShopCartException("Error create products", e);
         }
     }
 

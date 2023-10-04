@@ -121,4 +121,12 @@ public class BackOfficeController {
         return ResponseEntity.status(HttpStatus.OK).body("create category product");
 
     }
+
+    @PostMapping(ApiEndpoints.CREATE_PRODUCT_VARIANT)
+    public ResponseEntity<String> createProductVariant(@RequestPart("data") CreateProdVariantDTO categoryDTO,
+                                                        @RequestPart("file") MultipartFile file,
+                                                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        String productVariant = backOfficeService.createProductVariant(categoryDTO, file, userPrincipal);
+        return ResponseEntity.status(HttpStatus.OK).body(productVariant);
+    }
 }

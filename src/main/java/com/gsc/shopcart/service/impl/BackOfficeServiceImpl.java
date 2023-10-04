@@ -14,12 +14,17 @@ import com.gsc.shopcart.repository.scart.OrderCartRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.model.scart.entity.*;
 import com.gsc.shopcart.model.scart.entity.ProductItem;
+import com.sc.commons.exceptions.SCErrorException;
+import com.sc.commons.utils.PortletMultipartWrapper;
+import com.sc.commons.utils.PortletTasks;
 import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.io.File;
 import java.sql.Timestamp;
@@ -362,6 +367,73 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             }
         } catch (Exception e) {
             throw new ShopCartException("Error create category", e);
+        }
+    }
+
+    @Override
+    public String createProductVariant(CreateProdVariantDTO variantDTO, MultipartFile fileAttachItem, UserPrincipal user) {
+
+        String dirName = variantDTO.getIvPath() + "conf";
+        String uploadDir = user.getUploadDir();
+        Integer idCatalog = variantDTO.getIdCatalog();
+        String msg = "";
+        Integer idProduct = variantDTO.getIdProduct();
+
+        if (!(new File(dirName)).exists())
+            (new File(dirName)).mkdirs();
+
+        try {
+            Integer idProductVariant = variantDTO.getIdProductVariant();
+            ProductVariant oProductVariant = new ProductVariant();
+
+            if (idProductVariant == 0) {
+                oProductVariant.setCreatedBy(user.getLogin() + "||" + user.getNifUtilizador());
+                oProductVariant.setDtCreated(new Timestamp(System.currentTimeMillis()).toLocalDateTime());
+                msg = "Variante de Produto criada com sucesso...";
+            } else {
+                oProductVariant = productVariantRepository.findById(idProductVariant).orElseThrow(()-> new ShopCartException("ID NOT FOUND "));
+                oProductVariant.setChangedBy(user.getLogin() + "||" + user.getNifUtilizador());
+                oProductVariant.setDtChanged(new Timestamp(System.currentTimeMillis()).toLocalDateTime());
+                msg = "Variante de Produto alterada com sucesso...";
+            }
+
+            oProductVariant.setColor(variantDTO.getColor());
+            oProductVariant.setDescription(variantDTO.getDescription());
+            oProductVariant.setDisplayOrder(variantDTO.getDisplayOrder());
+            oProductVariant.setIdProduct(idProduct);
+            oProductVariant.setName(variantDTO.getName());
+            oProductVariant.setSize(variantDTO.getSize());
+            oProductVariant.setSku(variantDTO.getSku().trim());
+            oProductVariant.setStatus(variantDTO.getStatus());
+            oProductVariant.setStock(variantDTO.getStock()==0?null:variantDTO.getStock());
+            oProductVariant.setStockControl(variantDTO.getStockcontrol());
+            oProductVariant.setType(variantDTO.getType());
+
+            productVariantRepository.save(oProductVariant);
+
+            File fileAttach = null;
+            File fl = new File(uploadDir + File.separator + getPathProductVariants(idCatalog));
+            if (!fl.exists()) {
+                log.warn("Pasta " + fl.getAbsolutePath() + " inexistente. Criar com suceso:" + fl.mkdirs());
+            }
+
+            if (fileAttachItem != null && !fileAttachItem.isEmpty()) {
+                if (oProductVariant.getThumbnailPath() != null && !oProductVariant.getThumbnailPath().equalsIgnoreCase("")) {
+                    File f = new File(uploadDir + File.separator + getPathProductVariants(idCatalog) + File.separator + oProductVariant.getThumbnailPath());
+                    if (f.exists())
+                        f.delete();
+                }
+                String extension = "." + getFileExtension(fileAttachItem.getOriginalFilename());
+                fileAttach = new File(uploadDir + File.separator + getPathProductVariants(idCatalog) + File.separator + "ProductVariant_" + oProductVariant.getId() + extension);
+                fileAttachItem.transferTo(fileAttach);
+                oProductVariant.setThumbnailPath("ProductVariant_" + oProductVariant.getId() + extension);
+                oProductVariant.setChangedBy(user.getLogin() + "||" + user.getNifUtilizador());
+                oProductVariant.setDtChanged(new Timestamp(System.currentTimeMillis()).toLocalDateTime());
+                productVariantRepository.save(oProductVariant);
+            }
+            return msg;
+        }  catch (Exception e) {
+            throw new ShopCartException("Error create product variant ", e);
         }
     }
 

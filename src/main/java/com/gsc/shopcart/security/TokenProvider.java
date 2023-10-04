@@ -54,6 +54,8 @@ public class TokenProvider {
    private static final String SUPPLIER_PROFILE = "SUPPLIER_PROFILE";
    private static final String ID_USER = "ID_USER";
    private static final String ID_ENTITY = "ID_ENTITY";
+   private static final String LOGIN = "LOGIN";
+   private static final String NIF_UTILIZADOR = "NIF_UTILIZADOR";
 
    private final ConfigurationRepository configurationRepository;
    private final ServiceLoginRepository serviceLoginRepository;
@@ -108,6 +110,7 @@ public class TokenProvider {
 
       usrLogonSecurity.setUserLogin(userPrincipal);
 
+
       return Jwts.builder()
               .setIssuer(ISSUER)
               .setSubject(userPrincipal.getUsername())
@@ -132,6 +135,8 @@ public class TokenProvider {
               .claim(SUPPLIER_PROFILE, userPrincipal.getSupplierProfile())
               .claim(ID_USER, userPrincipal.getIdUser())
               .claim(ID_ENTITY, userPrincipal.getIdEntity())
+              .claim(LOGIN, userPrincipal.getLogin())
+              .claim(NIF_UTILIZADOR, userPrincipal.getNifUtilizador())
               .compact();
    }
 
@@ -196,7 +201,9 @@ public class TokenProvider {
                  claims.get(APPLICATION, String.class),
                  claims.get(TCAP_PROFILE, String.class),
                  claims.get(DEALER_PROFILE, String.class),
-                 claims.get(SUPPLIER_PROFILE, String.class)
+                 claims.get(SUPPLIER_PROFILE, String.class),
+                 claims.get(LOGIN, String.class),
+                 claims.get(NIF_UTILIZADOR, String.class)
          );
 
          userPrincipalClaims.setIdUser(claims.get(ID_USER, Integer.class));

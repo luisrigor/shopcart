@@ -11,5 +11,6 @@ public interface ProductCustomRepository {
     List<Product> getProductsByIdCategory(int idCategory, String view, String userOidDealer);
     List<Product> getProductsByFreeSearch(int idRootCategory, String view, String userOidDealer, ShopCartFilter filter);
     List<RelatedProduct> getRelatedProducts(Integer idRootCategory, Integer idProduct);
+    void mergeRelatedProducts(int idProduct1, int idProduct2, String changedBy);
 
 }

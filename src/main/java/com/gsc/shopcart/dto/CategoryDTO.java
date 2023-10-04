@@ -10,5 +10,5 @@ import java.util.List;
 @Builder
 public class CategoryDTO {
     private Integer idProduct;
-    private List<String> idsCategory;
+    private List<String> ids;
 }

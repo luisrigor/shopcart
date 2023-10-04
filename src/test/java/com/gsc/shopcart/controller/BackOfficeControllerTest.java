@@ -5,10 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.gsc.shopcart.config.SecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
-import com.gsc.shopcart.dto.CreateProductDTO;
-import com.gsc.shopcart.dto.GotoProductDTO;
-import com.gsc.shopcart.dto.SaveCategoryDTO;
-import com.gsc.shopcart.dto.ShopCartFilter;
+import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.ClientRepository;
@@ -262,6 +259,31 @@ class BackOfficeControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk());
 
+    }
+
+
+    @Test
+    void whenCreateProductVariantThenSave() throws Exception {
+
+        CreateProdVariantDTO prodVariant = CreateProdVariantDTO.builder()
+                .idProduct(0)
+                .ivPath("/test")
+                .idCatalog(1)
+                .build();
+
+        MockMultipartFile file = new MockMultipartFile("file", "filename.txt", "text/plain", "File content".getBytes());
+        MockMultipartFile data = new MockMultipartFile("data", "", "application/json", gson.toJson(prodVariant).getBytes());
+        String accessToken = generatedToken;
+
+
+        when(backOfficeService.createProductVariant(any(), any(), any())).thenReturn("Created");
+
+        mvc.perform(multipart(BASE_REQUEST_MAPPING +ApiEndpoints.CREATE_PRODUCT_VARIANT)
+                        .file(file)
+                        .file(data)
+                        .header("accessToken", accessToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk());
     }
 
 }

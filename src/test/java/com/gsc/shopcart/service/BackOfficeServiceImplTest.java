@@ -28,10 +28,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -64,7 +61,7 @@ public class BackOfficeServiceImplTest {
     private CategoryRepository categoryRepository;
     @Mock
     private CreateProduct createProduct;
-
+    @Mock
     private ShopCartUtils shopCartUtils;
 
     @InjectMocks
@@ -276,6 +273,10 @@ public class BackOfficeServiceImplTest {
 
         when(productAttributeRepository.getProductAttributes(any()))
                 .thenReturn(new ProductAttribute());
+
+        when(shopCartUtils.getSuppliers(anyInt(), anyInt(), anyString())).thenReturn(new ArrayList<>());
+
+        when(shopCartUtils.getHstDealers(any())).thenReturn(new Hashtable<>());
 
 
         VecCategoriesDTO vecCategoriesDTO = VecCategoriesDTO.builder()

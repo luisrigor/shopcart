@@ -4,6 +4,7 @@ import com.gsc.shopcart.repository.usrlogon.CbusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.LexusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.ToyotaUserEntityProfileRepository;
 import com.rg.dealer.Dealer;
+import com.sc.commons.financial.FinancialTasks;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 import com.gsc.shopcart.model.scart.entity.ProductPriceRule;
@@ -182,6 +183,10 @@ public class ShopCartUtils {
 
         return calcCost;
 
+    }
+
+    public double getVATatScale(String ivaType) throws SCErrorException {
+        return FinancialTasks.getVATatScale("PT", ivaType);
     }
 }
 

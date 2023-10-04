@@ -64,6 +64,8 @@ class CatalogServiceImplTest {
     private OrderCartProductPropertyRepository orderCartProductPropertyRepository;
     @Mock
     private DealerHelper dealerHelper;
+    @Mock
+    private ShopCartUtils shopCartUtils;
     @InjectMocks
     private CatalogServiceImpl catalogService;
 
@@ -80,7 +82,7 @@ class CatalogServiceImplTest {
     }
 
         @Test
-        void whenGetCartThenReturnInfo() throws IOException, URISyntaxException {
+        void whenGetCartThenReturnInfo() throws IOException, URISyntaxException, SCErrorException {
 
             UserPrincipal userPrincipal = securityData.getUserPrincipal();
             userPrincipal.setIdUser(1);
@@ -106,6 +108,7 @@ class CatalogServiceImplTest {
             when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt())).thenReturn(orderCartProducts);
 
             when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
+            when(shopCartUtils.getVATatScale(anyString())).thenReturn(1.0);
 
 
             CartDTO cart = catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal);
@@ -123,7 +126,7 @@ class CatalogServiceImplTest {
             assertEquals("P", cart.getVecCategories().get(0).getPath());
             assertEquals(629, cart.getVecOrderCart().get(0).getId());
             assertEquals(137, cart.getVecOrderCart().get(0).getIdUser());
-            assertEquals(629, cart.getVecOrderCart().get(0).getIdCatalog());
+            assertEquals(1, cart.getVecOrderCart().get(0).getIdCatalog());
             assertEquals(1, cart.getVecOrderCart().get(0).getQuantity());
         }
 
@@ -171,7 +174,7 @@ class CatalogServiceImplTest {
             assertEquals("P", cart.getVecCategories().get(0).getPath());
             assertEquals(629, cart.getVecOrderCart().get(0).getId());
             assertEquals(137, cart.getVecOrderCart().get(0).getIdUser());
-            assertEquals(629, cart.getVecOrderCart().get(0).getIdCatalog());
+            assertEquals(1, cart.getVecOrderCart().get(0).getIdCatalog());
             assertEquals(1, cart.getVecOrderCart().get(0).getQuantity());
         }
 

@@ -48,6 +48,7 @@ public class CatalogServiceImpl implements CatalogService {
     private final ProductPriceRuleRepository priceRuleRepository;
     private final ProductPropertyRepository productPropertyRepository;
     private final OrderCartProductPropertyRepository orderCartProductPropertyRepository;
+    private final ShopCartUtils shopCartUtils;
 
     private static final String FORMAT_UNIT_PRICE_EURO = " &euro;";
     private static final String DECIMAL_FORMAT = "#,##0.00";
@@ -109,7 +110,7 @@ public class CatalogServiceImpl implements CatalogService {
         }
     }
 
-    public static List<OrderCart> formatFields(List<OrderCartProduct> vecOrderCart) throws SCErrorException {
+    public  List<OrderCart> formatFields(List<OrderCartProduct> vecOrderCart) throws SCErrorException {
 
         List<OrderCart> vecOrderCartF = new ArrayList<>();
 
@@ -128,7 +129,7 @@ public class CatalogServiceImpl implements CatalogService {
             double totalIva = 0.0;
 
             if (!ivaType.equalsIgnoreCase("EXEMPT"))
-                totalIva = FinancialTasks.getVATatScale("PT", ivaType);
+                totalIva = shopCartUtils.getVATatScale(ivaType);
 
             double unitPrice = cart.getUnitPrice();
             if (ShopCartUtils.isProductInPromotion(cart.getPromoStart(), cart.getPromoEnd()))

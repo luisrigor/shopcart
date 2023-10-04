@@ -1,7 +1,7 @@
 package com.gsc.shopcart.controller;
 
 import com.google.gson.Gson;
-import com.gsc.shopcart.config.SecurityConfig;
+import com.gsc.shopcart.config.WebSecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.repository.scart.*;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import({SecurityConfig.class, TokenProvider.class})
+@Import({WebSecurityConfig.class, TokenProvider.class})
 @ActiveProfiles(profiles = SecurityData.ACTIVE_PROFILE)
 @WebMvcTest(OrderController.class)
 public class OrderControllerTest {

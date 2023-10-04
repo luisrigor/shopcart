@@ -2,7 +2,7 @@ package com.gsc.shopcart.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.gsc.shopcart.config.SecurityConfig;
+import com.gsc.shopcart.config.WebSecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.GetOrderStateDTO;
@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import({SecurityConfig.class, TokenProvider.class})
+@Import({WebSecurityConfig.class, TokenProvider.class})
 @ActiveProfiles(profiles = SecurityData.ACTIVE_PROFILE)
 @WebMvcTest(OrderStateController.class)
 class OrderStateControllerTest {

@@ -26,7 +26,7 @@ import java.util.Arrays;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @EnableWebSecurity
-public class SecurityConfig {
+public class WebSecurityConfig {
 
     @Value("${server.servlet.context-path}")
     private static String baseUrl;

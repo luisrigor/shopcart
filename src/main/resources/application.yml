@@ -1,2 +1,169 @@
+## Standard
+application:
+  name: ShopCart
+  auth:
+    token-name: accessToken
+    bearer-Token: bearerToken
+
 server:
   port: 8085
+  servlet:
+    context-path: /ShopCart
+    encoding:
+      force-response: true
+      charset: utf-8
+  context-path: /ShopCart
+
+#Swagger Config
+springdoc:
+  swagger-ui:
+    path: /docs
+    display-request-duration: true
+    filter: true
+  show-actuator: true
+
+  #swagger
+  mvc:
+    pathmatch:
+      matching-strategy: ant-path-matcher
+#JPA
+spring:
+  jpa:
+    #open-in-view: false
+    #generate-ddl: false
+    properties:
+      # Check BD matches defined entities
+      hibernate:
+        ddl-auto: validate
+        show-sql: true
+        format_sql: true
+        # Configure batch
+        jdbc:
+          #batch_size: 20
+          #order_inserts: true
+          #order_updates: true
+          time_zone: UTC
+  #Files
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 5MB
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+
+
+#Spring Batch
+batch:
+  jdbc:
+    initialize-schema: never
+
+---
+#################################################################################
+#################################################################################
+## LOCAL
+#################################################################################
+#################################################################################
+
+  spring:
+    config:
+      activate:
+        on-profile: local
+
+  app:
+    baseUrl: /ShopCart
+
+  # Generate hibernate statistics
+    jpa:
+      properties:
+        hibernate:
+          generate_statistics: false
+  # MAIN JPA DATASOURCES
+  shopcart:
+    datasource:
+      driver-class-name: com.ibm.db2.jcc.DB2Driver
+      jdbcUrl: jdbc:db2://scdbesrva.sc.pt:50000/SHOPCART
+      username: db2inst1
+      password: db2admin
+      dialect: org.hibernate.dialect.DB2Dialect
+  dbdmv:
+    datasource:
+      driver-class-name: com.ibm.db2.jcc.DB2Driver
+      jdbcUrl: jdbc:db2://scdbesrva.sc.pt:50000/DBDMV
+      username: db2inst1
+      password: db2admin
+      dialect: org.hibernate.dialect.DB2Dialect
+  usrlogon:
+    datasource:
+      driver-class-name: com.ibm.db2.jcc.DB2Driver
+      jdbcUrl: jdbc:db2://scdbesrvb.sc.pt:50000/USRLOGON
+      username: db2inst1
+      password: db2admin
+      dialect: org.hibernate.dialect.DB2Dialect
+
+---
+#################################################################################
+#################################################################################
+## DEVELOPMENT
+#################################################################################
+#################################################################################
+
+  spring:
+    config:
+      activate:
+        on-profile: development
+
+  ## MAIN JPA DATASOURCES
+  shopcart:
+    datasource:
+      jndi-name: jdbc/shopcart
+  dbdmv:
+    datasource:
+      jndi-name: jdbc/dbdmv
+  userlogon:
+    datasource:
+      jndi-name: jdbc/usrlogon
+
+  # EXTERNAL DATASOURCES (for dependencies)
+  datasources:
+    datasourceList:
+      - jndi-name: jdbc/dbfwk
+      - jndi-name: jdbc/dbtoynet
+
+    jpa:
+      properties:
+        hibernate:
+          default_schema: dbo
+
+  app:
+    baseUrl: https://devshopcart.rigorcg.pt #SHOPCART URL FOR TESTS ONLY
+    profile: development
+    email:
+      subject-prefix: "[DEV]"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

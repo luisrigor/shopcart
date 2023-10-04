@@ -1,18 +1,21 @@
 package com.gsc.shopcart.config.environment;
 
-import com.gsc.a2p.invoke.A2pApiInvoke;
 import com.gsc.scgscwsauthentication.invoke.SCAuthenticationInvoke;
-import com.gsc.scwscardb.core.invoke.CarInvoker;
-import com.gsc.scwscardb.util.DATA;
+import com.gsc.shopcart.config.properties.DataSourcesProperties;
+import com.gsc.shopcart.config.properties.EnvironmentProperties;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
 import java.util.Map;
+import com.sc.commons.initialization.SCGlobalPreferences;
 
 
 @Profile("development")
 @Component
-public class DevelopmentEnvironmentConfig implements EnvironmentConfig {
+public class DevelopmentEnvironmentConfig extends DataSourcesProperties implements EnvironmentConfig {
+
+   public DevelopmentEnvironmentConfig() {
+      SCGlobalPreferences.setResources("/home/www/config/sc_config.properties");
+   }
 
    @Override
    public SCAuthenticationInvoke getAuthenticationInvoker() {
@@ -20,13 +23,8 @@ public class DevelopmentEnvironmentConfig implements EnvironmentConfig {
    }
 
    @Override
-   public CarInvoker getCarInvoker() {
-      return new CarInvoker(DATA.WSCARDB_URL_STAGING_HTTPS, DATA.HASH_TOKEN_BACKOFFICE_TOYOTA_STAGING, false);
-   }
-
-   @Override
-   public A2pApiInvoke getA2pApiInvoker() {
-      return new A2pApiInvoke(com.gsc.a2p.util.DATA.A2P_SERVER_STAGING);
+   public void loadDataSources(){
+      DataSourceLoader.loadDataSource(EnvironmentProperties.DEVELOPMENT, getDatasourceList());
    }
 
    @Override

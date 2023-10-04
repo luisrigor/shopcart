@@ -1,11 +1,9 @@
 package com.gsc.shopcart.config.datasource.dmv;
 
-import com.sc.commons.dbconnection.ServerJDBCConnection;
-import com.sc.commons.initialization.SCGlobalPreferences;
+import com.gsc.shopcart.config.properties.DataSourcesProperties;
+import com.gsc.shopcart.config.properties.EnvironmentProperties;
 import lombok.extern.log4j.Log4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
@@ -17,75 +15,69 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import javax.annotation.PostConstruct;
-import javax.naming.InitialContext;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import javax.naming.NamingException;
 import javax.persistence.EntityManagerFactory;
+import org.springframework.jndi.JndiTemplate;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @Log4j
-@Profile(value = {"development","staging","production"})
+@Profile(value = {"local","development","staging","production"})
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "carEntityManagerFactory",
+        entityManagerFactoryRef = "dmvEntityManagerFactory",
+        transactionManagerRef = "dmvTransactionManager",
         basePackages = {"com.gsc.shopcart.repository.dmv"}
 )
-public class DmvConfig {
+public class DmvConfig extends DataSourcesProperties {
+    final Logger logger = LoggerFactory.getLogger(DmvConfig.class);
+    private final Environment env;
+    private final  EnvironmentProperties environmentProperties;
 
-    @Autowired
-    private Environment env;
+    public DmvConfig(Environment env,EnvironmentProperties environmentProperties) {
+        this.env = env;
+        this.environmentProperties = environmentProperties;
+    }
 
-    @Value("${sc.config.file}")
-    private String scConfigFile;
+    @ConfigurationProperties(prefix = "dbdmv.datasource")
+    @Bean(name = "dbdmvDatasource", destroyMethod = "")
+    public DataSource dataSource() throws NamingException {
+        if(environmentProperties.isLocalProfile())
+            return DataSourceBuilder.create().build();
 
-    @Value("${spring.jpa.properties.hibernate.dialect}")
-    private String hibernateDialect;
-
-    @Value("${app.datasource.first.jndi}")
-    private String jndi;
-
-    @PostConstruct
-    private void init() {
-        SCGlobalPreferences.setResources(scConfigFile);
-        try {
-            InitialContext ctx = new InitialContext();
-            ServerJDBCConnection conn = ServerJDBCConnection.getInstance();
-            conn.setDataSource((DataSource) ctx.lookup(jndi), jndi);
-            log.info("Datasource initialized successfully: : jdbc/dbdmv");
-        } catch (NamingException e) {
-            log.error("Error initializing datasource ({}): jdbc/dbdmv");
+        String jndi = env.getProperty("dbdmv.datasource.jndi-name");
+        if (jndi == null) {
+            return null;
         }
+        logger.info("Jndi initialized: " + jndi);
+        return (DataSource) new JndiTemplate().lookup(jndi);
     }
 
-    @Bean(name="carDataSource")
-    @ConfigurationProperties(prefix = "carn.datasource")
-    DataSource dataSource() throws NamingException {
-        log.info("INIT PRIMARY JNDI: " + jndi);
-        return (DataSource) new InitialContext().lookup(jndi);
-    }
-
-    @Bean(name = "carEntityManagerFactory")
-    LocalContainerEntityManagerFactoryBean carEntityManagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("carDataSource") DataSource dataSource) {
+    @Bean(name = "dmvEntityManagerFactory")
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder,
+                                                                       @Qualifier("dbdmvDatasource") DataSource dataSource) {
         return builder
                 .dataSource(dataSource)
                 .packages("com.gsc.shopcart.model.dmv.entity")
-                .persistenceUnit("carPersistenceUnit")
+                .persistenceUnit("dmvPersistenceUnit")
                 .properties(getHibernateProperties())
                 .build();
     }
 
-    @Bean(name = "carTransactionManager")
-    PlatformTransactionManager carTransactionManager(@Qualifier("carEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
+    @Bean(name = "dmvTransactionManager")
+    PlatformTransactionManager transactionManager(@Qualifier("dmvEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 
     private Map<String, Object> getHibernateProperties() {
         Map<String, Object> hibernateProperties = new HashMap<>();
-        hibernateProperties.put("hibernate.dialect", hibernateDialect);
+        hibernateProperties.put("hibernate.dialect", "org.hibernate.dialect.DB2Dialect");
         return hibernateProperties;
     }
 

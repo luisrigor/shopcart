@@ -2,12 +2,11 @@ package com.gsc.shopcart.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.gsc.shopcart.config.SecurityConfig;
+import com.gsc.shopcart.config.WebSecurityConfig;
 import com.gsc.shopcart.config.environment.EnvironmentConfig;
 import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.model.scart.entity.Category;
-import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.ClientRepository;
 import com.gsc.shopcart.repository.scart.ConfigurationRepository;
 import com.gsc.shopcart.repository.scart.LoginKeyRepository;
@@ -17,7 +16,6 @@ import com.gsc.shopcart.sample.data.provider.ReadJsonTest;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
 import com.gsc.shopcart.security.TokenProvider;
-import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.security.UsrLogonSecurity;
 import com.gsc.shopcart.service.BackOfficeService;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,7 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import java.io.IOException;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +42,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import({SecurityConfig.class, TokenProvider.class})
+@Import({WebSecurityConfig.class, TokenProvider.class})
 @ActiveProfiles(profiles = SecurityData.ACTIVE_PROFILE)
 @WebMvcTest(BackOfficeController.class)
 class BackOfficeControllerTest {

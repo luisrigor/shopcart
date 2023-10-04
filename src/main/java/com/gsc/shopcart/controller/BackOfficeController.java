@@ -129,4 +129,11 @@ public class BackOfficeController {
         String productVariant = backOfficeService.createProductVariant(categoryDTO, file, userPrincipal);
         return ResponseEntity.status(HttpStatus.OK).body(productVariant);
     }
+
+    @PostMapping(ApiEndpoints.CREATE_RELATED_PRODUCT)
+    public ResponseEntity<String> createRelatedProduct(@RequestBody CategoryDTO categoryDTO,
+                                                       @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        backOfficeService.createRelatedProducts(categoryDTO,userPrincipal);
+        return ResponseEntity.status(HttpStatus.OK).body("create related product");
+    }
 }

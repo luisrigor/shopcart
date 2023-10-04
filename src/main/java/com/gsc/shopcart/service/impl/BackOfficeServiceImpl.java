@@ -63,7 +63,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             Integer idRootCategory = catalogRepository.getidRootCategoryByIdCatalog(idCatalog);
             vecProducts = productRepository.getProductsInPromotion(idRootCategory);
 
-            if(isCatalog)
+            if (isCatalog)
                 vecOrderCart = orderCartRepository.getOrderCartByIdUserAndIdCatalog(idUser, idCatalog);
 
             return PromotionsDTO.builder()
@@ -84,7 +84,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
 
         List<Product> vecProducts = new ArrayList<>();
         String view = "BACKOFFICE";
-        String userOidDealer =  userPrincipal.getOidDealerParent();
+        String userOidDealer = userPrincipal.getOidDealerParent();
         List<OrderCartProduct> vecOrderCart = null;
 
         try {
@@ -92,7 +92,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             Integer idRootCategory = catalogRepository.getidRootCategoryByIdCatalog(idCatalog);
             vecProducts = productRepository.getProductsByFreeSearch(idRootCategory, view, userOidDealer, freeSearch);
 
-            if(isCatalog)
+            if (isCatalog)
                 vecOrderCart = orderCartRepository.getOrderCartByIdUserAndIdCatalog(userPrincipal.getIdUser(), idCatalog);
 
             return PromotionsDTO.builder()
@@ -108,7 +108,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
 
     @Override
     public GotoProductDTO gotoProduct(Integer idCategory, Integer idCatalog, Integer idProduct, Integer idProfileTcap,
-                                     Integer idProfileSupplier, UserPrincipal userPrincipal) {
+                                      Integer idProfileSupplier, UserPrincipal userPrincipal) {
 
         Product product = new Product();
         List<VecCategoriesDTO> vecCategoriesByRoot = new ArrayList<>();
@@ -173,14 +173,14 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             Category category;
             Integer idRootCategory = catalogRepository.getidRootCategoryByIdCatalog(idCatalog);
             boolean isId = (idCategory == 0 || idCategory.equals(idRootCategory));
-            Integer idCategoryQuery = isId ? idRootCategory:  idCategory;
+            Integer idCategoryQuery = isId ? idRootCategory : idCategory;
 
             vecCategories = categoryRepository.getCategoriesByIdParentBkOff(idCategoryQuery);
             vecProducts = productRepository.getProductsByIdCategory(idCategoryQuery, view, userPrincipal.getOidDealerParent());
             category = categoryRepository.findById(idCategoryQuery).orElse(null);
 
             boolean isToAdd = true;
-            for (Category cat: listCategorySelected) {
+            for (Category cat : listCategorySelected) {
                 if (category != null && cat.getId() == category.getId()) {
                     isToAdd = false;
                     break;
@@ -238,7 +238,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
                 category.setDtCreated(new Timestamp((new java.util.Date()).getTime()).toLocalDateTime());
                 category.setCreatedBy(userPrincipal.getLogin() + "||" + userPrincipal.getIdUser());
             } else {
-                category = categoryRepository.findById(id).orElseThrow(()->new RuntimeException("Id not found"));
+                category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Id not found"));
                 category.setDtChanged(new Timestamp((new java.util.Date()).getTime()).toLocalDateTime());
                 category.setChangedBy(userPrincipal.getLogin() + "||" + userPrincipal.getIdUser());
             }
@@ -282,7 +282,6 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     }
 
 
-
     /**
      * @param files [0] thumbnail_path [1] promo_thumbnail
      */
@@ -317,11 +316,12 @@ public class BackOfficeServiceImpl implements BackOfficeService {
         }
         return msg;
     }
+
     @Override
-    public void deleteProductVariant(Integer idProductVariant,Integer idCatalog, UserPrincipal userPrincipal) {
+    public void deleteProductVariant(Integer idProductVariant, Integer idCatalog, UserPrincipal userPrincipal) {
         log.info("deleteProductVariant service");
         try {
-            ProductVariant oProductVariant = productVariantRepository.findById(idProductVariant).orElseThrow(()->new RuntimeException("Id not found"));
+            ProductVariant oProductVariant = productVariantRepository.findById(idProductVariant).orElseThrow(() -> new RuntimeException("Id not found"));
             File f = new File(userPrincipal.getUploadDir() + File.separator + getPathProductVariants(idCatalog) + File.separator + oProductVariant.getThumbnailPath());
             if (f.exists())
                 f.delete();
@@ -346,7 +346,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
     public void deleteProductItem(Integer idProductItem, UserPrincipal userPrincipal) {
         log.info("deleteProductItem service");
         try {
-            ProductItem productitem = productItemRepository.findById(idProductItem).orElseThrow(()->new RuntimeException("Id not found"));
+            ProductItem productitem = productItemRepository.findById(idProductItem).orElseThrow(() -> new RuntimeException("Id not found"));
             File f = new File(userPrincipal.getUploadDir() + File.separator + getPathProductItems(Integer.parseInt(userPrincipal.getIdCatalog())) + File.separator + productitem.getFilename());
             if (f.exists())
                 f.delete();
@@ -363,8 +363,8 @@ public class BackOfficeServiceImpl implements BackOfficeService {
         try {
             List<String> idsCategory = categoryDTO.getIds();
             categoryProductRepository.deleteCategoryProductByIdProduct(categoryDTO.getIdProduct());
-            for(String idCategory : idsCategory){
-                categoryRepository.createCategoryProduct(Integer.parseInt(idCategory), categoryDTO.getIdProduct(),  userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
+            for (String idCategory : idsCategory) {
+                categoryRepository.createCategoryProduct(Integer.parseInt(idCategory), categoryDTO.getIdProduct(), userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
             }
         } catch (Exception e) {
             throw new ShopCartException("Error create category", e);
@@ -392,7 +392,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
                 oProductVariant.setDtCreated(new Timestamp(System.currentTimeMillis()).toLocalDateTime());
                 msg = "Variante de Produto criada com sucesso...";
             } else {
-                oProductVariant = productVariantRepository.findById(idProductVariant).orElseThrow(()-> new ShopCartException("ID NOT FOUND "));
+                oProductVariant = productVariantRepository.findById(idProductVariant).orElseThrow(() -> new ShopCartException("ID NOT FOUND "));
                 oProductVariant.setChangedBy(user.getLogin() + "||" + user.getNifUtilizador());
                 oProductVariant.setDtChanged(new Timestamp(System.currentTimeMillis()).toLocalDateTime());
                 msg = "Variante de Produto alterada com sucesso...";
@@ -406,7 +406,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
             oProductVariant.setSize(variantDTO.getSize());
             oProductVariant.setSku(variantDTO.getSku().trim());
             oProductVariant.setStatus(variantDTO.getStatus());
-            oProductVariant.setStock(variantDTO.getStock()==0?null:variantDTO.getStock());
+            oProductVariant.setStock(variantDTO.getStock() == 0 ? null : variantDTO.getStock());
             oProductVariant.setStockControl(variantDTO.getStockcontrol());
             oProductVariant.setType(variantDTO.getType());
 
@@ -433,42 +433,44 @@ public class BackOfficeServiceImpl implements BackOfficeService {
                 productVariantRepository.save(oProductVariant);
             }
             return msg;
-        }  catch (Exception e) {
+        } catch (Exception e) {
             throw new ShopCartException("Error create product variant ", e);
         }
-    public void CreateRelatedProducts(CategoryDTO categoryDTO, UserPrincipal userPrincipal) {
-        log.info("CreateRelatedProducts service");
-        try {
-            relatedProductRepository.deleteRelatedProductsByIdProduct1(categoryDTO.getIdProduct());
-            List<String> idsRelatedProducts = categoryDTO.getIds();
-            if (idsRelatedProducts != null && !idsRelatedProducts.isEmpty()) {
-                for(String idProduct2 : idsRelatedProducts){
-                    productRepository.mergeRelatedProducts(categoryDTO.getIdProduct(),Integer.parseInt(idProduct2),userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
+    }
+        @Override
+        public void createRelatedProducts(CategoryDTO categoryDTO, UserPrincipal userPrincipal){
+            log.info("CreateRelatedProducts service");
+            try {
+                relatedProductRepository.deleteRelatedProductsByIdProduct1(categoryDTO.getIdProduct());
+                List<String> idsRelatedProducts = categoryDTO.getIds();
+                if (idsRelatedProducts != null && !idsRelatedProducts.isEmpty()) {
+                    for (String idProduct2 : idsRelatedProducts) {
+                        productRepository.mergeRelatedProducts(categoryDTO.getIdProduct(), Integer.parseInt(idProduct2), userPrincipal.getLogin() + "||" + userPrincipal.getNifUtilizador());
+                    }
+                }
+            } catch (Exception e) {
+                throw new ShopCartException("Error create products", e);
+            }
+        }
+
+        public static ShopCartFilter getFilterFreeSearchProduct (ShopCartFilter filter){
+            if (filter == null) {
+                filter = new ShopCartFilter();
+                filter.loadData();
+            } else if (filter.getFreeSearch() == null || filter.getState() == null) {
+                filter.setFreeSearch(Optional.ofNullable(filter.getFreeSearch()).orElse(""));
+                filter.setState(Optional.ofNullable(filter.getState()).orElse("T"));
+            }
+            return filter;
+        }
+
+        public String getFileExtension (String originalFileName){
+            if (org.springframework.util.StringUtils.hasText(originalFileName)) {
+                int dotIndex = originalFileName.lastIndexOf('.');
+                if (dotIndex >= 0) {
+                    return originalFileName.substring(dotIndex + 1).toLowerCase();
                 }
             }
-        } catch (Exception e) {
-            throw new ShopCartException("Error create products", e);
+            return null;
         }
     }
-
-    public static ShopCartFilter getFilterFreeSearchProduct(ShopCartFilter filter) {
-        if (filter == null) {
-            filter = new ShopCartFilter();
-            filter.loadData();
-        } else if (filter.getFreeSearch()==null ||filter.getState()==null) {
-            filter.setFreeSearch(Optional.ofNullable(filter.getFreeSearch()).orElse(""));
-            filter.setState(Optional.ofNullable(filter.getState()).orElse("T"));
-        }
-        return filter;
-    }
-
-    public String getFileExtension(String originalFileName) {
-        if (org.springframework.util.StringUtils.hasText(originalFileName)) {
-            int dotIndex = originalFileName.lastIndexOf('.');
-            if (dotIndex >= 0) {
-                return originalFileName.substring(dotIndex + 1).toLowerCase();
-            }
-        }
-        return null;
-    }
-}

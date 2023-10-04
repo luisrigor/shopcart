@@ -1,12 +1,13 @@
 ## Standard
 application:
   name: ShopCart
+
+app:
   auth:
     token-name: accessToken
     bearer-Token: bearerToken
 
 server:
-  port: 8085
   servlet:
     context-path: /ShopCart
     encoding:
@@ -22,10 +23,6 @@ springdoc:
     filter: true
   show-actuator: true
 
-  #swagger
-  mvc:
-    pathmatch:
-      matching-strategy: ant-path-matcher
 #JPA
 spring:
   jpa:
@@ -43,6 +40,9 @@ spring:
           #order_inserts: true
           #order_updates: true
           time_zone: UTC
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   #Files
   servlet:
     multipart:
@@ -72,15 +72,12 @@ batch:
     config:
       activate:
         on-profile: local
-
-  app:
-    baseUrl: /ShopCart
-
   # Generate hibernate statistics
-    jpa:
-      properties:
-        hibernate:
-          generate_statistics: false
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: false
+
   # MAIN JPA DATASOURCES
   shopcart:
     datasource:
@@ -103,6 +100,9 @@ batch:
       username: db2inst1
       password: db2admin
       dialect: org.hibernate.dialect.DB2Dialect
+
+  app:
+    baseUrl: /ShopCart
 
 ---
 #################################################################################

@@ -7,7 +7,6 @@ import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.model.scart.entity.ProductAttribute;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.model.scart.entity.Category;
-import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.CatalogRepository;
 import com.gsc.shopcart.repository.scart.CategoryRepository;
 import com.gsc.shopcart.repository.scart.OrderCartRepository;
@@ -139,7 +138,6 @@ public class BackOfficeServiceImplTest {
 
 
     }
-
     @Test
     void whenGetPromotionsThenThrowsInfo() {
         when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
@@ -216,7 +214,6 @@ public class BackOfficeServiceImplTest {
         assertEquals("NORMAL", productsByFreeSearch.getVecProducts().get(0).getIvaType());
 
     }
-
     @Test
     void whenGetProductsByFreeSearchWhenNullFilterThenReturnInfo() {
         UserPrincipal userPrincipal = securityData.getUserPrincipal();
@@ -501,7 +498,6 @@ public class BackOfficeServiceImplTest {
         assertEquals("Produto criado com sucesso...", product);
 
     }
-
     @Test
     void whenCreateProductThenThrows() throws IOException {
 

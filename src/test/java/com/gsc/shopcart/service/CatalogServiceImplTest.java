@@ -79,101 +79,101 @@ class CatalogServiceImplTest {
 
     }
 
-    @Test
-    void whenGetCartThenReturnInfo() throws IOException, URISyntaxException {
+        @Test
+        void whenGetCartThenReturnInfo() throws IOException, URISyntaxException {
 
-        UserPrincipal userPrincipal = securityData.getUserPrincipal();
-        userPrincipal.setIdUser(1);
+            UserPrincipal userPrincipal = securityData.getUserPrincipal();
+            userPrincipal.setIdUser(1);
 
-        URI uriRs1_orderCart = this.getClass().getResource("/data/rs_orderCart.json").toURI();
+            URI uriRs1_orderCart = this.getClass().getResource("/data/rs_orderCart.json").toURI();
 
-        List<OrderCartProduct> orderCartProducts = readJ.readJson(uriRs1_orderCart.getPath(), new TypeToken<List<OrderCartProduct>>() {
-        }.getType());
+            List<OrderCartProduct> orderCartProducts = readJ.readJson(uriRs1_orderCart.getPath(), new TypeToken<List<OrderCartProduct>>() {
+            }.getType());
 
-        Category category = Category.builder()
-                .id(1)
-                .build();
-
-
-        when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
-
-        when(categoryRepository.getCategoriesByIdParent(anyInt()))
-                .thenReturn(TestData.getCartData().getVecCategories());
-
-        when(productRepository.getProductsByIdCategory(anyInt(), anyString(), anyString()))
-                .thenReturn(TestData.getCartData().getVecProducts());
-
-        when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt())).thenReturn(orderCartProducts);
-
-        when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
+            Category category = Category.builder()
+                    .id(1)
+                    .build();
 
 
-        CartDTO cart = catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal);
+            when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
 
-        assertEquals(1, cart.getIdCategory());
-        assertEquals(1, cart.getListCategorySelected().get(0).getId());
-        assertEquals(1, cart.getListCategorySelected().get(0).getIdParent());
-        assertEquals("n", cart.getListCategorySelected().get(0).getName());
-        assertEquals("", cart.getListCategorySelected().get(0).getDescription());
-        assertEquals("s", cart.getListCategorySelected().get(0).getStatus());
-        assertEquals(8, cart.getVecCategories().get(0).getId());
-        assertEquals(4, cart.getVecCategories().get(0).getIdParent());
-        assertEquals("B", cart.getVecCategories().get(0).getName());
-        assertEquals("", cart.getVecCategories().get(0).getDescription());
-        assertEquals("P", cart.getVecCategories().get(0).getPath());
-        assertEquals(629, cart.getVecOrderCart().get(0).getId());
-        assertEquals(137, cart.getVecOrderCart().get(0).getIdUser());
-        assertEquals(629, cart.getVecOrderCart().get(0).getIdCatalog());
-        assertEquals(1, cart.getVecOrderCart().get(0).getQuantity());
-    }
+            when(categoryRepository.getCategoriesByIdParent(anyInt()))
+                    .thenReturn(TestData.getCartData().getVecCategories());
 
-    @Test
-    void whenGetCartThenReturnInfoForCategoryId() throws IOException, URISyntaxException {
+            when(productRepository.getProductsByIdCategory(anyInt(), anyString(), anyString()))
+                    .thenReturn(TestData.getCartData().getVecProducts());
 
-        UserPrincipal userPrincipal = securityData.getUserPrincipal();
-        userPrincipal.setIdUser(1);
+            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt())).thenReturn(orderCartProducts);
 
-        URI uriRs1_orderCart = this.getClass().getResource("/data/rs_orderCart.json").toURI();
-
-        List<OrderCartProduct> orderCartProducts = readJ.readJson(uriRs1_orderCart.getPath(), new TypeToken<List<OrderCartProduct>>() {
-        }.getType());
-
-        Category category = Category.builder()
-                .id(2)
-                .build();
+            when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
 
 
-        when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
+            CartDTO cart = catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal);
 
-        when(categoryRepository.getCategoriesByIdParent(anyInt()))
-                .thenReturn(TestData.getCartData().getVecCategories());
+            assertEquals(1, cart.getIdCategory());
+            assertEquals(1, cart.getListCategorySelected().get(0).getId());
+            assertEquals(1, cart.getListCategorySelected().get(0).getIdParent());
+            assertEquals("n", cart.getListCategorySelected().get(0).getName());
+            assertEquals("", cart.getListCategorySelected().get(0).getDescription());
+            assertEquals("s", cart.getListCategorySelected().get(0).getStatus());
+            assertEquals(8, cart.getVecCategories().get(0).getId());
+            assertEquals(4, cart.getVecCategories().get(0).getIdParent());
+            assertEquals("B", cart.getVecCategories().get(0).getName());
+            assertEquals("", cart.getVecCategories().get(0).getDescription());
+            assertEquals("P", cart.getVecCategories().get(0).getPath());
+            assertEquals(629, cart.getVecOrderCart().get(0).getId());
+            assertEquals(137, cart.getVecOrderCart().get(0).getIdUser());
+            assertEquals(629, cart.getVecOrderCart().get(0).getIdCatalog());
+            assertEquals(1, cart.getVecOrderCart().get(0).getQuantity());
+        }
 
-        when(productRepository.getProductsByIdCategory(anyInt(), anyString(), anyString()))
-                .thenReturn(TestData.getCartData().getVecProducts());
+        @Test
+        void whenGetCartThenReturnInfoForCategoryId() throws IOException, URISyntaxException {
 
-        when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt())).thenReturn(orderCartProducts);
+            UserPrincipal userPrincipal = securityData.getUserPrincipal();
+            userPrincipal.setIdUser(1);
 
-        when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
+            URI uriRs1_orderCart = this.getClass().getResource("/data/rs_orderCart.json").toURI();
+
+            List<OrderCartProduct> orderCartProducts = readJ.readJson(uriRs1_orderCart.getPath(), new TypeToken<List<OrderCartProduct>>() {
+            }.getType());
+
+            Category category = Category.builder()
+                    .id(2)
+                    .build();
 
 
-        CartDTO cart = catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal);
+            when(catalogRepository.getidRootCategoryByIdCatalog(anyInt())).thenReturn(1);
 
-        assertEquals(1, cart.getIdCategory());
-        assertEquals(1, cart.getListCategorySelected().get(0).getId());
-        assertEquals(1, cart.getListCategorySelected().get(0).getIdParent());
-        assertEquals("n", cart.getListCategorySelected().get(0).getName());
-        assertEquals("", cart.getListCategorySelected().get(0).getDescription());
-        assertEquals("s", cart.getListCategorySelected().get(0).getStatus());
-        assertEquals(8, cart.getVecCategories().get(0).getId());
-        assertEquals(4, cart.getVecCategories().get(0).getIdParent());
-        assertEquals("B", cart.getVecCategories().get(0).getName());
-        assertEquals("", cart.getVecCategories().get(0).getDescription());
-        assertEquals("P", cart.getVecCategories().get(0).getPath());
-        assertEquals(629, cart.getVecOrderCart().get(0).getId());
-        assertEquals(137, cart.getVecOrderCart().get(0).getIdUser());
-        assertEquals(629, cart.getVecOrderCart().get(0).getIdCatalog());
-        assertEquals(1, cart.getVecOrderCart().get(0).getQuantity());
-    }
+            when(categoryRepository.getCategoriesByIdParent(anyInt()))
+                    .thenReturn(TestData.getCartData().getVecCategories());
+
+            when(productRepository.getProductsByIdCategory(anyInt(), anyString(), anyString()))
+                    .thenReturn(TestData.getCartData().getVecProducts());
+
+            when(orderCartRepository.getOrderCartByIdUserAndIdCatalog(anyInt(), anyInt())).thenReturn(orderCartProducts);
+
+            when(categoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
+
+
+            CartDTO cart = catalogService.getCart(1, 1, TestData.getCartData().getListCategorySelected(), userPrincipal);
+
+            assertEquals(1, cart.getIdCategory());
+            assertEquals(1, cart.getListCategorySelected().get(0).getId());
+            assertEquals(1, cart.getListCategorySelected().get(0).getIdParent());
+            assertEquals("n", cart.getListCategorySelected().get(0).getName());
+            assertEquals("", cart.getListCategorySelected().get(0).getDescription());
+            assertEquals("s", cart.getListCategorySelected().get(0).getStatus());
+            assertEquals(8, cart.getVecCategories().get(0).getId());
+            assertEquals(4, cart.getVecCategories().get(0).getIdParent());
+            assertEquals("B", cart.getVecCategories().get(0).getName());
+            assertEquals("", cart.getVecCategories().get(0).getDescription());
+            assertEquals("P", cart.getVecCategories().get(0).getPath());
+            assertEquals(629, cart.getVecOrderCart().get(0).getId());
+            assertEquals(137, cart.getVecOrderCart().get(0).getIdUser());
+            assertEquals(629, cart.getVecOrderCart().get(0).getIdCatalog());
+            assertEquals(1, cart.getVecOrderCart().get(0).getQuantity());
+        }
 
     @Test
     void whenGetCartThenThrows() {

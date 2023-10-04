@@ -77,7 +77,7 @@ public class CartConfig {
     }
     private Map<String, Object> getHibernateProperties() {
         Map<String, Object> hibernateProperties = new HashMap<>();
-        hibernateProperties.put("hibernate.dialect", "org.hibernate.dialect.DB2Dialect");
+        hibernateProperties.put("hibernate.dialect",  env.getProperty("shopcart.datasource.dialect"));
         return hibernateProperties;
     }
 

@@ -77,7 +77,7 @@ public class DmvConfig extends DataSourcesProperties {
 
     private Map<String, Object> getHibernateProperties() {
         Map<String, Object> hibernateProperties = new HashMap<>();
-        hibernateProperties.put("hibernate.dialect", "org.hibernate.dialect.DB2Dialect");
+        hibernateProperties.put("hibernate.dialect", env.getProperty("dbdmv.datasource.dialect"));
         return hibernateProperties;
     }
 

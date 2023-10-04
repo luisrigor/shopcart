@@ -101,6 +101,13 @@ batch:
       password: db2admin
       dialect: org.hibernate.dialect.DB2Dialect
 
+  datasources:
+    datasourceList:
+          - username: db2inst1
+            password: db2admin
+            url: jdbc:db2://scdbesrvb.sc.pt:50000/DBFWK
+            driver-class-name: com.ibm.db2.jcc.DB2Driver
+            jndi-name: jdbc/dbfwk
   app:
     baseUrl: /ShopCart
 

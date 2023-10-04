@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+    <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+
+    <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <property name="CONSOLE_LOG_CHARSET" value="${CONSOLE_LOG_CHARSET:-${file.encoding:-UTF-8}}"/>
+    <property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <property name="FILE_LOG_CHARSET" value="${FILE_LOG_CHARSET:-${file.encoding:-UTF-8}}"/>
+
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <!-- LOG everything at INFO level -->
+    <root level="info">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <springProfile name="local">
+
+        <!-- LOG "web" at DEBUG level -->
+        <logger name="web" level="debug" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+        <!-- Activate query logging for hibernate -->
+        <logger name="org.hibernate.SQL" level="debug" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+        <logger name="org.hibernate.type.descriptor.sql" level="trace" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+        <logger name="org.hibernate.stat" level="debug" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+        <logger name="org.hibernate.cache" level="debug" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+
+        <!-- LOG "com.gsc.shopcart" at TRACE level -->
+        <logger name="com.gsc.shopcart" level="trace" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+
+        <property name="LOG_FILE" value="shopcart.log"/>
+        <appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <encoder>
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+            </encoder>
+            <file>${LOG_FILE}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- monthly rollover -->
+                <fileNamePattern>${LOG_FILE}.%d{yyyy-MM}.log</fileNamePattern>
+            </rollingPolicy>
+        </appender>
+        <!-- LOG "com.gsc.shopcart.security" at DEBUG level -->
+        <logger name="com.gsc.shopcart.security" level="debug" additivity="false">
+            <appender-ref ref="ROLLING-FILE" />
+        </logger>
+    </springProfile>
+
+    <springProfile name="development">
+        <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-/home/www/files/logfiles/shopcart/}shopcart.log}"/>
+        <property name="SUBJECT" value="[Development] Error in application ShopCart - Spring"/>
+
+        <appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <encoder>
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+            </encoder>
+            <file>${LOG_FILE}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- monthly rollover -->
+                <fileNamePattern>${LOG_FILE}.%d{yyyy-MM}.log</fileNamePattern>
+            </rollingPolicy>
+        </appender>
+
+        <appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
+            <smtpHost>mailrelay.gsc</smtpHost>
+            <to>luis.parra@parceiro.rigorcg.pt,ronald.maldonado@parceiro.rigorcg.pt</to>
+            <from>webmaster@rigorcg.pt</from>
+            <subject>${SUBJECT}</subject>
+            <layout class="ch.qos.logback.classic.html.HTMLLayout"/>
+            <cyclicBufferTracker class="ch.qos.logback.core.spi.CyclicBufferTracker">
+                <bufferSize>3</bufferSize>
+            </cyclicBufferTracker>
+        </appender>
+
+        <!-- LOG everything at INFO level -->
+        <root level="trace">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="ROLLING-FILE" />
+            <appender-ref ref="EMAIL" />
+        </root>
+        <!-- LOG "com.gsc.boilerplatespring" at DEBUG level -->
+        <logger name="com.gsc.boilerplatespring" level="trace" additivity="false">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="ROLLING-FILE" />
+            <appender-ref ref="EMAIL" />
+        </logger>
+    </springProfile>
+
+    <springProfile name="staging">
+        <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-/home/www/files/logfiles/shopcart/}shopcart.log}"/>
+        <property name="SUBJECT" value="[UAT] Error in application ShopCart - Spring"/>
+
+        <appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <encoder>
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+            </encoder>
+            <file>${LOG_FILE}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- monthly rollover -->
+                <fileNamePattern>${LOG_FILE}.%d{yyyy-MM}.log</fileNamePattern>
+            </rollingPolicy>
+        </appender>
+
+        <appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
+            <smtpHost>mailrelay.gsc</smtpHost>
+            <to>andre.dias@rigorcg.pt,luis.parra@parceiro.rigorcg.pt,ronald.maldonado@parceiro.rigorcg.pt</to>
+            <from>webmaster@rigorcg.pt</from>
+            <subject>${SUBJECT}</subject>
+            <layout class="ch.qos.logback.classic.html.HTMLLayout"/>
+            <cyclicBufferTracker class="ch.qos.logback.core.spi.CyclicBufferTracker">
+                <bufferSize>3</bufferSize>
+            </cyclicBufferTracker>
+        </appender>
+
+        <!-- LOG everything at INFO level -->
+        <root level="info">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="ROLLING-FILE" />
+            <appender-ref ref="EMAIL" />
+        </root>
+
+        <!-- LOG "com.gsc.boilerplatespring" at TRACE level -->
+        <logger name="com.gsc.boilerplatespring" level="trace" additivity="false">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="ROLLING-FILE" />
+            <appender-ref ref="EMAIL" />
+        </logger>
+
+    </springProfile>
+
+    <springProfile name="production">
+        <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-/home/www/files/logfiles/shopcart/}shopcart.log}"/>
+        <property name="SUBJECT" value="[Production] Error in application ShopCart - Spring"/>
+
+        <appender name="ROLLING-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <encoder>
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+            </encoder>
+            <file>${LOG_FILE}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- monthly rollover -->
+                <fileNamePattern>${LOG_FILE}.%d{yyyy-MM}.log</fileNamePattern>
+            </rollingPolicy>
+        </appender>
+
+        <appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
+            <smtpHost>mailrelay.gsc</smtpHost>
+            <to>andre.dias@rigorcg.pt</to>
+            <from>webmaster@rigorcg.pt</from>
+            <subject>${SUBJECT}</subject>
+            <layout class="ch.qos.logback.classic.html.HTMLLayout"/>
+            <cyclicBufferTracker class="ch.qos.logback.core.spi.CyclicBufferTracker">
+                <bufferSize>3</bufferSize>
+            </cyclicBufferTracker>
+        </appender>
+
+        <!-- LOG everything at INFO level -->
+        <root level="info">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="ROLLING-FILE" />
+            <appender-ref ref="EMAIL" />
+        </root>
+    </springProfile>
+
+</configuration>

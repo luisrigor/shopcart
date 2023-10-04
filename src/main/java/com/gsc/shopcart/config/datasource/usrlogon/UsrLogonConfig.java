@@ -76,7 +76,7 @@ public class UsrLogonConfig {
 
     private Map<String, Object> getHibernateProperties() {
         Map<String, Object> hibernateProperties = new HashMap<>();
-        hibernateProperties.put("hibernate.dialect", "org.hibernate.dialect.DB2Dialect");
+        hibernateProperties.put("hibernate.dialect", env.getProperty("userlogon.datasource.dialect"));
         return hibernateProperties;
     }
 }

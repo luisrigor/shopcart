@@ -53,7 +53,6 @@ public class CartConfig {
 
         String jndi = env.getProperty("shopcart.datasource.jndi-name");
         if (jndi == null) {
-            logger.info("no entra 2: " + jndi);
             return null;
         }
         logger.info("Jndi initialized: " + jndi);

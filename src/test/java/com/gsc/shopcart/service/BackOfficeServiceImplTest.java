@@ -3,10 +3,8 @@ package com.gsc.shopcart.service;
 import com.google.gson.reflect.TypeToken;
 import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
-import com.gsc.shopcart.model.scart.entity.Product;
-import com.gsc.shopcart.model.scart.entity.ProductAttribute;
+import com.gsc.shopcart.model.scart.entity.*;
 import com.gsc.shopcart.repository.scart.*;
-import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.CatalogRepository;
 import com.gsc.shopcart.repository.scart.CategoryRepository;
@@ -37,6 +35,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ActiveProfiles(SecurityData.ACTIVE_PROFILE)
@@ -523,6 +522,79 @@ public class BackOfficeServiceImplTest {
 
         assertThrows(ShopCartException.class ,()-> backOfficeService.createProduct(createProductDTO, userPrincipal, files));
 
+
+    }
+
+    @Test
+    void whenCreateProductVariantThenSave() {
+
+        CreateProdVariantDTO createProductDTO = CreateProdVariantDTO.builder()
+                .idProduct(0)
+                .ivPath("/test")
+                .idCatalog(1)
+                .idProductVariant(0)
+                .sku("")
+                .stock(0)
+                .build();
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
+        when(productVariantRepository.save(any())).thenReturn(new ProductVariant());
+
+        MockMultipartFile file1 = new MockMultipartFile("file", "filename.txt", "text/plain", "File content".getBytes());
+
+        String productVariant = backOfficeService.createProductVariant(createProductDTO, file1, userPrincipal);
+
+        assertEquals("Variante de Produto criada com sucesso...", productVariant);
+
+    }
+
+    @Test
+    void whenCreateProductVariantThenUpdate() {
+
+        CreateProdVariantDTO createProductDTO = CreateProdVariantDTO.builder()
+                .idProduct(0)
+                .ivPath("/test")
+                .idCatalog(1)
+                .idProductVariant(1)
+                .sku("")
+                .stock(0)
+                .build();
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
+        when(productVariantRepository.save(any())).thenReturn(new ProductVariant());
+        when(productVariantRepository.findById(anyInt())).thenReturn(Optional.of(new ProductVariant()));
+
+        MockMultipartFile file1 = new MockMultipartFile("file", "filename.txt", "text/plain", "File content".getBytes());
+
+        String productVariant = backOfficeService.createProductVariant(createProductDTO, file1, userPrincipal);
+
+        assertEquals("Variante de Produto alterada com sucesso...", productVariant);
+    }
+
+    @Test
+    void whenCreateProductVariantThenThrows() {
+
+        CreateProdVariantDTO createProductDTO = CreateProdVariantDTO.builder()
+                .idProduct(0)
+                .ivPath("/test")
+                .idCatalog(1)
+                .idProductVariant(1)
+                .sku("")
+                .stock(0)
+                .build();
+
+        UserPrincipal userPrincipal = securityData.getUserPrincipal();
+        userPrincipal.setIdUser(1);
+
+        when(productVariantRepository.save(any())).thenReturn(new ProductVariant());
+
+        MockMultipartFile file1 = new MockMultipartFile("file", "filename.txt", "text/plain", "File content".getBytes());
+
+        assertThrows(ShopCartException.class ,()->backOfficeService.createProductVariant(createProductDTO, file1, userPrincipal));
 
     }
 }

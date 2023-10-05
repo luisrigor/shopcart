@@ -1,6 +1,6 @@
 package com.gsc.shopcart.service;
 
-import com.gsc.shopcart.dto.InfoProductDTO;
+import com.gsc.shopcart.dto.entity.InfoProductDTO;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.repository.scart.ProductItemRepository;
 import com.gsc.shopcart.repository.scart.ProductPriceRuleRepository;

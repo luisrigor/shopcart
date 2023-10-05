@@ -1,6 +1,7 @@
 package com.gsc.shopcart.sample.data.provider;
 
 import com.gsc.shopcart.dto.*;
+import com.gsc.shopcart.dto.entity.*;
 import com.gsc.shopcart.model.scart.entity.*;
 
 import java.time.LocalDateTime;

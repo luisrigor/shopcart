@@ -1,9 +1,9 @@
 package com.gsc.shopcart.sample.data.provider;
 
-import com.gsc.shopcart.dto.GetOrderStateDTO;
-import com.gsc.shopcart.dto.OrderCartProduct;
-import com.gsc.shopcart.dto.OrderProductsDTO;
-import com.gsc.shopcart.dto.OrderStateDTO;
+import com.gsc.shopcart.dto.entity.GetOrderStateDTO;
+import com.gsc.shopcart.dto.entity.OrderCartProduct;
+import com.gsc.shopcart.dto.entity.OrderProductsDTO;
+import com.gsc.shopcart.dto.entity.OrderStateDTO;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;

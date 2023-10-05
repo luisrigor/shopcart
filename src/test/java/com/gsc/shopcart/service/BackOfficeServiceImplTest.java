@@ -2,6 +2,7 @@ package com.gsc.shopcart.service;
 
 import com.google.gson.reflect.TypeToken;
 import com.gsc.shopcart.dto.*;
+import com.gsc.shopcart.dto.entity.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.*;
 import com.gsc.shopcart.repository.scart.*;

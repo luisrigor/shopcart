@@ -1,19 +1,18 @@
 package com.gsc.shopcart.service;
 
 
-import com.gsc.shopcart.dto.CreateProdPriceRule;
-import com.gsc.shopcart.dto.CreateProdProperty;
-import com.gsc.shopcart.dto.CreateProdPropertyAttr;
-import com.gsc.shopcart.dto.CreateProductDTO;
+
+import com.gsc.shopcart.dto.entity.CreateProdPriceRule;
+import com.gsc.shopcart.dto.entity.CreateProdProperty;
+import com.gsc.shopcart.dto.entity.CreateProdPropertyAttr;
+import com.gsc.shopcart.dto.entity.CreateProductDTO;
 import com.gsc.shopcart.model.scart.entity.CatalogAdditionalInfo;
 import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.model.scart.entity.ProductDealer;
-import com.gsc.shopcart.model.scart.entity.ProductPriceRule;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.sample.data.provider.ReadJsonTest;
 import com.gsc.shopcart.sample.data.provider.SecurityData;
 import com.gsc.shopcart.sample.data.provider.TestData;
-import com.gsc.shopcart.service.impl.BackOfficeServiceImpl;
 import com.gsc.shopcart.service.impl.product.CreateProduct;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

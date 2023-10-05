@@ -1,4 +1,4 @@
-package com.gsc.shopcart.repository;
+package com.gsc.shopcart.repository.scart;
 
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.security.UserPrincipal;

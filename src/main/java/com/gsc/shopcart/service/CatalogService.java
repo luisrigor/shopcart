@@ -1,14 +1,11 @@
 package com.gsc.shopcart.service;
 
-import com.gsc.shopcart.dto.CartDTO;
-import com.gsc.shopcart.dto.EditOrderAjaxDTO;
-import com.gsc.shopcart.dto.OrderProductsDTO;
+import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.security.UserPrincipal;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CatalogService {
 
@@ -19,4 +16,6 @@ public interface CatalogService {
     EditOrderAjaxDTO editOrderCartAjaxServlet(Integer idOrderCart, Integer quantity, Integer multiplier, UserPrincipal user);
 
     List<OrderCart> moveProductToCart(Integer idProductParam, Integer idProductVariantParam, String typeSelectProductParam, UserPrincipal user);
+
+    CreateOrderResponseDTO createOrder(UserPrincipal user, OrderDataDTO orderData);
 }

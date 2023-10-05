@@ -1,15 +1,15 @@
 package com.gsc.shopcart.dto;
 
 import lombok.*;
-import java.time.LocalDateTime;
 
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductPropertyOrder {
+public class ProductPropertyInputValue {
 
     private Integer id;
     private Integer idProduct;
@@ -25,6 +25,5 @@ public class ProductPropertyOrder {
     private LocalDateTime dtChanged;
     private Character mandatory;
     private Integer rank;
-    protected int hasPropertiesInOrderCart;
-    protected int hasPropertiesInOrderDetail;
+    protected String inputValue;
 }

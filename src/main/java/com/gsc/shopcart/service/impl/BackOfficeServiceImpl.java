@@ -318,7 +318,7 @@ public class BackOfficeServiceImpl implements BackOfficeService {
         if (filter == null) {
             filter = new ShopCartFilter();
             filter.loadData();
-        } else if (filter.getFreeSearch()==null ||filter.getState()==null) {
+        } else if (filter.getFreeSearch()==null || filter.getState()==null) {
             filter.setFreeSearch(Optional.ofNullable(filter.getFreeSearch()).orElse(""));
             filter.setState(Optional.ofNullable(filter.getState()).orElse("T"));
         }

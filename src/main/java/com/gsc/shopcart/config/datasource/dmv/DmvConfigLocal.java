@@ -32,6 +32,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableJpaRepositories(
         entityManagerFactoryRef = "carEntityManagerFactory",
+        transactionManagerRef = "msTransactionManager",
         basePackages = {"com.gsc.shopcart.repository.dmv"}
 )
 public class DmvConfigLocal {

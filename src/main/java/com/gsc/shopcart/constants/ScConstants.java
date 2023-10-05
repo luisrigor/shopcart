@@ -14,5 +14,6 @@ public class ScConstants {
     public static final String PROFILE_TCAP = "TCAP";
     public static final String TYPE_PRODUCT_ADD_QUANTITY = "typeproductaddquantity";
     public static final String TYPE_PRODUCT_ADD_NEW_PRODUCT = "typeproductaddnewproduct";
+    public static final String DATASOURCE_DBSHOPCART = "jdbc/shopcart";
 
 }

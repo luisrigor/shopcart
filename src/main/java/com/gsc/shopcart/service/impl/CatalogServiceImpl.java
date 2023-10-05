@@ -5,7 +5,12 @@ import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.dto.*;
 import com.gsc.shopcart.exceptions.ResourceNotFoundException;
 import com.gsc.shopcart.exceptions.ShopCartException;
+import com.gsc.shopcart.model.dmv.entity.Plafond;
+import com.gsc.shopcart.model.dmv.entity.PlafondCorrection;
+import com.gsc.shopcart.model.scart.DealerData;
 import com.gsc.shopcart.model.scart.entity.*;
+import com.gsc.shopcart.repository.dmv.PlafondCorrectionRepository;
+import com.gsc.shopcart.repository.dmv.PlafondRepository;
 import com.gsc.shopcart.repository.scart.ProductPropertyRepository;
 import com.gsc.shopcart.repository.scart.*;
 import com.gsc.shopcart.repository.usrlogon.CbusDealerRepository;
@@ -18,10 +23,8 @@ import com.gsc.shopcart.utils.ShopCartUtils;
 import com.rg.dealer.Dealer;
 import com.sc.commons.exceptions.SCErrorException;
 import com.sc.commons.financial.FinancialTasks;
-import jdk.internal.org.objectweb.asm.tree.TryCatchBlockNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
-import org.apache.catalina.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +38,9 @@ import java.util.*;
 @Service
 public class CatalogServiceImpl implements CatalogService {
 
+    private final OrderDetailRepository orderDetailRepository;
+    private final OrderRepository orderRepository;
+
     private final CatalogRepository catalogRepository;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
@@ -47,12 +53,23 @@ public class CatalogServiceImpl implements CatalogService {
     private final ProductPriceRuleRepository priceRuleRepository;
     private final ProductPropertyRepository productPropertyRepository;
     private final OrderCartProductPropertyRepository orderCartProductPropertyRepository;
+    private final OrderDetailProductPropertyRepository orderDetailProductPropertyRepository;
+
+
+    private final PlafondRepository plafondRepository;
+    private final PlafondCorrectionRepository plafondCorrectionRepository;
 
     private static final String FORMAT_UNIT_PRICE_EURO = " &euro;";
     private static final String DECIMAL_FORMAT = "#,##0.00";
     private static final String PRODUCT_TEXT = "Product";
     private static final String PRODUCT_ID_TEXT = "idProduct";
     private static final String OBS_CONSULTA = "(s/consulta)";
+    private static final int ID_ORDER_STATUS_PENDENT = 3;
+    private static final String CONFIGURATION_ID_APPLICATION = "idApplication";
+    public static final String GET_CART = "getcart";
+    private static final String ORDER_PRODUCTS = "orderproducts";
+    private static final String GET_PROMOTIONS = "getpromotions";
+    private static final String GET_PRODUCTS_BY_FREE_SEARCH = "getProductsByFreeSearch";
 
 
     @Override
@@ -81,27 +98,16 @@ public class CatalogServiceImpl implements CatalogService {
 
             boolean isToAdd = true;
             for (Category cat : listCategorySelected) {
-                if (category != null && Objects.equals(cat.getId(), category.getId()))
-                    isToAdd = false;
+                if (category != null && Objects.equals(cat.getId(), category.getId())) isToAdd = false;
             }
 
-            if (isToAdd && category != null)
-                listCategorySelected.add(category);
+            if (isToAdd && category != null) listCategorySelected.add(category);
 
             List<OrderCartProduct> vecOrderCartF = orderCartRepository.getOrderCartByIdUserAndIdCatalog(userPrincipal.getIdUser(), idCatalog);
 
             vecOrderCart = formatFields(vecOrderCartF);
 
-            return CartDTO.builder()
-                    .idCategory(idCategoryQuery)
-                    .listCategorySelected(listCategorySelected)
-                    .vecCategories(vecCategories)
-                    .vecProducts(vecProducts)
-                    .vecOrderCart(vecOrderCart)
-                    .virtualPath(userPrincipal.getVirtualPath())
-                    .idCatalog(userPrincipal.getIdCatalog())
-                    .view(view)
-                    .build();
+            return CartDTO.builder().idCategory(idCategoryQuery).listCategorySelected(listCategorySelected).vecCategories(vecCategories).vecProducts(vecProducts).vecOrderCart(vecOrderCart).virtualPath(userPrincipal.getVirtualPath()).idCatalog(userPrincipal.getIdCatalog()).view(view).build();
 
         } catch (Exception e) {
             throw new ShopCartException("Error fetching cart ", e);
@@ -126,8 +132,7 @@ public class CatalogServiceImpl implements CatalogService {
             String ivaType = cart.getIvaType();
             double totalIva = 0.0;
 
-            if (!ivaType.equalsIgnoreCase("EXEMPT"))
-                totalIva = FinancialTasks.getVATatScale("PT", ivaType);
+            if (!ivaType.equalsIgnoreCase("EXEMPT")) totalIva = FinancialTasks.getVATatScale("PT", ivaType);
 
             double unitPrice = cart.getUnitPrice();
             if (ShopCartUtils.isProductInPromotion(cart.getPromoStart(), cart.getPromoEnd()))
@@ -150,8 +155,7 @@ public class CatalogServiceImpl implements CatalogService {
     private List<Object[]> getCustomDealers(String oidNet, Integer idUser) {
         if (oidNet.equalsIgnoreCase(Dealer.OID_NET_TOYOTA))
             return toyotaDealerRepository.getUserDealerWithAccess(idUser);
-        if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS))
-            return lexusDealerRepository.getUserDealerWithAccess(idUser);
+        if (oidNet.equalsIgnoreCase(Dealer.OID_NET_LEXUS)) return lexusDealerRepository.getUserDealerWithAccess(idUser);
         return cbusDealerRepository.getUserDealerWithAccess(idUser);
     }
 
@@ -178,9 +182,7 @@ public class CatalogServiceImpl implements CatalogService {
             List<Object[]> listSups = orderStateService.getSuppliers(user.getOidNet(), Integer.valueOf(user.getTcapProfile()), Integer.valueOf(user.getSupplierProfile()));
             Map<Integer, String> suppliers = orderStateService.setMapData(listSups);
             Map<String, String> services = getServiceMap(idApplication);
-            OrderProductsDTO orderProductsDTO = OrderProductsDTO.builder()
-                    .allServices(services).vecOrderCart(vecOrderCart)
-                    .hstDealers(hstDealers).suppliers(suppliers).build();
+            OrderProductsDTO orderProductsDTO = OrderProductsDTO.builder().allServices(services).vecOrderCart(vecOrderCart).hstDealers(hstDealers).suppliers(suppliers).build();
             setDealerAndAddressForOrderProducts(user.getOidNet(), oidDealers != null ? oidDealers : Collections.emptyList(), orderProductsDTO);
             return orderProductsDTO;
         } catch (Exception e) {
@@ -233,10 +235,8 @@ public class CatalogServiceImpl implements CatalogService {
             NumberFormat nf = new DecimalFormat(DECIMAL_FORMAT);
             double totalPrice;
             int qtdToOrder = quantity;
-            OrderCart ordercart = orderCartRepository.findById(idOrderCart)
-                    .orElseThrow(() -> new ResourceNotFoundException("Order Cart", "idOrderCart", idOrderCart.toString()));
-            Product product = productRepository.findById(ordercart.getIdProduct())
-                    .orElseThrow(() -> new ResourceNotFoundException(PRODUCT_TEXT, PRODUCT_ID_TEXT, ordercart.getIdProduct().toString()));
+            OrderCart ordercart = orderCartRepository.findById(idOrderCart).orElseThrow(() -> new ResourceNotFoundException("Order Cart", "idOrderCart", idOrderCart.toString()));
+            Product product = productRepository.findById(ordercart.getIdProduct()).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_TEXT, PRODUCT_ID_TEXT, ordercart.getIdProduct().toString()));
 
             if (product.getPriceRules() == 1) {
                 StringBuilder detail = new StringBuilder(StringUtils.EMPTY);
@@ -247,8 +247,7 @@ public class CatalogServiceImpl implements CatalogService {
                     ordercart.setUnitPriceRule(totalPrice);//change to double from integer
                     ordercart.setPrice(totalPrice);
                     ordercart.setObservations(detail.toString());
-                } else
-                    qtdToOrder = -1;
+                } else qtdToOrder = -1;
 
             } else if (product.getUnitPriceConsult() == 1) {
                 // product have no price defined
@@ -308,18 +307,16 @@ public class CatalogServiceImpl implements CatalogService {
 
             int idProduct = (idProductParam <= 0) ? 1 : idProductParam;
             int idProductVariant = (idProductVariantParam == null || idProductVariantParam <= 0) ? 0 : idProductVariantParam;
-            String typeSelectProduct = (typeSelectProductParam == null || typeSelectProductParam.isEmpty())
-                    ? ScConstants.TYPE_PRODUCT_ADD_QUANTITY : typeSelectProductParam;
+            String typeSelectProduct = (typeSelectProductParam == null || typeSelectProductParam.isEmpty()) ? ScConstants.TYPE_PRODUCT_ADD_QUANTITY : typeSelectProductParam;
 
             OrderCart ordercart = orderCartRepository.getOrderCart(user.getIdUser(), Integer.parseInt(user.getIdCatalog()), idProduct, idProductVariant).orElse(null);
             Product product = productRepository.findById(idProduct).orElseThrow(() -> new ResourceNotFoundException(PRODUCT_TEXT, PRODUCT_ID_TEXT, String.valueOf(idProduct)));
 
             if (Objects.isNull(ordercart) || typeSelectProduct.equals(ScConstants.TYPE_PRODUCT_ADD_NEW_PRODUCT))
-                setNewOrderCart(user,product,idProductVariant);
-            else setAndSaveOrderCart(user,product,ordercart);
+                setNewOrderCart(user, product, idProductVariant);
+            else setAndSaveOrderCart(user, product, ordercart);
 
-            List<OrderCartProduct> vecOrderCartF = orderCartRepository
-                    .getOrderCartByIdUserAndIdCatalog(user.getIdUser(), Integer.valueOf(user.getIdCatalog()));
+            List<OrderCartProduct> vecOrderCartF = orderCartRepository.getOrderCartByIdUserAndIdCatalog(user.getIdUser(), Integer.valueOf(user.getIdCatalog()));
 
             return formatFields(vecOrderCartF);
 
@@ -328,10 +325,9 @@ public class CatalogServiceImpl implements CatalogService {
         }
     }
 
-    private List<String[]> setMinProductPrice(Integer idProduct){
+    private List<String[]> setMinProductPrice(Integer idProduct) {
         List<String[]> minProductPrice = priceRuleRepository.getMinProductPriceRulesByIdProduct(idProduct, -1);
-        if (minProductPrice.isEmpty())
-            minProductPrice.add(new String[]{"9999","0"});
+        if (minProductPrice.isEmpty()) minProductPrice.add(new String[]{"9999", "0"});
         return minProductPrice;
     }
 
@@ -341,17 +337,17 @@ public class CatalogServiceImpl implements CatalogService {
             Integer minqtd = Integer.parseInt(minProductPrice.get(0)[0]);
             Double price = Double.parseDouble(minProductPrice.get(0)[1]);
             String obs = "(" + minqtd + "*" + price + ")";
-            createOrderCart(user, product.getId(), idProductVariant, minqtd, obs, price * minqtd, price * minqtd);
+            buildAndCreateOrderCart(user, product.getId(), idProductVariant, minqtd, obs, price * minqtd, price * minqtd);
         } else if (product.getUnitPriceConsult() == 1) {
             String obs = OBS_CONSULTA;
-            createOrderCart(user, product.getId(), idProductVariant, 1, obs, 0.0, 0.0);
+            buildAndCreateOrderCart(user, product.getId(), idProductVariant, 1, obs, 0.0, 0.0);
         } else {
             NumberFormat nf = new DecimalFormat(DECIMAL_FORMAT);
             double unitPrice = product.getUnitPrice();
             if (ShopCartUtils.isProductInPromotion(product.getPromoStart(), product.getPromoEnd()))
                 unitPrice = product.getPromoPrice();
             String obs = nf.format(unitPrice) + FORMAT_UNIT_PRICE_EURO;
-            createOrderCart(user, product.getId(), idProductVariant, 1, obs, 0.0, 0.0);
+            buildAndCreateOrderCart(user, product.getId(), idProductVariant, 1, obs, 0.0, 0.0);
         }
     }
 
@@ -377,88 +373,297 @@ public class CatalogServiceImpl implements CatalogService {
         orderCartRepository.save(ordercart);
     }
 
-    private OrderCart createOrderCart(UserPrincipal user, int idProduct, int idProductVariant, int quantity, String obs, double price, double unitPriceRule) {
-        return orderCartRepository.save(OrderCart.builder()
-                .idUser(user.getIdUser())
-                .idCatalog(Integer.valueOf(user.getIdCatalog()))
-                .idProduct(idProduct)
-                .idProductVariant(idProductVariant == 0 ? null : idProductVariant)
-                .quantity(quantity)
-                .observations(obs)
-                .price(price)
-                .unitPriceRule(unitPriceRule)
-                .dtCreated(LocalDateTime.now())
-                .createdBy(user.getLogin() + "||" + user.getNifUtilizador()).build());
+    private OrderCart buildAndCreateOrderCart(UserPrincipal user, int idProduct, int idProductVariant, int quantity, String obs, double price, double unitPriceRule) {
+        return orderCartRepository.save(OrderCart.builder().idUser(user.getIdUser()).idCatalog(Integer.valueOf(user.getIdCatalog())).idProduct(idProduct).idProductVariant(idProductVariant == 0 ? null : idProductVariant).quantity(quantity).observations(obs).price(price).unitPriceRule(unitPriceRule).dtCreated(LocalDateTime.now()).createdBy(user.getLogin() + "||" + user.getNifUtilizador()).build());
+    }
+
+    @Override
+    public CreateOrderResponseDTO createOrder(UserPrincipal user, OrderDataDTO orderData) {
+
+        String msg = "A sua encomenda foi recebida com sucesso...";
+        CreateOrderResponseDTO createOrderResponseDTO = CreateOrderResponseDTO.builder().message(msg).build();
+
+        try {
+            Map<String, DealerData> dealerMap = ShopCartUtils.getDealerData(user, orderData);
+            String result = validateOrder(orderData, dealerMap, user);
+            if ("total menor que 1 ".equals(result)) {
+                msg = "Para realizar a encomenda, tem ter um total acima de 1 euro por centro de custo por limita��o do as400.";
+                createOrderResponseDTO.setActionParameter(ORDER_PRODUCTS);
+            } else if (invalideProductsExist(orderData)) {
+                msg = "Para realizar a encomenda tem primeiro que definir todas as propriedades obrigat�rias do produto.";
+                createOrderResponseDTO.setActionParameter(ORDER_PRODUCTS);
+            } else {
+                if (dealerMap == null || dealerMap.isEmpty()) {
+                    msg = "Para realizar a encomenda dever� contactar o importador (falta informa��o sobre shipTO).";
+                    createOrderResponseDTO.setActionParameter(ORDER_PRODUCTS);
+                } else {
+                    msg = setMessageAndCreateOrderResponse(orderData, user, dealerMap, createOrderResponseDTO, msg);
+                }
+            }
+
+            if (orderData.getIdCategory() <= 0) {
+                createOrderResponseDTO.setListCategorySelected(new ArrayList<>());
+            }
+            createOrderResponseDTO.setIdCategory(orderData.getIdCategory());
+            createOrderResponseDTO.setMessage(msg);
+            return createOrderResponseDTO;
+        } catch (SCErrorException e) {
+            throw new ShopCartException("Error CreateOrder", e);
+        }
+    }
+
+    private String setMessageAndCreateOrderResponse(OrderDataDTO orderData, UserPrincipal user, Map<String, DealerData> dealerMap, CreateOrderResponseDTO createOrderResponseDTO, String msg) {
+
+        List<String> dealers = new ArrayList<>();
+        StringBuilder res = new StringBuilder();
+        for (DealerData dealer : dealerMap.values()) {
+
+            String tmp = createOrderHelper(user, orderData, dealer);
+            if (tmp != null) {
+                res.append(tmp).append("\n");
+                dealers.add(dealer.getOidDealer());
+            }
+        }
+        if (!dealers.isEmpty()) {
+            msg = res.toString();
+
+        } else {
+            orderCartRepository.cleanCart(Integer.valueOf(user.getIdCatalog()), user.getIdUser());
+            ShopCartFilter freeSearch = BackOfficeServiceImpl.getFilterFreeSearchProduct(new ShopCartFilter());
+            if (orderData.getIdCategory() <= 0 && !freeSearch.getFreeSearch().isEmpty()) {
+                createOrderResponseDTO.setActionParameter(GET_PRODUCTS_BY_FREE_SEARCH);
+            } else if (orderData.getIdCategory() <= 0) {
+                createOrderResponseDTO.setActionParameter(GET_PROMOTIONS);
+            } else {
+                createOrderResponseDTO.setActionParameter(GET_CART);
+            }
+        }
+
+        return msg;
     }
 
 
-    private String validateOrder(OrderDataDTO orderData, Map<String, DealerData> dealerMap, int idApplication) throws SCErrorException {
+    private String validateOrder(OrderDataDTO orderData, Map<String, DealerData> dealerMap, UserPrincipal user) {
 
-
-
-        String result="";
-        double totalOrder = 0.0;
-        String bill_to="";
-        int multiplicator=0;
-        Map<String, Vector<OrderDetail>> mapListProductsByOrderAndBillTo = new HashMap<String,Vector<OrderDetail>>();
         try {
-            int orderNumber = Order.getHelper().getMaxOrderNumber(orderData.idCatalog);
-            for(int i=0; i < orderData.idsProduct.length; i++){
-                bill_to=Product.getHelper().getBillToByIdProduct(Integer.parseInt(orderData.idsProduct[i]));
-                if(bill_to==null){//no caso de n�o existir centro de custo definido na BD
-                    if(idApplication==10008){
-                        bill_to="0288";// centro de custos da lexus
-                    }else{
-                        bill_to="0238";//no caso da toyota
-                    }
-                }
-                if(bill_to!=null && !bill_to.equals("")){
-                    OrderDetail oDetail = new OrderDetail();
-                    oDetail.setUnitPrice(Double.parseDouble(orderData.unitPriceProduct[i]));
-                    oDetail.setValueIva(Double.parseDouble(orderData.valueIvaProduct[i]));
-                    if(!(mapListProductsByOrderAndBillTo.containsKey(orderNumber+bill_to))){
 
-                        mapListProductsByOrderAndBillTo.put(orderNumber+bill_to, new Vector<OrderDetail>());
-                        mapListProductsByOrderAndBillTo.get(orderNumber+bill_to).add(oDetail);
-                    }else{
-                        mapListProductsByOrderAndBillTo.get(orderNumber+bill_to).add(oDetail);
-                    }
-                }
-            }
+            String result = StringUtils.EMPTY;
+            double totalOrder;
+            int multiplicator;
+
+            Map<String, List<OrderDetail>> mapListProductsByOrderAndBillTo = setOrdersDetailMap(orderData, user);
 
             if (dealerMap != null) {
 
-                for (DealerData dealer : dealerMap.values()) {
-                    multiplicator=dealer.multiplicator;
-                    break;//basta obter o multiplicator do primeiro dealer pois � igual para todos os dealers
+                multiplicator = dealerMap.values().iterator().next().getMultiplicator();
+
+                /**
+                 int finalMultiplicator = multiplicator;
+
+
+                 result = mapListProductsByOrderAndBillTo.values().stream()
+                 .map(vecOrderD -> {
+                 double totalOrder2 = vecOrderD.stream()
+                 .mapToDouble(orderDetail -> (orderDetail.getUnitPrice() + orderDetail.getValueIva()) * finalMultiplicator)
+                 .sum();
+                 return totalOrder2 < 1 ? "total menor que 1" : null;
+                 })
+                 .filter(Objects::nonNull)
+                 .findFirst()
+                 .orElse(null);
+                 */
+
+                for (List<OrderDetail> ordersDetail : mapListProductsByOrderAndBillTo.values()) {
+                    totalOrder = 0.0;
+                    for (OrderDetail OorderDetail : ordersDetail) {//percorre produtos por centro de custo
+                        totalOrder += (OorderDetail.getUnitPrice() + OorderDetail.getValueIva()) * multiplicator;
+                    }
+                    if (totalOrder < 1) {
+                        result = "total menor que 1 ";
+                        break;
+                    }
                 }
 
-                //iterar o mapa construido anteriormente com os centros de custo
-                Iterator<Map.Entry<String,  Vector<OrderDetail>>> iterator = mapListProductsByOrderAndBillTo.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Entry<String, Vector<OrderDetail>> entry = iterator.next();
-                    Vector<OrderDetail> vecOrderD = mapListProductsByOrderAndBillTo.get(entry.getKey());
-                    totalOrder=0.0;
-                    for(OrderDetail OorderDetail: vecOrderD){//percorre produtos por centro de custo
-                        totalOrder+= (OorderDetail.getUnitPrice() + OorderDetail.getValueIva()) * multiplicator;
-                    }
-                    if(totalOrder < 1){
-                        result ="total menor que 1 "; break;
-                    }
-                }
-            }else{
-                result="falta informa��o sobre shipTO";
+            } else {
+                result = "falta informa��o sobre shipTO";
             }
 
+            /**To Here*/
+
+            return result;
         } catch (NumberFormatException e) {
             e.printStackTrace();
             throw new NumberFormatException();
-        } catch (SCErrorException e) {
+        } catch (ShopCartException e) {
             e.printStackTrace();
-            throw new SCErrorException("Erro ao obter o centro de custo");
+            throw new ShopCartException("Error validate order", e);
         }
 
-        return result;
     }
+
+    private Map<String, List<OrderDetail>> setOrdersDetailMap(OrderDataDTO orderData, UserPrincipal user) {
+        int orderNumber = orderRepository.getMaxOrderNumber(Integer.valueOf(user.getIdCatalog()));
+        Map<String, List<OrderDetail>> mapListProductsByOrderAndBillTo = new HashMap<>();
+        for (int i = 0; i < orderData.getIdsProduct().size(); i++) {
+
+            String billTo = productRepository.getBillToByIdProduct(orderData.getIdsProduct().get(i));
+            if (billTo == null)
+                billTo = (Integer.parseInt(user.getApplication()) == ApiConstants.LEXUS_APP) ? "0288" : "0238";
+
+            if (!billTo.equals(StringUtils.EMPTY)) {
+
+                OrderDetail oDetail = new OrderDetail();
+                oDetail.setUnitPrice(orderData.getUnitPriceProduct().get(i));
+                oDetail.setValueIva((orderData.getValueIvaProduct().get(i)));
+
+                if (!(mapListProductsByOrderAndBillTo.containsKey(orderNumber + billTo))) {
+                    mapListProductsByOrderAndBillTo.put(orderNumber + billTo, new ArrayList<>());
+                    mapListProductsByOrderAndBillTo.get(orderNumber + billTo).add(oDetail);
+                } else {
+                    mapListProductsByOrderAndBillTo.get(orderNumber + billTo).add(oDetail);
+                }
+            }
+        }
+        return mapListProductsByOrderAndBillTo;
+    }
+
+
+    private boolean invalideProductsExist(OrderDataDTO orderData) {
+        for (int i = 0; i < orderData.getIdsProduct().size(); i++) {
+            List<ProductPropertyInputValue> vecOrderCartProductProperty = productPropertyRepository.getOrderCartProductProperty(orderData.getIdsOrderCart().get(i), orderData.getIdsProduct().get(i), "S");
+
+            for (ProductPropertyInputValue pp : vecOrderCartProductProperty) {
+                if (pp.getInputValue().equalsIgnoreCase("")) {
+                    return true;
+                }
+            }
+            if (!vecOrderCartProductProperty.isEmpty()) {
+                orderData.setHasProductProperties(true);
+            }
+        }
+        return false;
+    }
+
+
+    private String createOrderHelper(UserPrincipal user, OrderDataDTO orderData, DealerData dealer) {
+        String result = null;
+        try {
+            String createdBy = user.getLogin() + "||" + user.getNifUtilizador();
+
+            int receivedQuantity = 0;
+            double totalOrder = 0;
+            double totalOrderSIva = 0;
+
+            int orderNumber = orderRepository.getMaxOrderNumber(Integer.valueOf(user.getIdCatalog()));
+
+            Order order = buildAndCreateOrUpdateOrder(user, dealer.getOrderObs(), orderNumber);
+            String multiplicator = dealer.getMultiplicator() != 1 ? dealer.getMultiplicator() + " * " : "";
+            for (int i = 0; i < orderData.getIdsProduct().size(); i++) {
+
+                if (Objects.equals(orderData.getHasPriceRules().get(i), "1")) {
+                    orderDetailRepository.save(OrderDetail.builder().idOrder(order.getId()).idProduct(orderData.getIdsProduct().get(i)).sku(orderData.getIdsProductVariant().get(i)).idOrderStatus(ID_ORDER_STATUS_PENDENT).idSupplier(orderData.getIdSupplier().get(i)).unitPrice(orderData.getUnitPriceProduct().get(i)).unitPriceRule(orderData.getUnitPriceProductRule().get(i)).ivaType(orderData.getIvaTypeProduct().get(i)).valueIva(orderData.getValueIvaProduct().get(i) * dealer.getMultiplicator()).orderQuantity(orderData.getOrderQuantity().get(i) * dealer.getMultiplicator()).receivedQuantity(receivedQuantity).priceObs(multiplicator + orderData.getObservationsOrderCart().get(i))///aqui vamos
+                            .price(orderData.getPriceOrderCart().get(i)).createdBy(createdBy).build());
+
+                } else {
+                    String obs = orderData.getObservationsOrderCart().get(i);
+                    if (!obs.isEmpty() && !obs.equalsIgnoreCase(OBS_CONSULTA)) {
+                        obs = orderData.getObservationsOrderCart().get(i).substring(0, orderData.getObservationsOrderCart().get(i).length() - 1) + "&euro;";
+                    }
+                    orderDetailRepository.save(OrderDetail.builder().idOrder(order.getId()).idProduct(orderData.getIdsProduct().get(i)).sku(orderData.getIdsProductVariant().get(i)).idOrderStatus(ID_ORDER_STATUS_PENDENT).idSupplier(orderData.getIdSupplier().get(i)).unitPrice(orderData.getUnitPriceProduct().get(i)).unitPriceRule(0.0).ivaType(orderData.getIvaTypeProduct().get(i)).valueIva(orderData.getValueIvaProduct().get(i) * dealer.getMultiplicator()).orderQuantity(orderData.getOrderQuantity().get(i) * dealer.getMultiplicator()).receivedQuantity(receivedQuantity).priceObs(multiplicator + obs).price(orderData.getPriceOrderCart().get(i)).createdBy(createdBy).build());
+                }
+                /**   if (orderData.getHasProductProperties()!=null && orderData.getHasProductProperties()) {
+                 orderDetailProductPropertyRepository.createOrderDetailProductProperty(orderDetail.getId(), orderData.getIdsOrderCart().get(i),
+                 (user.getLogin()+"||"+user.getNifUtilizador()), LocalDateTime.now());
+                 }
+                 This is a code pending to use, becaus we have an issue with the repo
+                 */
+                totalOrder += (orderData.getPriceOrderCart().get(i) + orderData.getValueIvaProduct().get(i)) * dealer.getMultiplicator();
+
+                totalOrderSIva += (orderData.getPriceOrderCart().get(i)) * dealer.getMultiplicator();
+            }
+            order.setTotal(totalOrder);
+            order.setChangedBy(user.getLogin() + "||" + user.getNifUtilizador());
+            order.setDtChanged(LocalDateTime.now());
+            orderRepository.save(order);
+
+            updatePlafond(user, order.getOrderNumber(), totalOrderSIva / 2.0); //atualiza o plafond sem iva
+
+            /**
+             * //S� pode chamar esta fun��o depois de a "Order" estar registada na BD ou vai dar erro
+             * sendNewOrder(request, user, order, orderData.idCatalog, dealer.client, dealer.shipTO);
+             */
+
+            return result;
+
+        } catch (SCErrorException e) {
+            throw new ShopCartException("SCERRORE create order helper", e);
+        } catch (ShopCartException e) {
+            throw new ShopCartException("Error create order helper", e);
+        }
+
+    }
+
+
+    private Order buildAndCreateOrUpdateOrder(UserPrincipal user, String orderObs, Integer orderNumber) {
+        return orderRepository.save(Order.builder().idCatalog(Integer.valueOf(user.getIdCatalog())).oidDealer(user.getOidDealer()).orderObs(orderObs).orderNumber(orderNumber).dtOrder(LocalDateTime.now()).dtCreated(LocalDateTime.now()).createdBy(user.getLogin() + "||" + user.getNifUtilizador()).idUser(user.getIdUser()).build());
+    }
+
+    private void updatePlafond(UserPrincipal user, int orderNumber, double value) throws SCErrorException {
+
+
+        Dealer dealer = Dealer.getHelper().getByObjectId(user.getOidNet(), user.getOidDealer());
+        Plafond plafond = plafondRepository.findByOidDealerAndYearAndType(user.getOidDealer(), Calendar.getInstance().get(Calendar.YEAR), "N").orElse(null);
+        /**Plafond.getHelper().getPlafondsByOidDealer(dealer.getOid_Parent());*/
+        String createdBy = user.getLogin() + "||" + user.getNifUtilizador() + "||APP" + CONFIGURATION_ID_APPLICATION;
+        double previousPlafondRemaining = 0.00;
+        double previousOnlineRemaining = 0.00;
+        double previousOnlinePlafond = 0.00;
+
+        if (plafond != null) {//obtem os plafonds antes de estes serem actualizados
+
+            previousPlafondRemaining = plafond.getPlafondRemaining();//plafond Estimado restante (PER)
+            previousOnlineRemaining = plafond.getOnlineRemaining();//
+            previousOnlinePlafond = plafond.getOnlinePlafond();
+
+            plafond.setOnlineRemaining(plafond.getOnlineRemaining() - value);
+            plafond.setPlafondRemaining(plafond.getPlafondRemaining() - value);
+            plafond.setCreatedBy(createdBy);
+
+            plafondRepository.save(plafond);
+        } else {
+            plafond = new Plafond();
+            plafond.setOidDealer(dealer.getOid_Parent());
+            plafond.setYear(Calendar.getInstance().get(Calendar.YEAR));
+            plafond.setOnlineRemaining(-value);
+            /** plafond.setPlafondRemaining(plafond.getPlafondTotal() - value);
+             * We have an issue with this get. Is a null exception*/
+            plafond.setType("N");
+            plafond.setCreatedBy(createdBy);
+            plafond.setDtCreated(LocalDateTime.now());
+            plafondRepository.save(plafond);
+            /**Plafond.getHelper().insert(plafond, createdBy);*/
+        }
+
+        PlafondCorrection correction = new PlafondCorrection();
+        correction.setAmount(-value);
+        correction.setIdFaaPlafond(plafond.getId());
+
+        correction.setPreviousPlafondRemaining(previousPlafondRemaining);//guardo o valor anterior do plafond
+        correction.setPreviousPlafondTotal(plafond.getPlafondTotal());
+        correction.setPreviousOnlinePlafond(previousOnlinePlafond);
+        correction.setPreviousOnlineRemaining(previousOnlineRemaining);
+
+
+        correction.setAfterPlafondTotal(plafond.getPlafondTotal());//guarda valores do plafond ap�s atualiza��o
+        correction.setAfterPlafondRemaining(previousPlafondRemaining - value);
+        correction.setAfterOnlinePlafond(previousOnlinePlafond); //plafond real total
+        correction.setAfterOnlineRemaining(previousOnlineRemaining - value);//plafond real restante
+
+        correction.setDescription("Encomenda de Materiais: " + (-value) + "&euro; para num. encomenda: " + orderNumber);
+        correction.setCreatedBy(createdBy);
+        correction.setDtCreated(LocalDateTime.now());
+        plafondCorrectionRepository.save(correction);
+    }
+
 
 }

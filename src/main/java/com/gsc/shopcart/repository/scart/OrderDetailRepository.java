@@ -1,7 +1,6 @@
 package com.gsc.shopcart.repository.scart;
 
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
-import com.gsc.shopcart.repository.OrderDetailCustomRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 

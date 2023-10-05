@@ -5,25 +5,22 @@ import com.gsc.shopcart.model.scart.DealerData;
 import com.gsc.shopcart.repository.usrlogon.CbusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.LexusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.ToyotaUserEntityProfileRepository;
-import com.gsc.as400.al.AlMovement;
-import com.gsc.as400.al.AlObservations;
-import com.gsc.as400.invoke.InvokeAlInfo;
-import com.gsc.shopcart.constants.ApiConstants;
-import com.gsc.shopcart.exceptions.ShopCartException;
-import com.gsc.shopcart.model.scart.entity.OrderDetail;
-import com.gsc.shopcart.model.scart.entity.ProductPriceRule;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.rg.dealer.Dealer;
 import com.rg.objects.DealerCode;
-import com.sc.commons.exceptions.SCErrorException;
+import com.sc.commons.financial.FinancialTasks;
 import com.sc.commons.utils.StringTasks;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import com.gsc.shopcart.model.scart.entity.ProductPriceRule;
+import com.sc.commons.exceptions.SCErrorException;
+//import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
+
 
 @Component
 @Log4j
@@ -63,8 +60,10 @@ public class ShopCartUtils {
             Calendar calPromoEnd = Calendar.getInstance();
             calPromoStart.setTime(dtPromoStart);
             calPromoEnd.setTime(dtPromoEnd);
+            // if (calNow.compareTo(calPromoStart)>=0 && calNow.compareTo(calPromoEnd)<=0)
             if (calNow.after(calPromoStart) && calNow.before(calPromoEnd))
                 isProductInPromotion = true;
+            // if (calNow.compareTo(calPromoEnd)>=0 && ShopCartUtils.isSameDay(calPromoStart, calPromoEnd))
             if (calNow.after(calPromoEnd) && ShopCartUtils.isSameDay(calPromoStart, calPromoEnd))
                 isProductInPromotion = false;
             if (ShopCartUtils.isSameDay(calNow, calPromoEnd))
@@ -72,11 +71,13 @@ public class ShopCartUtils {
         } else if (dtPromoStart != null) {
             Calendar calPromoStart = Calendar.getInstance();
             calPromoStart.setTime(dtPromoStart);
+            // if (calNow.compareTo(calPromoStart)>=0)
             if (calNow.after(calPromoStart))
                 isProductInPromotion = true;
         } else if (dtPromoEnd != null) {
             Calendar calPromoEnd = Calendar.getInstance();
             calPromoEnd.setTime(dtPromoEnd);
+            // if (calNow.compareTo(calPromoEnd)<=0)
             if (calNow.before(calPromoEnd))
                 isProductInPromotion = true;
         }
@@ -134,6 +135,24 @@ public class ShopCartUtils {
         return "Catalog_" + idCatalog + File.separator + "Categories" + File.separator;
     }
 
+    public static String getPathProductImages(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Images" + File.separator;
+    }
+
+    public static String getPathProductPromotions(int idCatalog) {
+        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Promotions" + File.separator;
+    }
+
+    public static String getFileExtension(String originalFileName) {
+        if (org.springframework.util.StringUtils.hasText(originalFileName)) {
+            int dotIndex = originalFileName.lastIndexOf('.');
+            if (dotIndex >= 0) {
+                return originalFileName.substring(dotIndex + 1).toLowerCase();
+            }
+        }
+        return null;
+    }
+
     public static String getPathProductVariants(int idCatalog) {
         return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Variants" + File.separator;
     }
@@ -169,6 +188,11 @@ public class ShopCartUtils {
             calcCost = 0.00;
 
         return calcCost;
+
+    }
+
+    public double getVATatScale(String ivaType) throws SCErrorException {
+        return FinancialTasks.getVATatScale("PT", ivaType);
     }
 
     public static Map<String, DealerData> getDealerData(UserPrincipal user, OrderDataDTO orderDataDTO) throws SCErrorException {
@@ -198,8 +222,12 @@ public class ShopCartUtils {
         }
         return result;
     }
-
 }
+
+
+
+
+
 
 
 

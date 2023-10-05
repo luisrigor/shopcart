@@ -13,7 +13,7 @@ import java.util.Map;
 public class LocalEnvironmentConfig extends DataSourcesProperties implements EnvironmentConfig {
 
    public LocalEnvironmentConfig() {
-      SCGlobalPreferences.setResources("C:/Users/Luis Parra/OneDrive - Rigor/Documentos/REPOSITORIOS/Proyectos GITHUB/shopcart/src/main/resources/sc_config.properties");
+      SCGlobalPreferences.setResources("C:/Users/Luis Parra /OneDrive - Rigor/Documentos/REPOSITORIOS/Proyectos GITHUB/shopcart/src/main/resources/sc_config.properties");
    }
    @Override
    public SCAuthenticationInvoke getAuthenticationInvoker() {

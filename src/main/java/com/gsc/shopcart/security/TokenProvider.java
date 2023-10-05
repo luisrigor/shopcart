@@ -1,5 +1,7 @@
 package com.gsc.shopcart.security;
 
+import com.gsc.microsoft.auth.entity.BearerTokenResponse;
+import com.gsc.microsoft.invoke.BearerTokenInvoke;
 import com.gsc.shopcart.constants.AppProfile;
 import com.gsc.shopcart.exceptions.AuthTokenException;
 import com.gsc.shopcart.model.scart.entity.Configuration;
@@ -12,6 +14,7 @@ import com.gsc.shopcart.repository.scart.ServiceLoginRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
+import io.jsonwebtoken.lang.Assert;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
@@ -22,14 +25,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import javax.crypto.SecretKey;
+import javax.validation.constraints.NotNull;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import static com.gsc.shopcart.constants.ApiConstants.LEXUS_APP;
 import static com.gsc.shopcart.constants.ApiConstants.TOYOTA_APP;
-
+import com.gsc.microsoft.invoke.DATA;
 @Service
 public class TokenProvider {
 
@@ -165,11 +172,7 @@ public class TokenProvider {
    }
 
    public JwtAuthenticationToken validateToken(String authToken) throws AuthenticationException {
-      if (authToken.contains(":")) {
-         return validateServiceToken(authToken);
-      }
       return validateUserToken(authToken);
-
    }
 
    private JwtAuthenticationToken validateUserToken(String authToken) throws AuthenticationException {
@@ -238,6 +241,54 @@ public class TokenProvider {
          ),
          Collections.emptyList()
       );
+   }
+
+   protected JwtAuthenticationToken validateMicrosoftServiceToken(String token) throws AuthenticationException {
+      BearerTokenInvoke bearerTokenInvoke = new BearerTokenInvoke();
+      BearerTokenResponse response = bearerTokenInvoke.validateB2BToken(token, DATA.WS_APP_H360);
+
+      logger.debug("TokenProvider.validateMicrosoftServiceToken.BearerTokenResponse: " + response);
+      Assert.isTrue(response != null, Constants.TOKEN_NOT_FOUND);
+      Assert.isTrue(StringUtils.isEmpty(response.getErrorMessage()), response.getErrorMessage());
+
+      String userName = getB2BCompanyName(response).orElseThrow(() -> new BadCredentialsException(Constants.USER_NOT_FOUND));
+
+      Set<AppProfile> profiles = !CollectionUtils.isEmpty(response.getRoles()) ?
+              getAppProfiles(response.getRoles()) : new HashSet<>();
+
+      logger.debug("TokenProvider.validateMicrosoftServiceToken »» UserName: " + userName + "Profiles:" + profiles );
+      return JwtAuthenticationToken.authenticated(
+              new UserPrincipal(
+                      userName,
+                      profiles,
+                      JwtAuthenticationManager.CLIENT_ID
+              ),
+              Collections.emptyList());
+   }
+
+   @NotNull
+   protected static Set<AppProfile> getAppProfiles(List<String> list) {
+      return list.stream().filter(profile ->
+                      Arrays.stream(AppProfile.values())
+                              .anyMatch(app -> profile.contains(app.name())))
+              .map(item ->
+                      Arrays.stream(AppProfile.values())
+                              .filter(appProfile -> item.contains(appProfile.name()))
+                              .findFirst()
+                              .orElse(null))
+              .collect(Collectors.toSet());
+   }
+
+   private Optional<String> getB2BCompanyName(BearerTokenResponse response) {
+      if (response.getAppId() != null) {
+         if (response.isClientAppId(DATA.WS_CLIENT_RPA_CLIENT_ID)) {
+            return Optional.of("Rpa");
+
+         } else if (response.isClientAppId(DATA.WS_CLIENT_RIGOR_CLIENT_ID)) {
+            return Optional.of("Rigor");
+         }
+      }
+      return null;
    }
 
    private Set<AppProfile> getRoles(ServiceLogin sl) {

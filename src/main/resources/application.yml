@@ -109,7 +109,10 @@ batch:
             driver-class-name: com.ibm.db2.jcc.DB2Driver
             jndi-name: jdbc/dbfwk
   app:
-    baseUrl: /ShopCart
+    baseUrl: http://localhost:8080
+    profile: local
+    email:
+      subject-prefix: "[LOCAL]"
 
 ---
 #################################################################################
@@ -151,7 +154,85 @@ batch:
     email:
       subject-prefix: "[DEV]"
 
+---
+#################################################################################
+#################################################################################
+## UAT
+#################################################################################
+#################################################################################
 
+  spring:
+    config:
+      activate:
+        on-profile: staging
+
+  ## MAIN JPA DATASOURCES
+  shopcart:
+    datasource:
+      jndi-name: jdbc/shopcart
+  dbdmv:
+    datasource:
+      jndi-name: jdbc/dbdmv
+  userlogon:
+    datasource:
+      jndi-name: jdbc/usrlogon
+
+  # EXTERNAL DATASOURCES (for dependencies)
+  datasources:
+    datasourceList:
+      - jndi-name: jdbc/dbfwk
+      - jndi-name: jdbc/dbtoynet
+
+    jpa:
+      properties:
+        hibernate:
+          default_schema: dbo
+
+  app:
+    baseUrl: https://demoshopcart.rigorcg.pt #SHOPCART URL FOR TESTS ONLY
+    profile: staging
+    email:
+      subject-prefix: "[UAT]"
+
+
+---
+#################################################################################
+#################################################################################
+## PRODUCTION
+#################################################################################
+#################################################################################
+
+  spring:
+    config:
+      activate:
+        on-profile: production
+
+  ## MAIN JPA DATASOURCES
+  shopcart:
+    datasource:
+      jndi-name: jdbc/shopcart
+  dbdmv:
+    datasource:
+      jndi-name: jdbc/dbdmv
+  userlogon:
+    datasource:
+      jndi-name: jdbc/usrlogon
+
+  # EXTERNAL DATASOURCES (for dependencies)
+  datasources:
+    datasourceList:
+      - jndi-name: jdbc/dbfwk
+      - jndi-name: jdbc/dbtoynet
+
+    jpa:
+      properties:
+        hibernate:
+          default_schema: dbo
+
+  app:
+    baseUrl:
+
+---
 
 
 

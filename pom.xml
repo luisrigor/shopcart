@@ -16,6 +16,7 @@
     <description>shopcart</description>
     <properties>
         <java.version>1.8</java.version>
+        <org.springdoc.version>1.6.14</org.springdoc.version>
         <io.jsonwebtoken.version>0.11.5</io.jsonwebtoken.version>
     </properties>
     <dependencies>
@@ -77,11 +78,11 @@
             <artifactId>mockito-inline</artifactId>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>GSC</groupId>-->
-<!--            <artifactId>SCCarDB</artifactId>-->
-<!--            <version>20230209</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>GSC</groupId>
+            <artifactId>SCCarDB</artifactId>
+            <version>20230209</version>
+        </dependency>
         <dependency>
             <groupId>GSC</groupId>
             <artifactId>SCWSCARDB</artifactId>
@@ -110,7 +111,7 @@
         <dependency>
         <groupId>GSC</groupId>
         <artifactId>SCMicrosoft</artifactId>
-        <version>20221024-STAGING</version>
+        <version>20230705_STAGING</version>
         </dependency>
         <dependency>
         <groupId>io.jsonwebtoken</groupId>
@@ -163,6 +164,17 @@
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
             <version>3.8.0</version>
+        </dependency>
+        <!--Swagger -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>${org.springdoc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-security</artifactId>
+            <version>${org.springdoc.version}</version>
         </dependency>
     </dependencies>
 

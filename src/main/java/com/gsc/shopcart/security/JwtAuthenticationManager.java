@@ -29,12 +29,10 @@ public class JwtAuthenticationManager implements AuthenticationManager {
 
     private final ConfigurationRepository configurationRepository;
     private final EnvironmentConfig environmentConfig;
-    private final ClientRepository clientRepository;
 
-    public JwtAuthenticationManager(ConfigurationRepository configurationRepository, EnvironmentConfig environmentConfig, ClientRepository clientRepository) {
+    public JwtAuthenticationManager(ConfigurationRepository configurationRepository, EnvironmentConfig environmentConfig) {
         this.configurationRepository = configurationRepository;
         this.environmentConfig = environmentConfig;
-        this.clientRepository = clientRepository;
     }
 
     @Override
@@ -56,11 +54,11 @@ public class JwtAuthenticationManager implements AuthenticationManager {
             throw new BadCredentialsException("Bad credentials");
         }
 
-        Optional<Client> client = clientRepository.findById(CLIENT_ID);
+        /*Optional<Client> client = clientRepository.findById(CLIENT_ID);
 
         if (!client.isPresent()) {
             throw new BadCredentialsException("Invalid client");
-        }
+        }*/
 
         AuthenticationExtraResponse authenticationExtra = environmentConfig.getAuthenticationInvoker().authenticationExtra(parts[0], parts[1], Integer.parseInt(tokenParts[0]));
         if (!authenticationExtra.getCode().equals("0") || authenticationExtra.getUser() == null) {

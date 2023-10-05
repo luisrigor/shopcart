@@ -26,33 +26,13 @@ import java.util.Arrays;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @EnableWebSecurity
+/**
+ * Class that represents the configuration of the WebSecurity
+ */
 public class WebSecurityConfig {
-
-    @Value("${server.servlet.context-path}")
-    private static String baseUrl;
-
-
-    private static final String[] AUTH_WHITELIST = {
-            "/sign-in",
-            "/sign-in/**",
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-            "/swagger-resources/**",
-            "/swagger/**",
-            "/v2/api-docs/**",
-            "/swagger-cust/**",
-            baseUrl+"/swagger-ui/**",
-            baseUrl+"/docs/**",
-            baseUrl+"/docs"
-    };
-
-
-
     @Bean
-    public AuthenticationManager authenticationManager(ConfigurationRepository configurationRepository,
-                                                       EnvironmentConfig environmentConfig,
-                                                       ClientRepository clientRepository) throws Exception {
-        return new JwtAuthenticationManager(configurationRepository, environmentConfig, clientRepository);
+    public AuthenticationManager authenticationManagerBean(ConfigurationRepository configurationRepository, EnvironmentConfig environmentConfig) throws Exception {
+        return new JwtAuthenticationManager(configurationRepository, environmentConfig);
     }
 
     @Bean
@@ -65,7 +45,7 @@ public class WebSecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeRequests()
-                .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers("/signin", "/events", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-cust/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(new RestAuthenticationEntryPoint(objectMapper));
@@ -94,4 +74,5 @@ public class WebSecurityConfig {
     }
 
 }
+
 

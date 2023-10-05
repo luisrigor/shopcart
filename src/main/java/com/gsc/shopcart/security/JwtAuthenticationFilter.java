@@ -8,12 +8,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -30,17 +30,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    @Override
    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
       logger.trace("Filtering...");
+      JwtAuthenticationToken authentication = null;
       try {
          String accessToken = request.getHeader(tokenName);
-         if (StringUtils.hasText(accessToken)) {
-            JwtAuthenticationToken authentication = tokenProvider.validateToken(accessToken);
+         authentication = StringUtils.hasText(accessToken) ? tokenProvider.validateToken(accessToken) :
+                 microsoftAuthenticationToken(request, authentication);
+
+         if (authentication != null) {
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
          }
       } catch (AuthenticationException ex) {
-         logger.error("Could not set user authentication in security context", ex);
+         logger.error(Constants.USER_AUTHENTICATION_ERROR, ex);
       }
       filterChain.doFilter(request, response);
+   }
+
+   private JwtAuthenticationToken microsoftAuthenticationToken(HttpServletRequest request, JwtAuthenticationToken authentication) {
+      String authorization = request.getHeader(Constants.AUTHORIZATION);
+
+      if (StringUtils.hasText(authorization)) {
+         authorization = authorization.substring("Bearer ".length());
+         authentication = tokenProvider.validateMicrosoftServiceToken(authorization);
+      }
+      return authentication;
    }
 
 }

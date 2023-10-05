@@ -1,4 +1,4 @@
-package com.gsc.shopcart.dto;
+package com.gsc.shopcart.dto.entity;
 
 
 import lombok.*;

@@ -1,8 +1,6 @@
-package com.gsc.shopcart.dto;
+package com.gsc.shopcart.dto.entity;
 
-import com.sc.commons.utils.StringTasks;
 import lombok.*;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;

@@ -1,12 +1,9 @@
 package com.gsc.shopcart.model.scart.entity;
 
 
-import com.gsc.shopcart.dto.OrderCartProduct;
-import com.gsc.shopcart.dto.VecCategoriesDTO;
+import com.gsc.shopcart.dto.entity.VecCategoriesDTO;
 import lombok.*;
-
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter

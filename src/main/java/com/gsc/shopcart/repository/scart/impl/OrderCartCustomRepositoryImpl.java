@@ -1,9 +1,7 @@
 package com.gsc.shopcart.repository.scart.impl;
 
-import com.gsc.shopcart.dto.OrderCartProduct;
-import com.gsc.shopcart.model.scart.entity.Product;
+import com.gsc.shopcart.dto.entity.OrderCartProduct;
 import com.gsc.shopcart.repository.scart.OrderCartCustomRepository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;

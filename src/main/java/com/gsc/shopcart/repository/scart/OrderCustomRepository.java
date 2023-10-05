@@ -1,12 +1,9 @@
 package com.gsc.shopcart.repository.scart;
 
-import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.entity.GetOrderStateDTO;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.security.UserPrincipal;
-
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public interface OrderCustomRepository {
 

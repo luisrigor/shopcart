@@ -1,7 +1,7 @@
 package com.gsc.shopcart.controller.impl;
 
 import com.gsc.shopcart.controller.AuthenticationController;
-import com.gsc.shopcart.dto.UserDTO;
+import com.gsc.shopcart.dto.entity.UserDTO;
 import com.gsc.shopcart.security.JwtAuthenticationToken;
 import com.gsc.shopcart.security.TokenProvider;
 import com.gsc.shopcart.security.UserPrincipal;
@@ -19,7 +19,7 @@ public class AuthenticationControllerImpl implements AuthenticationController {
     private final TokenProvider tokenProvider;
 
     @Override
-    public UserDTO createAuthenticationToken(String loginToken,String appId) {
+    public UserDTO createAuthenticationToken(String loginToken, String appId) {
 
         loginToken = appId+"|||"+loginToken;
         Authentication authentication = authenticationManager.authenticate(new JwtAuthenticationToken(loginToken));

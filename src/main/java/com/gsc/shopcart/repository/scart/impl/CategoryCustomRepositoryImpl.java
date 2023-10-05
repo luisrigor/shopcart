@@ -1,8 +1,8 @@
 package com.gsc.shopcart.repository.scart.impl;
 
+import com.gsc.shopcart.dto.entity.VecCategoriesDTO;
 import com.gsc.shopcart.repository.scart.CategoryCustomRepository;
 import org.springframework.transaction.annotation.Transactional;
-import com.gsc.shopcart.dto.VecCategoriesDTO;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;

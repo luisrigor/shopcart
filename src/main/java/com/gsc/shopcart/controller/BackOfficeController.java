@@ -1,7 +1,7 @@
 package com.gsc.shopcart.controller;
 
 import com.gsc.shopcart.constants.ApiEndpoints;
-import com.gsc.shopcart.dto.*;
+import com.gsc.shopcart.dto.entity.*;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.security.UserPrincipal;
 import io.swagger.annotations.Api;

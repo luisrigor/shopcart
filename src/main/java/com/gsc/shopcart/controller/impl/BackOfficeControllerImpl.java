@@ -2,7 +2,7 @@ package com.gsc.shopcart.controller.impl;
 
 import com.google.gson.Gson;
 import com.gsc.shopcart.controller.BackOfficeController;
-import com.gsc.shopcart.dto.*;
+import com.gsc.shopcart.dto.entity.*;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.service.BackOfficeService;
@@ -21,7 +21,7 @@ public class BackOfficeControllerImpl implements BackOfficeController {
 
 
     @Override
-    public ResponseEntity<PromotionsDTO> getPromotions(Integer idCatalog,Boolean isCatalog,
+    public ResponseEntity<PromotionsDTO> getPromotions(Integer idCatalog, Boolean isCatalog,
                                                        UserPrincipal userPrincipal) {
         PromotionsDTO promotions = backOfficeService.getPromotions(idCatalog, userPrincipal.getIdUser(), isCatalog);
 
@@ -29,7 +29,7 @@ public class BackOfficeControllerImpl implements BackOfficeController {
     }
 
     @Override
-    public ResponseEntity<PromotionsDTO> getProductsByFreeSearch(Integer idCategory,Integer idCatalog,Boolean isCatalog,
+    public ResponseEntity<PromotionsDTO> getProductsByFreeSearch(Integer idCategory, Integer idCatalog, Boolean isCatalog,
                                                                  ShopCartFilter filter, UserPrincipal userPrincipal) {
         PromotionsDTO products = backOfficeService.getProductsByFreeSearch(idCategory, idCatalog, filter, isCatalog, userPrincipal);
         return ResponseEntity.status(HttpStatus.OK).body(products);
@@ -45,8 +45,8 @@ public class BackOfficeControllerImpl implements BackOfficeController {
 
     }
     @Override
-    public ResponseEntity<CartDTO> getCategory(Integer idCategory,Integer idCatalog,
-                                               List<Category> listCategorySelected,UserPrincipal userPrincipal) {
+    public ResponseEntity<CartDTO> getCategory(Integer idCategory, Integer idCatalog,
+                                               List<Category> listCategorySelected, UserPrincipal userPrincipal) {
         CartDTO category = backOfficeService.getCategory(idCategory, idCatalog, listCategorySelected, userPrincipal);
         return ResponseEntity.status(HttpStatus.OK).body(category);
     }

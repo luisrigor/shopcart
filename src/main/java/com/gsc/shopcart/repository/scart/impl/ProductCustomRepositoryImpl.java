@@ -1,20 +1,16 @@
 package com.gsc.shopcart.repository.scart.impl;
 
-import com.gsc.shopcart.dto.RelatedProduct;
-import com.gsc.shopcart.dto.ShopCartFilter;
-import com.gsc.shopcart.exceptions.SQLCustomException;
+
+import com.gsc.shopcart.dto.entity.RelatedProduct;
+import com.gsc.shopcart.dto.entity.ShopCartFilter;
 import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.repository.scart.ProductCustomRepository;
 import com.sc.commons.utils.DataBaseTasks;
 import com.sc.commons.utils.StringTasks;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.JDBCException;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ProductCustomRepositoryImpl implements ProductCustomRepository {
 

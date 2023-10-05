@@ -1,9 +1,9 @@
 package com.gsc.shopcart.model.scart.entity;
 
 
-import com.gsc.shopcart.dto.RelatedProduct;
-import lombok.*;
 
+import com.gsc.shopcart.dto.entity.RelatedProduct;
+import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

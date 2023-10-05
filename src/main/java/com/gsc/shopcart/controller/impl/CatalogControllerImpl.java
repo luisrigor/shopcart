@@ -2,8 +2,7 @@ package com.gsc.shopcart.controller.impl;
 
 import com.google.gson.Gson;
 import com.gsc.shopcart.controller.CatalogController;
-import com.gsc.shopcart.dto.CartDTO;
-import com.gsc.shopcart.dto.EditOrderAjaxDTO;
+import com.gsc.shopcart.dto.entity.*;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.security.UserPrincipal;
@@ -23,8 +22,7 @@ public class CatalogControllerImpl implements CatalogController {
 
 
     @Override
-    public ResponseEntity<?> getCart(Integer idCategory,Integer idCatalog,
-                                     List<Category> listCategorySelected,UserPrincipal userPrincipal) {
+    public ResponseEntity<?> getCart(Integer idCategory, Integer idCatalog, List<Category> listCategorySelected, UserPrincipal userPrincipal) {
         CartDTO cartDTO = catalogService.getCart(idCategory, idCatalog, listCategorySelected, userPrincipal);
         return ResponseEntity.status(HttpStatus.OK).body(cartDTO);
     }

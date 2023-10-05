@@ -1,6 +1,6 @@
 package com.gsc.shopcart.service.impl;
 
-import com.gsc.shopcart.dto.*;
+import com.gsc.shopcart.dto.entity.*;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.Product;
@@ -14,17 +14,12 @@ import com.gsc.shopcart.repository.scart.OrderCartRepository;
 import com.gsc.shopcart.repository.scart.ProductRepository;
 import com.gsc.shopcart.model.scart.entity.*;
 import com.gsc.shopcart.model.scart.entity.ProductItem;
-import com.sc.commons.exceptions.SCErrorException;
-import com.sc.commons.utils.PortletMultipartWrapper;
-import com.sc.commons.utils.PortletTasks;
 import com.sc.commons.utils.StringTasks;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.io.File;
 import java.sql.Timestamp;

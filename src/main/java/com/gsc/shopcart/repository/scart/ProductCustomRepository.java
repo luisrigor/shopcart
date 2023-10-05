@@ -1,7 +1,8 @@
 package com.gsc.shopcart.repository.scart;
 
-import com.gsc.shopcart.dto.RelatedProduct;
-import com.gsc.shopcart.dto.ShopCartFilter;
+
+import com.gsc.shopcart.dto.entity.RelatedProduct;
+import com.gsc.shopcart.dto.entity.ShopCartFilter;
 import com.gsc.shopcart.model.scart.entity.Product;
 
 import java.util.List;

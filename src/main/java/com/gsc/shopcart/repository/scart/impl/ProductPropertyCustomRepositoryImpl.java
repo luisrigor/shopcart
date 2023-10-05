@@ -1,14 +1,9 @@
 package com.gsc.shopcart.repository.scart.impl;
 
-import com.gsc.shopcart.model.scart.entity.Product;
+import com.gsc.shopcart.dto.entity.ProductPropertyOrder;
 import com.gsc.shopcart.repository.scart.ProductPropertyCustomRepository;
-import com.gsc.shopcart.security.UserPrincipal;
 import com.sc.commons.utils.DataBaseTasks;
 import org.springframework.transaction.annotation.Transactional;
-import com.gsc.shopcart.dto.ProductPropertyOrder;
-import com.gsc.shopcart.dto.RelatedProduct;
-import com.gsc.shopcart.repository.scart.ProductPropertyCustomRepository;
-import com.sc.commons.utils.DataBaseTasks;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;

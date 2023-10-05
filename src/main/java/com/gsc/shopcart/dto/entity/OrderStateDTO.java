@@ -1,4 +1,4 @@
-package com.gsc.shopcart.dto;
+package com.gsc.shopcart.dto.entity;
 
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;

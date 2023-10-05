@@ -1,6 +1,6 @@
 package com.gsc.shopcart.service.impl;
 
-import com.gsc.shopcart.dto.InfoProductDTO;
+import com.gsc.shopcart.dto.entity.InfoProductDTO;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Product;
 import com.gsc.shopcart.model.scart.entity.ProductItem;
@@ -12,7 +12,6 @@ import com.gsc.shopcart.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;

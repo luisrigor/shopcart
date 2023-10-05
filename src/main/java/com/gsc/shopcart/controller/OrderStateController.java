@@ -1,9 +1,9 @@
 package com.gsc.shopcart.controller;
 
 import com.gsc.shopcart.constants.ApiEndpoints;
-import com.gsc.shopcart.dto.GetOrderStateDTO;
-import com.gsc.shopcart.dto.ListOrderDTO;
-import com.gsc.shopcart.dto.SendInvoiceDTO;
+import com.gsc.shopcart.dto.entity.GetOrderStateDTO;
+import com.gsc.shopcart.dto.entity.ListOrderDTO;
+import com.gsc.shopcart.dto.entity.SendInvoiceDTO;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.security.UserPrincipal;
 import io.swagger.annotations.Api;
@@ -27,7 +27,7 @@ public interface OrderStateController {
 
     @GetMapping(ApiEndpoints.LIST_ORDER_DETAIL)
     ResponseEntity<ListOrderDTO> listOrderDetail(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestParam Integer idOrder,
-                                                        @RequestParam(required = false) Integer idOrderDetailStatus);
+                                                 @RequestParam(required = false) Integer idOrderDetailStatus);
 
 
     @GetMapping(ApiEndpoints.CHANGE_ORDER_DETAIL_STATUS)

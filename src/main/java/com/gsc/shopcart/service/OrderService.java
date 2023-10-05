@@ -1,6 +1,7 @@
 package com.gsc.shopcart.service;
 
-import com.gsc.shopcart.dto.InfoProductDTO;
+
+import com.gsc.shopcart.dto.entity.InfoProductDTO;
 
 public interface OrderService {
 

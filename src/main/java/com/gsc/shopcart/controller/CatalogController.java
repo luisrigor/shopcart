@@ -1,7 +1,7 @@
 package com.gsc.shopcart.controller;
 
 import com.gsc.shopcart.constants.ApiEndpoints;
-import com.gsc.shopcart.dto.EditOrderAjaxDTO;
+import com.gsc.shopcart.dto.entity.EditOrderAjaxDTO;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.security.UserPrincipal;

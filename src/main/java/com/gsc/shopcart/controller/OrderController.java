@@ -1,7 +1,7 @@
 package com.gsc.shopcart.controller;
 
 import com.gsc.shopcart.constants.ApiEndpoints;
-import com.gsc.shopcart.dto.InfoProductDTO;
+import com.gsc.shopcart.dto.entity.InfoProductDTO;
 import io.swagger.annotations.Api;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

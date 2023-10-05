@@ -1,6 +1,8 @@
 package com.gsc.shopcart.repository.scart;
 
-import com.gsc.shopcart.dto.VecCategoriesDTO;
+
+import com.gsc.shopcart.dto.entity.VecCategoriesDTO;
+
 import java.util.List;
 
 public interface CategoryCustomRepository {

@@ -1,8 +1,8 @@
 package com.gsc.shopcart.service;
 
-import com.gsc.shopcart.dto.CartDTO;
-import com.gsc.shopcart.dto.EditOrderAjaxDTO;
-import com.gsc.shopcart.dto.OrderProductsDTO;
+import com.gsc.shopcart.dto.entity.CartDTO;
+import com.gsc.shopcart.dto.entity.EditOrderAjaxDTO;
+import com.gsc.shopcart.dto.entity.OrderProductsDTO;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.security.UserPrincipal;

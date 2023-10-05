@@ -1,6 +1,7 @@
 package com.gsc.shopcart.repository.scart;
 
-import com.gsc.shopcart.dto.OrderCartProduct;
+
+import com.gsc.shopcart.dto.entity.OrderCartProduct;
 
 import java.util.List;
 

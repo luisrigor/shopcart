@@ -1,9 +1,8 @@
 package com.gsc.shopcart.model.scart.entity;
 
 
-import com.gsc.shopcart.dto.ProductPropertyOrder;
+import com.gsc.shopcart.dto.entity.ProductPropertyOrder;
 import lombok.*;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 

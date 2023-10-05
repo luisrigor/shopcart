@@ -1,11 +1,10 @@
 package com.gsc.shopcart.service;
 
-import com.gsc.shopcart.dto.GetOrderStateDTO;
-import com.gsc.shopcart.dto.ListOrderDTO;
-import com.gsc.shopcart.dto.OrderStateDTO;
+import com.gsc.shopcart.dto.entity.GetOrderStateDTO;
+import com.gsc.shopcart.dto.entity.ListOrderDTO;
+import com.gsc.shopcart.dto.entity.OrderStateDTO;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.security.UserPrincipal;
-
 import java.util.List;
 
 public interface OrderStateService {

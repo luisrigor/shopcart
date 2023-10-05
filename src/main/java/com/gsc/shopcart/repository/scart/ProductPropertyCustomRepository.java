@@ -1,7 +1,7 @@
 package com.gsc.shopcart.repository.scart;
 
-import com.gsc.shopcart.security.UserPrincipal;
-import com.gsc.shopcart.dto.ProductPropertyOrder;
+
+import com.gsc.shopcart.dto.entity.ProductPropertyOrder;
 
 import java.util.List;
 

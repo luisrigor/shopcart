@@ -1,9 +1,9 @@
 package com.gsc.shopcart.service.impl.product;
 
-import com.gsc.shopcart.dto.CreateProdPriceRule;
-import com.gsc.shopcart.dto.CreateProdProperty;
-import com.gsc.shopcart.dto.CreateProdPropertyAttr;
-import com.gsc.shopcart.dto.CreateProductDTO;
+import com.gsc.shopcart.dto.entity.CreateProdPriceRule;
+import com.gsc.shopcart.dto.entity.CreateProdProperty;
+import com.gsc.shopcart.dto.entity.CreateProdPropertyAttr;
+import com.gsc.shopcart.dto.entity.CreateProductDTO;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.*;
 import com.gsc.shopcart.repository.scart.*;
@@ -13,7 +13,6 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;

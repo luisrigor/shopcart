@@ -1,7 +1,7 @@
 package com.gsc.shopcart.repository.scart.impl;
 
 import com.gsc.shopcart.constants.ScConstants;
-import com.gsc.shopcart.dto.GetOrderStateDTO;
+import com.gsc.shopcart.dto.entity.GetOrderStateDTO;
 import com.gsc.shopcart.exceptions.ShopCartException;
 import com.gsc.shopcart.model.scart.entity.Order;
 import com.gsc.shopcart.repository.scart.OrderCustomRepository;
@@ -10,7 +10,6 @@ import com.rg.dealer.Dealer;
 import com.sc.commons.utils.StringTasks;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;

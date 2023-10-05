@@ -12,9 +12,13 @@ import com.gsc.shopcart.service.OrderStateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequestMapping("${app.basePath}")
 @RestController
+@CrossOrigin("*")
 @RequiredArgsConstructor
 public class OrderStateControllerImpl implements OrderStateController {
 

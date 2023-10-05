@@ -6,15 +6,11 @@ import com.gsc.shopcart.dto.entity.ListOrderDTO;
 import com.gsc.shopcart.dto.entity.SendInvoiceDTO;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.security.UserPrincipal;
-//import io.swagger.annotations.Api;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("${app.basePath}")
-//@Api(value = "",tags = "ORDER")
-@RestController
-@CrossOrigin("*")
+
 public interface OrderStateController {
 
     @PostMapping(ApiEndpoints.GET_ORDER_STATE)

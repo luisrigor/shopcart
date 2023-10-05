@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequestMapping("${app.basePath}")
 @RestController
+@CrossOrigin("*")
 @RequiredArgsConstructor
 public class CatalogControllerImpl implements CatalogController {
 

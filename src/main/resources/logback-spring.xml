@@ -53,7 +53,7 @@
             </rollingPolicy>
         </appender>
         <!-- LOG "com.gsc.shopcart.security" at DEBUG level -->
-        <logger name="com.gsc.shopcart.security" level="debug" additivity="false">
+        <logger name="com.gsc.shopcart" level="debug" additivity="false">
             <appender-ref ref="ROLLING-FILE" />
         </logger>
     </springProfile>

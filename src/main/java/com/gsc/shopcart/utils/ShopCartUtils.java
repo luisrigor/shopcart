@@ -1,20 +1,29 @@
 package com.gsc.shopcart.utils;
 
+import com.gsc.shopcart.dto.OrderDataDTO;
+import com.gsc.shopcart.model.scart.DealerData;
 import com.gsc.shopcart.repository.usrlogon.CbusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.LexusEntityProfileRepository;
 import com.gsc.shopcart.repository.usrlogon.ToyotaUserEntityProfileRepository;
-import com.rg.dealer.Dealer;
-import com.sc.commons.financial.FinancialTasks;
-import lombok.extern.log4j.Log4j;
-import org.springframework.stereotype.Component;
+import com.gsc.as400.al.AlMovement;
+import com.gsc.as400.al.AlObservations;
+import com.gsc.as400.invoke.InvokeAlInfo;
+import com.gsc.shopcart.constants.ApiConstants;
+import com.gsc.shopcart.exceptions.ShopCartException;
+import com.gsc.shopcart.model.scart.entity.OrderDetail;
 import com.gsc.shopcart.model.scart.entity.ProductPriceRule;
+import com.gsc.shopcart.security.UserPrincipal;
+import com.rg.dealer.Dealer;
+import com.rg.objects.DealerCode;
 import com.sc.commons.exceptions.SCErrorException;
-//import org.apache.commons.lang3.StringUtils;
+import com.sc.commons.utils.StringTasks;
+import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 import java.io.File;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
-
 
 @Component
 @Log4j
@@ -54,10 +63,8 @@ public class ShopCartUtils {
             Calendar calPromoEnd = Calendar.getInstance();
             calPromoStart.setTime(dtPromoStart);
             calPromoEnd.setTime(dtPromoEnd);
-            // if (calNow.compareTo(calPromoStart)>=0 && calNow.compareTo(calPromoEnd)<=0)
             if (calNow.after(calPromoStart) && calNow.before(calPromoEnd))
                 isProductInPromotion = true;
-            // if (calNow.compareTo(calPromoEnd)>=0 && ShopCartUtils.isSameDay(calPromoStart, calPromoEnd))
             if (calNow.after(calPromoEnd) && ShopCartUtils.isSameDay(calPromoStart, calPromoEnd))
                 isProductInPromotion = false;
             if (ShopCartUtils.isSameDay(calNow, calPromoEnd))
@@ -65,13 +72,11 @@ public class ShopCartUtils {
         } else if (dtPromoStart != null) {
             Calendar calPromoStart = Calendar.getInstance();
             calPromoStart.setTime(dtPromoStart);
-            // if (calNow.compareTo(calPromoStart)>=0)
             if (calNow.after(calPromoStart))
                 isProductInPromotion = true;
         } else if (dtPromoEnd != null) {
             Calendar calPromoEnd = Calendar.getInstance();
             calPromoEnd.setTime(dtPromoEnd);
-            // if (calNow.compareTo(calPromoEnd)<=0)
             if (calNow.before(calPromoEnd))
                 isProductInPromotion = true;
         }
@@ -129,24 +134,6 @@ public class ShopCartUtils {
         return "Catalog_" + idCatalog + File.separator + "Categories" + File.separator;
     }
 
-    public static String getPathProductImages(int idCatalog) {
-        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Images" + File.separator;
-    }
-
-    public static String getPathProductPromotions(int idCatalog) {
-        return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Promotions" + File.separator;
-    }
-
-    public static String getFileExtension(String originalFileName) {
-        if (org.springframework.util.StringUtils.hasText(originalFileName)) {
-            int dotIndex = originalFileName.lastIndexOf('.');
-            if (dotIndex >= 0) {
-                return originalFileName.substring(dotIndex + 1).toLowerCase();
-            }
-        }
-        return null;
-    }
-
     public static String getPathProductVariants(int idCatalog) {
         return "Catalog_" + idCatalog + File.separator + "Products" + File.separator + "Variants" + File.separator;
     }
@@ -182,13 +169,43 @@ public class ShopCartUtils {
             calcCost = 0.00;
 
         return calcCost;
-
     }
 
-    public double getVATatScale(String ivaType) throws SCErrorException {
-        return FinancialTasks.getVATatScale("PT", ivaType);
+    public static Map<String, DealerData> getDealerData(UserPrincipal user, OrderDataDTO orderDataDTO) throws SCErrorException {
+        String[] oidDealers = Collections.singleton(user.getOidDealer()).toArray(new String[0]);
+        String orderObs = StringTasks.cleanString(orderDataDTO.getOrderObs(), StringUtils.EMPTY);
+        Integer multiplicator = (orderDataDTO.getMultiplicator()==null||orderDataDTO.getMultiplicator()<=0)?1:orderDataDTO.getMultiplicator();
+
+        Map<String, DealerData> result = new HashMap<>();
+        String aS400 = orderDataDTO.getSendToAS400()!=null?orderDataDTO.getSendToAS400():StringUtils.EMPTY;
+        boolean sendToAS400 = aS400.equals("S");
+        for (String oidDealer : oidDealers) {
+            // APENAS NECESS�RIO QUANDO ENVIA ORDER PARA AS400
+            if (sendToAS400) {
+                Dealer oDealerOrder = Dealer.getHelper().getByObjectId(user.getOidNet(), oidDealer);
+                Dealer oDealerParentOrder = Dealer.getHelper().getByObjectId(oDealerOrder.getOIdNet(), oDealerOrder.getOid_Parent());
+
+                List<DealerCode> vecDealerCodes1 = oDealerParentOrder.getCodes(Dealer.OID_TOYOTA_CODE_SHIPT_TO_INVOICE);
+                List<DealerCode> vecDealerCodes2 = oDealerOrder.getCodes(Dealer.OID_TOYOTA_CODE_SHIPT_TO_INVOICE);
+                if (vecDealerCodes1 == null || vecDealerCodes1.isEmpty() || vecDealerCodes2 == null || vecDealerCodes2.isEmpty()) {
+                    return new HashMap<>();
+                } else {
+                    result.put(oidDealer, new DealerData(oidDealer, orderObs, multiplicator, vecDealerCodes1.get(0).getValue(), vecDealerCodes2.get(0).getValue()));
+                }
+            } else {
+                result.put(oidDealer, DealerData.builder().oidDealer(oidDealer).orderObs(orderObs).multiplicator(multiplicator).build());
+            }
+        }
+        return result;
     }
+
 }
+
+
+
+
+
+
 
 
 

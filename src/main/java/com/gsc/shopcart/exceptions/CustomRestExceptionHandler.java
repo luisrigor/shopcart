@@ -68,11 +68,10 @@ public class CustomRestExceptionHandler {
         String delim = "; ";
 
         for (ObjectError error : allErrors) {
-            sbErrorMsg.append(error.getObjectName());
             if (error instanceof FieldError) {
                 sbErrorMsg.append("." + ((FieldError) error).getField());
             }
-            sbErrorMsg.append(" " + error.getDefaultMessage());
+            sbErrorMsg.append(" ").append(error.getDefaultMessage());
             sbErrorMsg.append(delim);
         }
 
@@ -110,7 +109,7 @@ public class CustomRestExceptionHandler {
     @ExceptionHandler(SQLCustomException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public ApiError handleJDBCExceptionException(SQLCustomException ex, WebRequest request) {
+    public ApiError handleCustomJDBCExceptionException(SQLCustomException ex, WebRequest request) {
         log.error(ex.getMessage(), ex);
         return new ApiError(ApiErrorConstants.ERROR_PROCESSING_REQUEST, HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(),
                 request.getDescription(false), ex.getException().getMessage());

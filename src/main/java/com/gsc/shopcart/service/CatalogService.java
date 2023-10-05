@@ -1,5 +1,7 @@
 package com.gsc.shopcart.service;
 
+import com.gsc.shopcart.dto.CreateOrderResponseDTO;
+import com.gsc.shopcart.dto.OrderDataDTO;
 import com.gsc.shopcart.dto.entity.CartDTO;
 import com.gsc.shopcart.dto.entity.EditOrderAjaxDTO;
 import com.gsc.shopcart.dto.entity.OrderProductsDTO;
@@ -18,4 +20,7 @@ public interface CatalogService {
     EditOrderAjaxDTO editOrderCartAjaxServlet(Integer idOrderCart, Integer quantity, Integer multiplier, UserPrincipal user);
 
     List<OrderCart> moveProductToCart(Integer idProductParam, Integer idProductVariantParam, String typeSelectProductParam, UserPrincipal user);
+
+    CreateOrderResponseDTO createOrder(UserPrincipal user, OrderDataDTO orderData);
+
 }

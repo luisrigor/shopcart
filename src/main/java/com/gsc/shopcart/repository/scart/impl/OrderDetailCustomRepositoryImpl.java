@@ -2,7 +2,7 @@ package com.gsc.shopcart.repository.scart.impl;
 
 import com.gsc.shopcart.constants.ScConstants;
 import com.gsc.shopcart.model.scart.entity.OrderDetail;
-import com.gsc.shopcart.repository.OrderDetailCustomRepository;
+import com.gsc.shopcart.repository.scart.OrderDetailCustomRepository;
 import com.gsc.shopcart.security.UserPrincipal;
 import com.gsc.shopcart.security.UsrLogonSecurity;
 import lombok.extern.log4j.Log4j;
@@ -44,9 +44,7 @@ public class OrderDetailCustomRepositoryImpl implements OrderDetailCustomReposit
         Query query = em.createNativeQuery(sql.toString(), OrderDetail.class);
         query.setParameter(1,idOrder);
 
-        List<OrderDetail> orderDetails = query.getResultList();
-
-        return orderDetails;
+        return query.getResultList();
     }
 
 }

@@ -1,0 +1,29 @@
+.swagger-ui .topbar {
+   background-color: #004080;
+}
+.swagger-ui .topbar .download-url-wrapper .download-url-button {
+   background: #0085CA;
+}
+
+.swagger-ui .topbar .download-url-wrapper input[type=text] {
+   border: 2px solid #0085CA;
+}
+
+h2.title {
+   margin-bottom: 10px !important;
+}
+
+div.topbar-wrapper a.link img {
+   content: url("../swagger-cust/GSC_2008-04-16_Ng.png");
+   height: 55px;
+   width: 300px;
+}
+
+.swagger-ui .btn.authorize {
+   color: #0085CA;
+   border-color: #0085CA;
+}
+
+.swagger-ui .btn.authorize svg {
+   fill: #0085CA;
+}

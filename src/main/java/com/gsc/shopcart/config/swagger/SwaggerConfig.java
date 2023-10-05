@@ -25,7 +25,8 @@ import org.springdoc.core.providers.ObjectMapperProvider;
 /**
  * Class that represents the configuration of the Swagger
  */
-public class SwaggerConfig {
+public class SwaggerConfigs {
+
 
     @Autowired
     private ObjectMapperProvider objectMapperProvider;
@@ -35,11 +36,11 @@ public class SwaggerConfig {
     private final String contextPath;
     private final String baseUrl;
 
-    public SwaggerConfig(@Value("${app.baseUrl}") String baseUrl,
-                         @Value("${application.name}") String applicationName,
-                         @Value("${app.auth.token-name}") String tokenName,
-                         @Value("${app.auth.bearer-Token}") String bearerToken,
-                         @Value("${server.servlet.context-path}") String contextPath) {
+    public SwaggerConfigs(@Value("${app.baseUrl}") String baseUrl,
+                          @Value("${application.name}") String applicationName,
+                          @Value("${app.auth.token-name}") String tokenName,
+                          @Value("${app.auth.bearer-Token}") String bearerToken,
+                          @Value("${server.servlet.context-path}") String contextPath) {
         this.baseUrl = baseUrl;
         this.applicationName = applicationName;
         this.tokenName = tokenName;
@@ -102,3 +103,4 @@ public class SwaggerConfig {
     }
 
 }
+

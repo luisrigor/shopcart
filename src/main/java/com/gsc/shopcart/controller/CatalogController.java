@@ -5,16 +5,11 @@ import com.gsc.shopcart.dto.entity.EditOrderAjaxDTO;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.model.scart.entity.OrderCart;
 import com.gsc.shopcart.security.UserPrincipal;
-import io.swagger.annotations.Api;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-@RequestMapping("${app.baseUrl}")
-@Api(value = "",tags = "CATALOG")
-@RestController
-@CrossOrigin("*")
 public interface CatalogController {
 
     @PostMapping(ApiEndpoints.GET_CART)

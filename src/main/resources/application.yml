@@ -2,11 +2,6 @@
 application:
   name: ShopCart
 
-app:
-  auth:
-    token-name: accessToken
-    bearer-Token: bearerToken
-
 server:
   servlet:
     context-path: /ShopCart
@@ -14,6 +9,12 @@ server:
       force-response: true
       charset: utf-8
   context-path: /ShopCart
+
+app:
+  auth:
+    token-name: accessToken
+    bearer-Token: bearerToken
+
 
 #Swagger Config
 springdoc:
@@ -110,6 +111,7 @@ batch:
             jndi-name: jdbc/dbfwk
   app:
     baseUrl: http://localhost:8080
+    basePath: /cart
     profile: local
     email:
       subject-prefix: "[LOCAL]"

@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
+@RequestMapping("${app.basePath}")
 @RestController
+@CrossOrigin("*")
 @RequiredArgsConstructor
 public class BackOfficeControllerImpl implements BackOfficeController {
 

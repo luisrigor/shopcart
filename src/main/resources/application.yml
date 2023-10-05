@@ -110,6 +110,7 @@ batch:
             jndi-name: jdbc/dbfwk
   app:
     baseUrl: http://localhost:8080
+    basePath: /cart
     profile: local
     email:
       subject-prefix: "[LOCAL]"

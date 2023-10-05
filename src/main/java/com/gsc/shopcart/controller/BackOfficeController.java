@@ -4,7 +4,7 @@ import com.gsc.shopcart.constants.ApiEndpoints;
 import com.gsc.shopcart.dto.entity.*;
 import com.gsc.shopcart.model.scart.entity.Category;
 import com.gsc.shopcart.security.UserPrincipal;
-import io.swagger.annotations.Api;
+//import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,8 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 
-@RequestMapping("${app.baseUrl}")
-@Api(value = "",tags = "CART")
+@RequestMapping("${app.basePath}")
+//@Api(value = "",tags = "CART")
 @RestController
 @CrossOrigin("*")
 public interface BackOfficeController {
